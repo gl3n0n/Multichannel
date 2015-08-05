@@ -1,0 +1,972 @@
+-- MySQL dump 10.13  Distrib 5.1.73, for redhat-linux-gnu (x86_64)
+--
+-- Host: localhost    Database: multichannel
+-- ------------------------------------------------------
+-- Server version	5.1.73
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `api_logs`
+--
+
+DROP TABLE IF EXISTS `api_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `api_logs` (
+  `ApiLogId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `BrandId` int(11) unsigned DEFAULT NULL,
+  `CampaignId` int(11) unsigned DEFAULT NULL,
+  `ChannelId` int(11) unsigned DEFAULT NULL,
+  `ServerIP` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `IPCalled` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `Notes` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`ApiLogId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_logs`
+--
+
+LOCK TABLES `api_logs` WRITE;
+/*!40000 ALTER TABLE `api_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `api_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `brands`
+--
+
+DROP TABLE IF EXISTS `brands`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `brands` (
+  `BrandId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `Description` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `DurationFrom` datetime NOT NULL,
+  `DurationTo` datetime NOT NULL,
+  `Status` enum('ACTIVE','PENDING','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'ACTIVE',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`BrandId`),
+  KEY `BrandName_idx` (`BrandName`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `brands`
+--
+
+LOCK TABLES `brands` WRITE;
+/*!40000 ALTER TABLE `brands` DISABLE KEYS */;
+INSERT INTO `brands` VALUES (1,18,'Kit Kat','Kit Kat Brand','2015-08-02 00:00:00','2019-06-30 00:00:00','ACTIVE','2015-08-03 15:16:41',50,'2015-08-03 07:16:41',50),(2,18,'Maggi','Maggi Brand','2015-03-08 00:00:00','2016-10-31 00:00:00','ACTIVE','2015-08-03 15:17:21',50,'2015-08-03 07:17:21',50),(3,18,'Nescafe','Nescafe Brand','2015-01-30 00:00:00','2016-08-30 00:00:00','ACTIVE','2015-08-03 15:17:58',50,'2015-08-03 07:17:58',50);
+/*!40000 ALTER TABLE `brands` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaigns`
+--
+
+DROP TABLE IF EXISTS `campaigns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaigns` (
+  `CampaignId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandId` int(11) unsigned NOT NULL DEFAULT '0',
+  `CampaignName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `Description` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `DurationFrom` datetime DEFAULT NULL,
+  `DurationTo` datetime DEFAULT NULL,
+  `Type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Status` enum('ACTIVE','PENDING','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'ACTIVE',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`CampaignId`),
+  KEY `CampaignId_idx` (`CampaignId`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaigns`
+--
+
+LOCK TABLES `campaigns` WRITE;
+/*!40000 ALTER TABLE `campaigns` DISABLE KEYS */;
+INSERT INTO `campaigns` VALUES (1,18,3,'Nescafe Points Kapihan','NPK 2015 campaign','2014-10-30 00:00:00','2016-05-30 00:00:00','NPK','ACTIVE','2015-08-03 15:18:53',50,'2015-08-03 07:18:53',50),(2,18,1,'Agents of the Break','Kit Kat 2015 Campaign','2014-08-20 00:00:00','2016-07-30 00:00:00','Website Campaign','ACTIVE','2015-08-03 15:19:55',50,'2015-08-03 07:19:55',50),(3,18,2,'Flavor World','Maggi POS and mobile device campaign','2015-08-24 00:00:00','2016-01-29 00:00:00','Mobile Application','ACTIVE','2015-08-03 15:20:41',50,'2015-08-03 07:20:41',50);
+/*!40000 ALTER TABLE `campaigns` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaigns1`
+--
+
+DROP TABLE IF EXISTS `campaigns1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaigns1` (
+  `CampaignId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `BrandId` int(11) unsigned NOT NULL DEFAULT '0',
+  `CampaignName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `Description` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `DurationFrom` datetime DEFAULT NULL,
+  `DurationTo` datetime DEFAULT NULL,
+  `Type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`BrandId`),
+  KEY `CampaignId_idx` (`CampaignId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaigns1`
+--
+
+LOCK TABLES `campaigns1` WRITE;
+/*!40000 ALTER TABLE `campaigns1` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaigns1` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `channels`
+--
+
+DROP TABLE IF EXISTS `channels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `channels` (
+  `ChannelId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandId` int(11) unsigned DEFAULT NULL,
+  `CampaignId` int(11) unsigned DEFAULT NULL,
+  `ChannelName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `Description` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `DurationFrom` datetime DEFAULT NULL,
+  `DurationTo` datetime DEFAULT NULL,
+  `Type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Status` enum('ACTIVE','PENDING','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'ACTIVE',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ChannelId`),
+  KEY `ChannelId_idx` (`ChannelId`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `channels`
+--
+
+LOCK TABLES `channels` WRITE;
+/*!40000 ALTER TABLE `channels` DISABLE KEYS */;
+INSERT INTO `channels` VALUES (1,18,3,1,'NPK Facebook Application','NPK Facebook Application','2015-08-20 00:00:00','2015-09-30 00:00:00','Facebook Application Points system','ACTIVE','2015-08-03 15:21:36',50,'2015-08-03 07:21:36',50),(2,18,1,2,'Agent of the Break Website','Agent of the Break Website','2015-04-20 00:00:00','2015-11-26 00:00:00','Website application','ACTIVE','2015-08-03 15:22:18',50,'2015-08-03 07:22:18',50);
+/*!40000 ALTER TABLE `channels` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `clients`
+--
+
+DROP TABLE IF EXISTS `clients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `clients` (
+  `ClientId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `CompanyName` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Address` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Email` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Landline` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Status` enum('ACTIVE','PENDING','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'ACTIVE',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ClientId`),
+  KEY `CompanyName` (`CompanyName`)
+) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `clients`
+--
+
+LOCK TABLES `clients` WRITE;
+/*!40000 ALTER TABLE `clients` DISABLE KEYS */;
+INSERT INTO `clients` VALUES (1,'Eva Fonda Foundation','Makati City','uniliver@uniliver.com','93423232','ACTIVE','2015-06-19 14:57:15',1,'2015-06-19 06:57:15',NULL),(18,'Nestle','Rockwell Makati City','info@nestle.com','934232229','ACTIVE','2015-08-03 15:15:27',1,'2015-08-03 07:15:27',NULL),(20,'Abbott','Taguig City','test@test.com','223233232323','ACTIVE','2015-08-04 15:29:11',1,'2015-08-04 07:29:11',NULL);
+/*!40000 ALTER TABLE `clients` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `cms_logs`
+--
+
+DROP TABLE IF EXISTS `cms_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cms_logs` (
+  `CmsLogId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `UserId` int(11) unsigned NOT NULL,
+  `TableAffected` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `SqlQuery` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `LogDate` datetime DEFAULT NULL,
+  PRIMARY KEY (`CmsLogId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cms_logs`
+--
+
+LOCK TABLES `cms_logs` WRITE;
+/*!40000 ALTER TABLE `cms_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cms_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `coupon`
+--
+
+DROP TABLE IF EXISTS `coupon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `coupon` (
+  `CouponId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `Code` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Type` enum('ALPHA-NUMERIC','ALPHA','NUMERIC') COLLATE utf8_unicode_ci DEFAULT 'ALPHA-NUMERIC',
+  `TypeId` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Source` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `ExpiryDate` datetime DEFAULT NULL,
+  `CodeLength` int(10) DEFAULT '0',
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  `Image` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Quantity` int(11) unsigned NOT NULL,
+  `LimitPerUser` int(11) unsigned NOT NULL,
+  `File` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ImagePath` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `edit_flag` enum('0','1') COLLATE utf8_unicode_ci DEFAULT '0',
+  PRIMARY KEY (`CouponId`),
+  KEY `Code_idx` (`Code`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coupon`
+--
+
+LOCK TABLES `coupon` WRITE;
+/*!40000 ALTER TABLE `coupon` DISABLE KEYS */;
+INSERT INTO `coupon` VALUES (1,'','ALPHA-NUMERIC','SYTEM-GENERATED','test','2015-08-31 00:00:00',15,'ACTIVE','2015-08-04 17:12:20',50,'2015-08-04 09:13:20',NULL,'http://104.156.53.150/multichannel/images/coupon/1438679540_11297638_10152902264230687_1682191121_n.jpg',5,1,NULL,NULL,'0');
+/*!40000 ALTER TABLE `coupon` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `coupon_mapping`
+--
+
+DROP TABLE IF EXISTS `coupon_mapping`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `coupon_mapping` (
+  `CouponMappingId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `CouponId` int(11) unsigned NOT NULL,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandId` int(11) unsigned NOT NULL,
+  `CampaignId` int(11) unsigned NOT NULL,
+  `ChannelId` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`CouponMappingId`),
+  KEY `CouponId` (`CouponId`),
+  KEY `ClientId` (`ClientId`),
+  KEY `BrandId` (`BrandId`),
+  KEY `ChannelId` (`ChannelId`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coupon_mapping`
+--
+
+LOCK TABLES `coupon_mapping` WRITE;
+/*!40000 ALTER TABLE `coupon_mapping` DISABLE KEYS */;
+INSERT INTO `coupon_mapping` VALUES (1,1,18,1,2,2);
+/*!40000 ALTER TABLE `coupon_mapping` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customer_points`
+--
+
+DROP TABLE IF EXISTS `customer_points`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `customer_points` (
+  `CustomerPointId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `SubscriptionId` int(11) NOT NULL,
+  `Balance` int(11) unsigned NOT NULL,
+  `Used` int(11) unsigned NOT NULL,
+  `Total` int(11) unsigned NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`CustomerPointId`),
+  KEY `SubscriptionId_idx` (`SubscriptionId`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customer_points`
+--
+
+LOCK TABLES `customer_points` WRITE;
+/*!40000 ALTER TABLE `customer_points` DISABLE KEYS */;
+INSERT INTO `customer_points` VALUES (1,1,4,0,8,'2015-08-04 16:06:33',NULL,'2015-08-04 09:06:42',NULL),(2,2,23,0,23,'2015-08-04 16:21:45',NULL,'2015-08-04 08:31:12',NULL);
+/*!40000 ALTER TABLE `customer_points` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customer_subscriptions`
+--
+
+DROP TABLE IF EXISTS `customer_subscriptions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `customer_subscriptions` (
+  `SubscriptionId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `CustomerId` int(11) unsigned DEFAULT NULL,
+  `ClientId` int(11) DEFAULT NULL,
+  `BrandId` int(11) unsigned DEFAULT NULL,
+  `CampaignId` int(11) unsigned DEFAULT NULL,
+  `ChannelId` int(11) unsigned DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`SubscriptionId`),
+  KEY `CustomerId_idx` (`CustomerId`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customer_subscriptions`
+--
+
+LOCK TABLES `customer_subscriptions` WRITE;
+/*!40000 ALTER TABLE `customer_subscriptions` DISABLE KEYS */;
+INSERT INTO `customer_subscriptions` VALUES (1,1,18,1,2,2,'ACTIVE','2015-08-04 16:06:33',NULL,'2015-08-04 08:06:33',NULL),(2,1,18,3,1,1,'ACTIVE','2015-08-04 16:21:45',NULL,'2015-08-04 08:21:45',NULL);
+/*!40000 ALTER TABLE `customer_subscriptions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customers`
+--
+
+DROP TABLE IF EXISTS `customers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `customers` (
+  `CustomerId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `FirstName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `MiddleName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Gender` enum('M','F') COLLATE utf8_unicode_ci DEFAULT 'M',
+  `ContactNumber` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Address` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Email` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `FBId` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TwitterHandle` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`CustomerId`),
+  KEY `Email_idx` (`Email`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customers`
+--
+
+LOCK TABLES `customers` WRITE;
+/*!40000 ALTER TABLE `customers` DISABLE KEYS */;
+INSERT INTO `customers` VALUES (1,'Juan','M','dela Cruz','M','234234234','Manila','jmdelacruz@yahoo.com',NULL,NULL,'ACTIVE','2015-07-29 12:43:31',1,'2015-07-29 04:43:31',1),(2,'Erap','M','Estrada','M','234234234','Manila','erap@yahoo.com',NULL,NULL,'ACTIVE','2015-07-29 12:47:53',1,'2015-07-29 04:47:53',1),(3,'Grace','M','Poe','M','234234234','Manila','gracepoe@yahoo.com',NULL,NULL,'ACTIVE','2015-07-29 12:47:53',1,'2015-07-29 04:47:53',1),(4,'Jejomar','M','Binay','M','234234234','Manila','jojobinay@yahoo.com',NULL,NULL,'ACTIVE','2015-07-29 12:47:53',1,'2015-07-29 04:47:53',1),(5,'Rodrigo','M','Duterte','M','234234234','Manila','duterte@yahoo.com',NULL,NULL,'ACTIVE','2015-07-29 12:47:53',1,'2015-07-29 04:47:53',1),(6,'Chiz','M','Escudedo','M','234234234','Manila','chizescudero@yahoo.com',NULL,NULL,'ACTIVE','2015-07-29 12:47:54',1,'2015-07-29 04:47:54',1);
+/*!40000 ALTER TABLE `customers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `generated_coupons`
+--
+
+DROP TABLE IF EXISTS `generated_coupons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generated_coupons` (
+  `GeneratedCouponId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `CouponId` int(11) unsigned NOT NULL,
+  `CustomerId` int(11) DEFAULT NULL,
+  `Status` enum('REDEEMED','PENDING') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `Code` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  `DateRedeemed` datetime DEFAULT NULL,
+  `CouponMappingId` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`GeneratedCouponId`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `generated_coupons`
+--
+
+LOCK TABLES `generated_coupons` WRITE;
+/*!40000 ALTER TABLE `generated_coupons` DISABLE KEYS */;
+INSERT INTO `generated_coupons` VALUES (1,1,1,'REDEEMED','HPSRcnPZSUxIUaV','2015-08-04 17:13:20',NULL,'2015-08-04 09:14:42',NULL,'2015-08-04 17:14:42',1),(2,1,NULL,'PENDING','b1RltJL7elCaJx8','2015-08-04 17:13:20',NULL,'2015-08-04 09:13:20',NULL,NULL,0),(3,1,2,'REDEEMED','36NJMRZtFGd4eY5','2015-08-04 17:13:20',NULL,'2015-08-04 09:16:03',NULL,'2015-08-04 17:16:03',1),(4,1,3,'REDEEMED','21TIcdhOam2CnA1','2015-08-04 17:13:20',NULL,'2015-08-04 09:18:08',NULL,'2015-08-04 17:18:08',1),(5,1,5,'REDEEMED','krV13yGPSbmV5rJ','2015-08-04 17:13:20',NULL,'2015-08-04 09:18:14',NULL,'2015-08-04 17:18:14',1);
+/*!40000 ALTER TABLE `generated_coupons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `login_trigger`
+--
+
+DROP TABLE IF EXISTS `login_trigger`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `login_trigger` (
+  `TriggerId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandId` int(11) unsigned NOT NULL,
+  `CampaignId` int(11) unsigned NOT NULL,
+  `ChannelId` int(11) unsigned NOT NULL,
+  `TriggerParameter` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `StartDate` date DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
+  `TriggerReward` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`TriggerId`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `login_trigger`
+--
+
+LOCK TABLES `login_trigger` WRITE;
+/*!40000 ALTER TABLE `login_trigger` DISABLE KEYS */;
+INSERT INTO `login_trigger` VALUES (1,1,1,1,1,'Test Parameter','2015-05-02','2015-05-30','Test Reward','2015-05-02 00:00:00',NULL,'2015-05-02 04:05:35',NULL),(2,1,2,3,4,'Blabla','2015-05-01','2015-06-01','magic','2015-05-02 12:19:18',1,'2015-05-02 04:19:18','1'),(3,1,2,3,4,'Blabla','2015-05-01','2015-06-01','magic','2015-05-02 12:20:05',NULL,'2015-05-02 04:20:05',NULL),(4,1,2,3,4,'Blabla','2015-05-01','2015-06-01','magic','2015-05-02 12:23:05',NULL,'2015-05-02 04:23:05',NULL);
+/*!40000 ALTER TABLE `login_trigger` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `points`
+--
+
+DROP TABLE IF EXISTS `points`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `points` (
+  `PointsId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `BrandId` int(11) unsigned DEFAULT NULL,
+  `CampaignId` int(11) unsigned DEFAULT NULL,
+  `ChannelId` int(11) unsigned DEFAULT NULL,
+  `ClientId` int(11) DEFAULT NULL,
+  `From` datetime DEFAULT NULL,
+  `To` datetime DEFAULT NULL,
+  `Value` int(11) DEFAULT NULL,
+  `PointAction` varchar(25) DEFAULT NULL,
+  `PointCapping` enum('DAILY','NONE') DEFAULT 'NONE',
+  `PointsLimit` int(11) DEFAULT '0',
+  `Status` enum('ACTIVE','PENDING','INACTIVE') CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT 'ACTIVE',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`PointsId`),
+  KEY `BrandId` (`BrandId`),
+  KEY `CampaignId` (`CampaignId`),
+  KEY `ChannelId` (`ChannelId`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `points`
+--
+
+LOCK TABLES `points` WRITE;
+/*!40000 ALTER TABLE `points` DISABLE KEYS */;
+INSERT INTO `points` VALUES (1,1,2,2,18,'2015-08-01 00:00:00','2015-08-31 00:00:00',2,'Like','NONE',10,'ACTIVE','2015-08-04 15:40:53',50,'2015-08-04 07:40:53',50),(2,3,1,1,18,'2015-08-06 00:00:00','2015-08-31 00:00:00',10,'Share','DAILY',0,'ACTIVE','2015-08-04 16:21:18',50,'2015-08-04 08:21:18',50),(3,3,1,1,18,'2015-08-13 00:00:00','2015-08-24 00:00:00',3,'Register','DAILY',0,'ACTIVE','2015-08-04 16:22:49',50,'2015-08-04 08:22:49',50),(4,1,2,2,18,'2015-08-01 00:00:00','2015-08-31 00:00:00',5,'Share','DAILY',0,'ACTIVE','2015-08-04 16:37:18',50,'2015-08-04 08:37:18',50);
+/*!40000 ALTER TABLE `points` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `points_log`
+--
+
+DROP TABLE IF EXISTS `points_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `points_log` (
+  `PointLogId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `CustomerId` int(11) unsigned DEFAULT NULL,
+  `SubscriptionId` int(11) NOT NULL,
+  `ClientId` int(11) DEFAULT NULL,
+  `BrandId` int(11) unsigned DEFAULT NULL,
+  `CampaignId` int(11) unsigned DEFAULT NULL,
+  `ChannelId` int(11) DEFAULT NULL,
+  `PointsId` int(11) unsigned DEFAULT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`PointLogId`),
+  KEY `CustomerId_idx` (`CustomerId`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `points_log`
+--
+
+LOCK TABLES `points_log` WRITE;
+/*!40000 ALTER TABLE `points_log` DISABLE KEYS */;
+INSERT INTO `points_log` VALUES (1,1,1,18,1,2,2,1,'2015-08-04 16:09:36',NULL),(2,1,1,18,1,2,2,1,'2015-08-04 16:16:25',NULL),(3,1,2,18,3,1,1,2,'2015-08-04 16:21:55',NULL),(4,1,2,18,3,1,1,3,'2015-08-04 16:23:04',NULL),(5,1,2,18,3,1,1,2,'2015-08-04 16:31:12',NULL),(6,1,1,18,1,2,2,1,'2015-08-04 17:06:42',NULL);
+/*!40000 ALTER TABLE `points_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `points_multiplier`
+--
+
+DROP TABLE IF EXISTS `points_multiplier`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `points_multiplier` (
+  `MultiplierId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `PointsId` int(11) unsigned DEFAULT NULL,
+  `Multiplier` int(11) unsigned DEFAULT NULL,
+  `From` datetime DEFAULT NULL,
+  `To` datetime DEFAULT NULL,
+  `Value` int(11) unsigned DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`MultiplierId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `points_multiplier`
+--
+
+LOCK TABLES `points_multiplier` WRITE;
+/*!40000 ALTER TABLE `points_multiplier` DISABLE KEYS */;
+/*!40000 ALTER TABLE `points_multiplier` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `raffle`
+--
+
+DROP TABLE IF EXISTS `raffle`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `raffle` (
+  `RaffleId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `Source` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `NoOfWinners` int(11) NOT NULL DEFAULT '0',
+  `BackUp` int(11) NOT NULL DEFAULT '0',
+  `FdaNo` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `DrawDate` datetime DEFAULT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `CouponId` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`RaffleId`),
+  KEY `Source_idx` (`Source`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `raffle`
+--
+
+LOCK TABLES `raffle` WRITE;
+/*!40000 ALTER TABLE `raffle` DISABLE KEYS */;
+INSERT INTO `raffle` VALUES (1,'test',2,2,'dsdsds0000ds','2015-08-04 00:00:00','2015-08-04 17:22:53','50','2015-08-04 09:23:42',NULL,'ACTIVE',1);
+/*!40000 ALTER TABLE `raffle` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `raffle_details`
+--
+
+DROP TABLE IF EXISTS `raffle_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `raffle_details` (
+  `RaffleDetailId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `RaffleId` int(11) unsigned NOT NULL,
+  `RewardId` int(11) unsigned NOT NULL,
+  `UserId` int(11) NOT NULL DEFAULT '0',
+  `Position` int(11) NOT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`RaffleDetailId`),
+  KEY `UserId_idx` (`UserId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `raffle_details`
+--
+
+LOCK TABLES `raffle_details` WRITE;
+/*!40000 ALTER TABLE `raffle_details` DISABLE KEYS */;
+/*!40000 ALTER TABLE `raffle_details` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `redeemed_coupon`
+--
+
+DROP TABLE IF EXISTS `redeemed_coupon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `redeemed_coupon` (
+  `RedeemedCouponId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandId` int(11) unsigned NOT NULL,
+  `CampaignId` int(11) unsigned NOT NULL,
+  `ChannelId` int(11) unsigned NOT NULL,
+  `CouponId` int(11) unsigned NOT NULL,
+  `CustomerId` int(11) DEFAULT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  `DateRedeemed` datetime DEFAULT NULL,
+  PRIMARY KEY (`RedeemedCouponId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `redeemed_coupon`
+--
+
+LOCK TABLES `redeemed_coupon` WRITE;
+/*!40000 ALTER TABLE `redeemed_coupon` DISABLE KEYS */;
+/*!40000 ALTER TABLE `redeemed_coupon` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `redeemed_reward`
+--
+
+DROP TABLE IF EXISTS `redeemed_reward`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `redeemed_reward` (
+  `RedeemedId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `RewardId` int(11) unsigned NOT NULL,
+  `UserId` int(11) DEFAULT NULL,
+  `Source` enum('CAMPAIGN','BRANDS','POINTS','COUPONING') COLLATE utf8_unicode_ci DEFAULT 'BRANDS',
+  `Action` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandId` int(11) unsigned NOT NULL,
+  `CampaignId` int(11) unsigned NOT NULL,
+  `ChannelId` int(11) unsigned NOT NULL,
+  `DateRedeemed` datetime DEFAULT NULL,
+  PRIMARY KEY (`RedeemedId`),
+  KEY `Source_idx` (`Source`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `redeemed_reward`
+--
+
+LOCK TABLES `redeemed_reward` WRITE;
+/*!40000 ALTER TABLE `redeemed_reward` DISABLE KEYS */;
+INSERT INTO `redeemed_reward` VALUES (1,1,1,'POINTS','Claim Reward',NULL,NULL,'2015-08-04 08:10:04',NULL,1,1,2,2,'2015-08-04 16:10:04'),(2,1,1,'POINTS','Claim Reward',NULL,NULL,'2015-08-04 08:10:14',NULL,1,1,2,2,'2015-08-04 16:10:14');
+/*!40000 ALTER TABLE `redeemed_reward` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reward_details`
+--
+
+DROP TABLE IF EXISTS `reward_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reward_details` (
+  `RewardConfigId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `RewardId` int(11) unsigned NOT NULL,
+  `ChannelId` int(11) NOT NULL,
+  `Inventory` varchar(5) COLLATE utf8_unicode_ci DEFAULT '0',
+  `Limitations` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Value` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Availability` datetime DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  `ClientId` int(11) NOT NULL,
+  `BrandId` int(11) NOT NULL,
+  `CampaignId` int(11) NOT NULL,
+  PRIMARY KEY (`RewardConfigId`),
+  KEY `Limitations_idx` (`Limitations`),
+  KEY `BrandId` (`BrandId`),
+  KEY `CampaignId` (`CampaignId`),
+  KEY `ChannelId` (`ChannelId`),
+  KEY `ClientId` (`ClientId`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reward_details`
+--
+
+LOCK TABLES `reward_details` WRITE;
+/*!40000 ALTER TABLE `reward_details` DISABLE KEYS */;
+INSERT INTO `reward_details` VALUES (1,1,2,'4','1','2','2015-08-01 00:00:00','ACTIVE','2015-08-04 16:01:03',50,'2015-08-04 08:10:04',50,18,1,2);
+/*!40000 ALTER TABLE `reward_details` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rewards_list`
+--
+
+DROP TABLE IF EXISTS `rewards_list`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rewards_list` (
+  `RewardId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) NOT NULL,
+  `BrandId` int(11) NOT NULL,
+  `CampaignId` int(11) NOT NULL,
+  `ChannelId` int(11) NOT NULL,
+  `DateFrom` date DEFAULT NULL,
+  `DateTo` date DEFAULT NULL,
+  `Title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Image` blob,
+  `Availability` datetime DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  `Value` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`RewardId`),
+  KEY `Title_idx` (`Title`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rewards_list`
+--
+
+LOCK TABLES `rewards_list` WRITE;
+/*!40000 ALTER TABLE `rewards_list` DISABLE KEYS */;
+INSERT INTO `rewards_list` VALUES (1,18,0,0,0,NULL,NULL,'Ballpen','Ballpen Reward','http://104.156.53.150/multichannel/images/rewards_list/1438674404_bic_fine_point_ballpen.jpg','2015-08-01 00:00:00','ACTIVE','2015-08-04 15:46:44',50,'2015-08-04 07:46:44',50,NULL);
+/*!40000 ALTER TABLE `rewards_list` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_access`
+--
+
+DROP TABLE IF EXISTS `user_access`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_access` (
+  `UserAccessId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ModuleId` int(11) unsigned DEFAULT NULL,
+  `UserId` int(11) unsigned DEFAULT NULL,
+  `AccessType` enum('ADMIN','CLIENT','CUSTOMER') COLLATE utf8_unicode_ci DEFAULT 'CLIENT',
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`UserAccessId`),
+  KEY `ModuleId_idx` (`ModuleId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_access`
+--
+
+LOCK TABLES `user_access` WRITE;
+/*!40000 ALTER TABLE `user_access` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_access` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `UserId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) DEFAULT NULL,
+  `FirstName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `MiddleName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Gender` enum('M','F') COLLATE utf8_unicode_ci DEFAULT 'M',
+  `Birthdate` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ContactNumber` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Address` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Email` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Password` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `AccessType` enum('SUPERADMIN','ADMIN','CAMPAIGNMANAGER','MANAGER') COLLATE utf8_unicode_ci DEFAULT 'MANAGER',
+  `Status` enum('ACTIVE','PENDING','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'ACTIVE',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`UserId`),
+  KEY `Username_idx` (`Username`)
+) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,1,'Yuri',NULL,'Santos','M',NULL,NULL,NULL,'yuri.santos@gmail.com','mrmadmin','e59c59ece9db347f8c8848962a5f7cf1','SUPERADMIN','ACTIVE',NULL,NULL,'2015-07-29 02:18:44',NULL),(50,18,'Diaron','','Lique','M',NULL,'09178131256','BGC Taguig','diaron.lique@craftww.com','Ja','c06db68e819be6ec3d26c6038d8e8d1f','ADMIN','ACTIVE','2015-08-03 15:15:27',1,'2015-08-03 07:15:27',NULL),(51,20,'Yuri','','Santos','M',NULL,'09173456798','test','yuri@gmail.com','Yuri','c06db68e819be6ec3d26c6038d8e8d1f','ADMIN','ACTIVE','2015-08-04 15:29:11',1,'2015-08-04 07:29:11',NULL);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `xcustomer_points`
+--
+
+DROP TABLE IF EXISTS `xcustomer_points`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `xcustomer_points` (
+  `PointId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) unsigned NOT NULL,
+  `Balance` int(11) unsigned NOT NULL,
+  `Used` int(11) unsigned NOT NULL,
+  `Total` int(11) unsigned NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`PointId`),
+  KEY `ClientId` (`ClientId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `xcustomer_points`
+--
+
+LOCK TABLES `xcustomer_points` WRITE;
+/*!40000 ALTER TABLE `xcustomer_points` DISABLE KEYS */;
+/*!40000 ALTER TABLE `xcustomer_points` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `xcustomers`
+--
+
+DROP TABLE IF EXISTS `xcustomers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `xcustomers` (
+  `CustomerId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BrandId` int(11) NOT NULL,
+  `CampaignId` int(11) NOT NULL,
+  `ChannelId` int(11) NOT NULL,
+  `Username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Password` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `FirstName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `MiddleName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Gender` enum('M','F') COLLATE utf8_unicode_ci DEFAULT 'M',
+  `ContactNumber` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Address` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Email` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`CustomerId`),
+  KEY `Username` (`Username`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `xcustomers`
+--
+
+LOCK TABLES `xcustomers` WRITE;
+/*!40000 ALTER TABLE `xcustomers` DISABLE KEYS */;
+INSERT INTO `xcustomers` VALUES (1,1,1,1,1,'testuser','testpassword','ABCDE','EEE','SSS','M','112341234','aasdfasdf','a@a.com','ACTIVE','2015-03-04 23:40:23',1,'2015-03-04 15:50:05',1);
+/*!40000 ALTER TABLE `xcustomers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'multichannel'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2015-08-05 22:51:51
