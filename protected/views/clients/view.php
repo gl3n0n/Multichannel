@@ -16,8 +16,8 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Clients #<?php echo $model->ClientId; ?></h1>
 
+<h1>View Clients #<?php echo $model->ClientId; ?></h1>
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(

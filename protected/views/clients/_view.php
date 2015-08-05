@@ -2,9 +2,7 @@
 /* @var $this ClientsController */
 /* @var $data Clients */
 ?>
-
 <div class="view">
-
 	<b><?php echo CHtml::encode($data->getAttributeLabel('ClientId')); ?>:</b>
 	<?php echo CHtml::link(CHtml::encode($data->ClientId), array('view', 'id'=>$data->ClientId)); ?>
 	<br />
@@ -45,7 +43,7 @@
 	<b><?php echo CHtml::encode($data->getAttributeLabel('UpdatedBy')); ?>:</b>
 	<?php echo CHtml::encode($data->UpdatedBy); ?>
 	<br />
-
+	
 	*/ ?>
 
 </div>

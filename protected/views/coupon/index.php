@@ -14,7 +14,23 @@ $this->menu=array(
 
 <h1>Coupons</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	//'itemView'=>'_view',
+	'columns'=>array(
+		'CouponId',
+		'Code',
+		'Type',
+		'TypeId',
+		'Source',
+		'ExpiryDate',
+		'Status',
+		'DateCreated',
+		'CreatedBy',
+		'UpdatedBy',
+		'Image',
+		'Quantity',
+		'LimitPerUser',
+		'File',
+	),	
 )); ?>

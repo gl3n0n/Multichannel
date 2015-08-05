@@ -14,7 +14,21 @@ $this->menu=array(
 
 <h1>Reward Details</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	//'itemView'=>'_view',
+	'columns'=>array(
+	'RewardConfigId',
+	'RewardId',
+	'ChannelId',
+	'Inventory',
+	'Limitations',
+	'Value',
+	'Availability',
+	'Status',
+	'DateCreated',
+	'CreatedBy',
+	'DateUpdated',
+	'UpdatedBy',
+	),
 )); ?>

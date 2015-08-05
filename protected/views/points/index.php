@@ -14,7 +14,24 @@ $this->menu=array(
 
 <h1>Points</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	//'itemView'=>'_view',
+	'columns'=>array(
+	'PointsId',
+	'ClientId',
+	'BrandId',
+	'CampaignId',
+	'ChannelId',
+	'From',
+	'To',
+	'Value',
+	'PointAction',
+	'PointsLimit',
+	'PointCapping',
+	'Status',
+	'DateCreated',
+	'CreatedBy',
+	'UpdatedBy',
+	),
 )); ?>

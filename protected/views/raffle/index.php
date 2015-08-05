@@ -14,7 +14,21 @@ $this->menu=array(
 
 <h1>Raffles</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	//'itemView'=>'_view',
+	'columns'=>array(
+		'RaffleId',
+		'Source',
+		'NoOfWinners',
+		'BackUp',
+		'FdaNo',
+		'DrawDate',
+		'DateCreated',
+		'CreatedBy',
+		'DateUpdated',
+		'UpdatedBy',
+		'Status',
+		'CouponId',
+		),
 )); ?>

@@ -14,7 +14,22 @@ $this->menu=array(
 
 <h1>Channels</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	//'itemView'=>'_view',
+	'columns'=>array(
+	'ChannelId',
+	'ClientId',
+	'BrandId',
+	'CampaignId',
+	'ChannelName',
+	'Description',
+	'DurationFrom',
+	'DurationTo',
+	'Type',
+	'Status',
+	'DateCreated',
+	'CreatedBy',
+	'UpdatedBy',
+	),
 )); ?>

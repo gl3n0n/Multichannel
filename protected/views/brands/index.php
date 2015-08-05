@@ -14,7 +14,20 @@ $this->menu=array(
 
 <h1>Brands</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	//'itemView'=>'_view',
+	'columns'=>array(
+	'BrandId',
+	'ClientId',
+	'BrandName',
+	'Description',
+	'DurationFrom',
+	'DurationTo',
+	'Status',
+	'DateCreated',
+	'CreatedBy',
+	'DateUpdated',
+	'UpdatedBy',
+	),
 )); ?>

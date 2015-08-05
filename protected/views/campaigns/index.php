@@ -14,7 +14,21 @@ $this->menu=array(
 
 <h1>Campaigns</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	//'itemView'=>'_view',
+	'columns'=>array(
+	'CampaignId',
+	'ClientId',
+	'BrandId',
+	'CampaignName',
+	'Description',
+	'DurationFrom',
+	'DurationTo',
+	'Type',
+	'Status',
+	'DateCreated',
+	'CreatedBy',
+	'UpdatedBy',
+	),
 )); ?>
