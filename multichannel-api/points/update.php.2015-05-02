@@ -1,0 +1,69 @@
+<?php
+    require_once('../config/database.php');
+    require_once('../includes/points.php');
+
+    //params
+    //
+    #TODO
+
+	$subscription_id = $_POST['subscription_id'];
+    $customer_id = $_POST['customer_id'];
+    $brand_id = $_POST['brand_id'];
+    $campaign_id = $_POST['campaign_id'];
+    $channel_id = $_POST['channel_id'];
+	$points = $_POST['points'];
+	$action = $_POST['action'];
+	$points_id = $_POST['points_id'];
+
+    $response = array(
+        'result_code' => '',
+    );
+
+    if (empty($subscription_id))
+    {
+		$response['result_code'] = 405;
+        $response['error_txt'] = 'Missing Parameters';
+        echo json_encode($response);
+        return;
+    }
+
+    $points_class = new Points($dbconn, $subscription_id);
+	if ($points < 0)
+	{
+		$total_points = $points_class->subtract($points);
+	}
+	else
+	{
+		$total_points = $points_class->add($customer_id, $brand_id, $campaign_id, $channel_id, $action, $points_id);
+	}
+
+    if ($total_points['balance'])
+    {
+        $response['result_code'] = 200;
+        $response['balance'] = $total_points['balance'];
+    }
+    else if ($total_points[0] == "MAX2")
+    {
+		$response['result_code'] = 405;
+        $response['error_txt'] = 'Limit Reached';
+	}
+	else if ($total_points[0] == "MAX")
+    {
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Daily Limit Reached';
+	}
+	else if ($total_points[0] == "MIN")
+    {
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Insufficient Points';
+	}
+    else
+    {
+        $response['result_code'] = 404;
+        $response['error_txt'] = 'Balance not found';
+    }
+
+    echo json_encode($response);
+
+?>
+

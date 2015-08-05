@@ -1,0 +1,134 @@
+<?php
+require_once('../config/database.php');
+require_once('../config/constants.php');
+
+//params
+//
+#TODO
+$first_name = $_POST['first_name'];
+$middle_name = $_POST['middle_name'];
+$last_name = $_POST['last_name'];
+$gender = $_POST['gender'];
+$contact_number = $_POST['contact_number'];
+$address = $_POST['address'];
+$email = $_POST['email'];
+$status = $_POST['status'];
+$fb_id = $_POST['fb_id'];
+$twitter_handle = $_POST['twitter_handle'];
+$created_by = $_POST['created_by'];
+
+$response = array(
+    'result_code' => '',
+);
+
+$table_name = 'customers';
+
+if (empty($first_name) || empty($middle_name) || empty($last_name) ||
+    empty($gender) || empty($contact_number) || empty($address) || empty($email) || empty($status))
+{
+    $response['result_code'] = 405;
+    $response['error_txt'] = 'Missing Parameters';
+    echo json_encode($response);
+    return;
+}
+
+if ($gender != "M" && $gender != "F")
+{
+	$response['result_code'] = 405;
+	$response['error_txt'] = 'Invalid Gender';
+	echo json_encode($response);
+	return;
+}
+
+if ($status != "PENDING" && $status != "ACTIVE" && $status != "INACTIVE")
+{
+	$response['result_code'] = 405;
+	$response['error_txt'] = 'Invalid Status';
+	echo json_encode($response);
+	return;
+}
+
+$curdate = date('Y-m-d H:i:s');
+$types = array('text','text','text','text','text','text','text','text','text','text','timestamp');
+
+$fields_values = array(
+	'FirstName' => $first_name,
+	'LastName' => $last_name,
+	'MiddleName' => $middle_name,
+	'Gender' => $gender,
+	'ContactNumber' => $contact_number,
+	'Address' => $address,
+	'Email' => $email,
+	'Status' => $status,
+	'FBId' => $fb_id,
+    'TwitterHandle' => $twitter_handle,
+	'DateCreated' => $curdate,
+);
+
+$select_query = "SELECT * FROM customers WHERE Email = " . $dbconn->quote($email) . "";
+$select_res = $dbconn->query($select_query);
+if (PEAR::isError($select_res)){
+	$response['result_code'] = 500;
+    $response['error_txt']  = 'Customer Not Added';
+    echo json_encode($response);
+	return;
+}
+
+$row_select = $select_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+if ($row_select){
+	$response['result_code'] = 403;
+    $response['error_txt']  = 'Email Already Exists';
+    echo json_encode($response);
+	return;
+}
+
+
+	$affectedRows = $dbconn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
+
+	if (PEAR::isError($affectedRows)) {
+		$response['result_code'] = 500;
+		$response['error_txt']  = 'Customer Not Added';
+		echo json_encode($response);
+		return;
+		//die($affectedRows->getMessage());
+	}
+
+	$cust_id = $dbconn->quote($dbconn->lastInsertId($table_name, 'CustomerId'), 'integer');
+	$res = $dbconn->extended->autoExecute($table_name, null, MDB2_AUTOQUERY_SELECT, 'CustomerId = '. $cust_id, null, true, null);
+		
+	if (PEAR::isError($res)) {
+		$response['result_code'] = 500;
+		$response['error_txt']  = 'Error Occurred';
+		echo json_encode($response);
+		return;
+		//die($res->getMessage());
+	}
+	$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+	if (sizeof($row) == 0)
+	{
+		$response['result_code'] = 500;
+		$response['error_txt']  = 'Customer Not Added';
+		echo json_encode($response);
+		return;
+	}
+
+
+// INSERT INTO SUBSCRIPTIONS, NOW STATIC ONLY
+//$cust_id = $row_select['customerid'];
+$insert_query = "INSERT INTO customer_subscriptions (CustomerId,BrandId,CampaignId,ChannelId,Status) VALUES ($cust_id,1,1,1,'ACTIVE')";
+$insert_res = $dbconn->query($insert_query);
+if (PEAR::isError($insert_res)) {
+	$response['result_code'] = 500;
+    $response['error_txt']  = 'Error Occurred';
+    echo json_encode($response);
+	return;
+    //die($res->getMessage());
+}
+$subs_id = $dbconn->quote($dbconn->lastInsertId($table_name, 'SubscriptionId'), 'integer');
+
+$row['subscriptionid'] = $subs_id;
+$row['result_code'] = 200;
+echo json_encode($row);
+return;
+?>

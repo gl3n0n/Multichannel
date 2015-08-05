@@ -1,0 +1,83 @@
+<?php
+
+
+?><?php
+require_once('../config/database.php');
+require_once('../config/constants.php');
+
+//params
+//
+#TODO
+$customer_id = $_POST['customer_id'];
+$channel_id = $_POST['channel_id'];
+$campaign_id = $_POST['campaign_id'];
+$brand_id = $_POST['brand_id'];
+$status = $_POST['status'];
+
+$response = array(
+    'result_code' => '',
+);
+
+$table_name = 'customer_subscriptions';
+
+if (empty($customer_id) || empty($channel_id) || empty($campaign_id) ||
+    empty($brand_id) || empty($status))
+{
+    $response['result_code'] = 405;
+    $response['error_txt'] = 'Missing Parameters';
+    echo json_encode($response);
+    return;
+}
+
+if ($status != "PENDING" && $status != "ACTIVE" && $status != "INACTIVE")
+{
+	$response['result_code'] = 405;
+	$response['error_txt'] = 'Invalid Status';
+	echo json_encode($response);
+	return;
+}
+
+$curdate = date('Y-m-d H:i:s');
+$types = array('integer','integer','integer','integer','text');
+
+$fields_values = array(
+	'CustomerId' => $customer_id,
+	'ChannelId' => $channel_id,
+	'CampaignId' => $campaign_id,
+	'BrandId' => $brand_id,
+	'Status' => $status,
+);
+
+$affectedRows = $dbconn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
+
+if (PEAR::isError($affectedRows)) {
+	$response['result_code'] = 500;
+    $response['error_txt']  = 'Subscription Not Added';
+    echo json_encode($response);
+	return;
+    //die($affectedRows->getMessage());
+}
+
+$cust_id = $dbconn->quote($dbconn->lastInsertId($table_name, 'SubscriptionId'), 'integer');
+$res = $dbconn->extended->autoExecute($table_name, null, MDB2_AUTOQUERY_SELECT, 'SubscriptionId = '. $cust_id, null, true, null);
+	
+if (PEAR::isError($res)) {
+	$response['result_code'] = 500;
+    $response['error_txt']  = 'Error Occurred';
+    echo json_encode($response);
+	return;
+    //die($res->getMessage());
+}
+$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+if (sizeof($row) == 0)
+{
+	$response['result_code'] = 500;
+    $response['error_txt']  = 'Subscription Not Added';
+	echo json_encode($response);
+	return;
+}
+
+$row['result_code'] = 200;
+echo json_encode($row);
+return;
+?>

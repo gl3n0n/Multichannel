@@ -1,0 +1,283 @@
+<?php
+class RedeemCoupon {
+        public $coupon_id;
+        public $conn;
+
+        public function RedeemCoupon($conn, $coupon_id)
+        {
+            $this->coupon_id = $coupon_id;
+            $this->conn = $conn;
+            $this->table_name = 'generated_coupons';
+        }
+
+                public function isValidCoupon()
+                {
+                        $query_keys = array();
+
+                        if (!empty($this->coupon_id))
+                                $query_keys[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
+
+                        $query_keys[] = "Status = 'ACTIVE' AND Quantity > 0";
+
+                        if (sizeof($query_keys) == 0)
+                                $query_string = null;
+                        else
+                                $query_string = implode(' AND ', $query_keys);
+
+                        $query_string .= ' LIMIT 1';
+                        $res = $this->conn->extended->autoExecute('coupon', null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
+
+                        if (PEAR::isError($res)) {
+							return false;
+						}
+
+                        $row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+                        if (null == $row || sizeof($row) == 0)
+                        {
+                                return false;
+                        }
+
+                        return true;
+                }
+
+                public function insert($client_id, $brand_id, $campaign_id, $channel_id, $customer_id, $date_redeemed)
+                {
+                        $types = array('integer','integer','integer','integer','integer','integer', 'timestamp');
+
+
+                        if (empty($date_redeemed) || !preg_match(DATETIME_REGEX, $date_redeemed))
+                        {
+                                $date_redeemed = date('Y-m-d H:i:s');
+                        }
+
+                        $fields_values = array(
+                                'ClientId' => $client_id,
+                                'CouponId' => $this->coupon_id,
+                                'CustomerId' => $customer_id,
+                                'BrandId' => $brand_id,
+                                'CampaignId' => $campaign_id,
+                                'ChannelId' => $channel_id,
+                                'DateRedeemed' => $date_redeemed,
+                        );
+
+                        $affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
+
+                        if (PEAR::isError($affectedRows)) {
+                                return false;
+                        }
+
+                        $res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'RedeemedCouponId = '. $this->conn->quote($this->conn->lastInsertId($this->table_name, 'RedeemedCouponId'), 'integer'), null, true, null);
+
+                        if (PEAR::isError($res)) {
+							return false;
+						}
+
+                        $row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+                        if (null == $row || sizeof($row) == 0)
+                        {
+                                return array("NOTINSERTED");
+                        }
+
+                        return $row;
+                }
+
+				public function isOverTheLimit($coupon_id, $customer_id)
+				{
+					$query = "SELECT count(1) as count FROM generated_coupons";
+					
+					if (!empty($this->coupon_id))
+						$query_keys[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
+					if (!empty($customer_id))
+						$query_keys[] = 'CustomerId = '. $this->conn->quote($customer_id, 'integer');
+
+					$query_keys[] = 'Status = "REDEEMED"';
+						
+					if (sizeof($query_keys) == 0)
+						$query_string = null;
+					else
+						$query_string = implode(' AND ', $query_keys);
+
+					$query .= " WHERE " . $query_string;
+
+					$res = $this->conn->query($query);
+					if (PEAR::isError($res)) {
+						return false;
+					}
+					$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+					
+					$query2 = "SELECT LimitPerUser FROM coupon";
+					if (!empty($this->coupon_id))
+						$query_keys2[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
+					if (sizeof($query_keys2) == 0)
+						$query_string2 = null;
+					else
+						$query_string2 = implode(' AND ', $query_keys2);
+
+					$query2 .= " WHERE " . $query_string2;
+					
+					$res2 = $this->conn->query($query2);
+					if (PEAR::isError($res2)) {
+						return false;
+					}
+					$row2 = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);
+					if ($row['count'] >= $row2['limitperuser'])
+					{
+						return true;
+					}
+					
+					return false;
+				}
+
+				/*public function deductQuantity($client_id, $brand_id, $campaign_id, $channel_id, $customer_id)
+                {
+					$query = "UPDATE coupon SET Quantity = Quantity - 1";
+					
+					if (!empty($this->coupon_id))
+						$query_keys[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
+					if (!empty($client_id))
+						$query_keys[] = 'ClientId = '. $this->conn->quote($client_id, 'integer');
+					if (!empty($brand_id))
+						$query_keys[] = 'BrandId = '. $this->conn->quote($brand_id, 'integer');
+					if (!empty($campaign_id))
+						$query_keys[] = 'CampaignId = '. $this->conn->quote($campaign_id, 'integer');
+					if (!empty($channel_id))
+						$query_keys[] = 'ChannelId = '. $this->conn->quote($channel_id, 'integer');
+
+					if (sizeof($query_keys) == 0)
+						$query_string = null;
+					else
+						$query_string = implode(' AND ', $query_keys);
+
+					$query .= " WHERE " . $query_string;
+
+					$res = $this->conn->query($query);
+
+					if (PEAR::isError($res)) {
+						return false;
+					}
+
+					return true;
+				}*/
+
+				public function retrieve($customer_id, $client_id, $brand_id, $campaign_id, $channel_id, $generated_coupon_id)
+				{
+					//$query = "SELECT BrandName, redeemed_coupon.CouponId, Code, Type, TypeId, Source, ExpiryDate, coupon.Status, coupon.ClientId, coupon.BrandId, coupon.ChannelId, coupon.CampaignId, DateRedeemed FROM coupon join redeemed_coupon ON coupon.CouponId = redeemed_coupon.CouponId join brands on coupon.BrandId = brands.BrandId";
+					$query = "SELECT FirstName, MiddleName, LastName, Email,BrandName, generated_coupons.GeneratedCouponId, generated_coupons.CustomerId as CustomerId, generated_coupons.CouponId as CouponId, generated_coupons.Code as Code, coupon.Type, TypeId, Source, ExpiryDate, coupon.Status, coupon_mapping.ClientId, coupon_mapping.BrandId, coupon_mapping.ChannelId, coupon_mapping.CampaignId, campaigns.CampaignName as CampaignName, channels.ChannelName as ChannelName, DateRedeemed FROM coupon join generated_coupons ON coupon.CouponId = generated_coupons.CouponId join coupon_mapping on coupon_mapping.CouponMappingId = generated_coupons.CouponMappingId join brands on coupon_mapping.BrandId = brands.BrandId join customers on customers.CustomerId = generated_coupons.CustomerId join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId join channels on channels.ChannelId = coupon_mapping.ChannelId";
+											  
+					$query_keys = array();
+
+					if (!empty($this->coupon_id))
+						$query_keys[] = 'generated_coupons.CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
+					if (!empty($customer_id))
+						$query_keys[] = 'generated_coupons.CustomerId = '. $this->conn->quote($customer_id, 'integer');
+					if (!empty($client_id))
+						$query_keys[] = 'coupon_mapping.ClientId = '. $this->conn->quote($client_id, 'integer');
+					if (!empty($brand_id))
+						$query_keys[] = 'coupon_mapping.BrandId = '. $this->conn->quote($brand_id, 'integer');
+					if (!empty($campaign_id))
+						$query_keys[] = 'coupon_mapping.CampaignId = '. $this->conn->quote($campaign_id, 'integer');
+					if (!empty($channel_id))
+						$query_keys[] = 'coupon_mapping.ChannelId = '. $this->conn->quote($channel_id, 'integer');
+					if (!empty($generated_coupon_id))
+						$query_keys[] = 'generated_coupons.GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+					
+					$query_keys[] = "generated_coupons.Status = 'REDEEMED'";
+					
+					if (sizeof($query_keys) == 0)
+						$query_string = null;
+					else
+						$query_string = implode(' AND ', $query_keys);
+
+					$query .= " WHERE " . $query_string  . " ORDER by DateRedeemed ASC";
+
+					//echo $query;
+					$res = $this->conn->query($query);
+			
+					if (PEAR::isError($res)) {
+						return false;
+					}
+
+					$result_array = array();
+					$counter = 0;
+					while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
+					{				
+						$result_array[] = $row;
+						$counter++;
+					}
+					
+					/*$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);*/
+					if ($counter == 0)
+					{
+						return false;
+					}
+
+					return $result_array;
+				}
+
+				public function redeem($generated_coupon_id, $customer_id, $coupon_mapping_id)
+				{
+					$query2 = "SELECT Status FROM generated_coupons";
+					if (!empty($generated_coupon_id))
+						$query_keys2[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+					if (sizeof($query_keys2) == 0)
+						$query_string2 = null;
+					else
+						$query_string2 = implode(' AND ', $query_keys2);
+
+					$query2 .= " WHERE " . $query_string2;
+
+					$res2 = $this->conn->query($query2);
+					if (PEAR::isError($res2)) {
+						return false;
+					}
+					$row2 = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);
+					if ($row2['status'] == "REDEEMED")
+					{
+						return array("ALREADY_REDEEMED");
+					}
+
+					$query_keys = array();
+
+					if (!empty($generated_coupon_id))
+						$query_keys[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+					
+					if (sizeof($query_keys) == 0)
+						$query_string = null;
+					else
+						$query_string = implode(' AND ', $query_keys);
+						
+					// Prepare values
+					$fields_values = array();
+
+					$fields_values['CustomerId'] = $this->conn->quote($customer_id, 'integer');
+					$fields_values['CouponMappingId'] = $this->conn->quote($coupon_mapping_id, 'integer');
+					$fields_values['Status'] = "REDEEMED";
+					$fields_values['DateRedeemed'] = date('Y-m-d H:i:s');
+					$types = array('integer','integer','text','timestamp');
+
+					$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
+
+					//print_r($affectedRows);
+					if (PEAR::isError($affectedRows)) {
+						return false;
+					}
+
+					$res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer') . ' AND Status = "REDEEMED"', null, true, null);
+
+					if (PEAR::isError($res)) {
+						return false;
+					}
+
+					$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+					if (null == $row || sizeof($row) == 0)
+					{
+						return false;
+					}
+
+					return $row;
+				}
+}
+?>

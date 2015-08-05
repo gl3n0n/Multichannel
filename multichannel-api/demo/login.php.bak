@@ -1,0 +1,93 @@
+<?php
+	require_once('../config/database.php');
+	require_once('../config/constants.php');
+	session_start();
+
+	if (isset($_SESSION['login_user']))
+	{
+		header("Location: home");
+	}
+	
+	if($_SERVER["REQUEST_METHOD"] == "POST")
+	{
+		$username = $_POST['username'];
+		$password = $_POST['password'];
+	
+		$query_keys = array();
+	
+		if (!empty($username))
+			$query_keys[] = 'Username = '. $dbconn->quote($username, 'text');
+		if (!empty($password))
+			$query_keys[] = 'Password = '. $dbconn->quote($password, 'text');
+		 
+		$query_keys[] = "Status = 'ACTIVE'";
+		
+		if (sizeof($query_keys) == 0)
+			$query_string = null;
+		else
+			$query_string = implode(' AND ', $query_keys);
+	
+		$res = $dbconn->extended->autoExecute("users", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
+		
+		if (PEAR::isError($res)) {
+				return false;
+			}
+	
+		$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+		if(!sizeof($row) == 0)
+		{
+			session_register("username");
+			$_SESSION['login_user']=$username;
+			$_SESSION['login_id']=$row["userid"];
+			$_SESSION['client_id']=$row["clientid"];
+	
+			//echo "test";
+			header("location: home");
+		}
+		else 
+		{
+			$error="Your Login Name or Password is invalid";
+		}
+	}
+?>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Multichannel API Demo</title>
+  <!--<link rel="stylesheet" href="css/style.css">-->
+  <script>
+	function errorLogin()
+	{
+		document.getElementById("msg").innerHTML = "Your Username or Password is invalid.";
+	}
+  </script>
+</head>
+<body>
+  <form method="post" action="" class="login">
+    <p>
+      <label for="login">Username:</label>
+      <input type="text" name="username" id="username" value="">
+    </p>
+
+    <p>
+      <label for="password">Password:</label>
+      <input type="password" name="password" id="password" value="">
+    </p>
+	
+	<p class="forgot-password" id="msg"></p>
+    <p class="login-submit">
+      <button type="submit" class="login-button">Login</button>
+    </p>
+  </form>
+</body>
+</html>
+
+<?php 
+if (isset($error))
+{
+	echo "<script>errorLogin();</script>";
+	unset($error);
+}
+?>
