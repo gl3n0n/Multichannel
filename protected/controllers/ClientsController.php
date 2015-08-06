@@ -72,8 +72,8 @@ class ClientsController extends Controller
 		if(isset($_POST['Clients']))
 		{
 			$model->attributes=$_POST['Clients'];
-			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->ClientId));
 		}
@@ -128,18 +128,26 @@ class ClientsController extends Controller
 	 */
 	public function actionIndex()
 	{
+	
+	
+		$search   = Yii::app()->request->getParam('search');
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('CompanyName', $search, true);
+		
+		
+		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'ADMIN')
 		{
+			$criteria->compare('ClientId', Yii::app()->user->ClientId, true);
 			$dataProvider=new CActiveDataProvider('Clients', array ( 
-			'criteria' => array (
-				'condition' => 'ClientId = :ClientId',
-				'params' => array(':ClientId'=>Yii::app()->user->ClientId)
-				
-			), ) );
+			'criteria' => $criteria ) 
+			);
 		}
 		else
 		{
-			$dataProvider=new CActiveDataProvider('Clients');
+			$dataProvider = new CActiveDataProvider('Clients', array(
+				'criteria'=>$criteria ,
+			));						
 			
 		// Yii::app()->user->ClientId
 		}

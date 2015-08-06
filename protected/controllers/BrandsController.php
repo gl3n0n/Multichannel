@@ -54,7 +54,15 @@ class BrandsController extends Controller
 		$list = array();
 		if(! $ClientId) Yii::app()->utils->sendJSONResponse($list);
 
-		$model = Brands::model()->findAllByAttributes(array('ClientId'=>$ClientId, 'Status'=>'ACTIVE'));
+		$search   = Yii::app()->request->getParam('search');
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('BrandName', $search, true);
+		
+		$criteria->compare('ClientId', $ClientId, true);
+		$criteria->compare('Status',   'active', true);
+
+		//$model = Brands::model()->findAllByAttributes(array('ClientId'=>$ClientId, 'Status'=>'ACTIVE'));
+		$model = Brands::model()->findAllByAttributes($criteria);
 
 		foreach($model as $row) { $list[$row->BrandId] = $row->BrandName; }
 		Yii::app()->utils->sendJSONResponse($list);
@@ -103,7 +111,7 @@ class BrandsController extends Controller
 				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			}
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-			$model->setAttribute("CreatedBy", Yii::app()->user->id);
+			$model->setAttribute("CreatedBy", Yii::app()->user->UserId);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
@@ -178,13 +186,19 @@ class BrandsController extends Controller
 	 */
 	public function actionIndex()
 	{
+
+		$search   = Yii::app()->request->getParam('search');
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('BrandName', $search, true);
+
+
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
-			$dataProvider = new CActiveDataProvider('Brands');
+			$dataProvider = new CActiveDataProvider('Brands', array(
+				'criteria'=>$criteria ,
+			));
 		} else {
 			$dataProvider = new CActiveDataProvider('Brands', array(
-				'criteria'=>array(
-				    'scopes'=>array('thisClient'),
-				),
+				'criteria'=>$criteria ,
 			));
 		}
 

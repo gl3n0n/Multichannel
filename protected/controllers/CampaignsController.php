@@ -181,14 +181,28 @@ class CampaignsController extends Controller
 	 */
 	public function actionIndex()
 	{
+
+		$search   = Yii::app()->request->getParam('search');
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('CampaignName', $search, true);
+
+
+
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
-			$dataProvider = new CActiveDataProvider('Campaigns');
+			$dataProvider = new CActiveDataProvider('Campaigns', array(
+							'criteria'=>$criteria ,
+			));
 		} else {
+			if(0){
 			$dataProvider = new CActiveDataProvider('Campaigns', array(
 				'criteria'=>array(
 				    'scopes'=>array('thisClient'),
 				),
 			));
+			}
+			$dataProvider = new CActiveDataProvider('Campaigns', array(
+							'criteria'=>$criteria ,
+			));		
 		}
 
 		$this->render('index',array(

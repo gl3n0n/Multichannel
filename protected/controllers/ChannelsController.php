@@ -266,13 +266,26 @@ class ChannelsController extends Controller
 			'dataProvider'=>$dataProvider,
 		));
 		*/
+		$search   = Yii::app()->request->getParam('search');
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('ChannelName', $search, true);
+
+
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
-			$dataProvider = new CActiveDataProvider('Channels');
-		} else {
 			$dataProvider = new CActiveDataProvider('Channels', array(
-				'criteria'=>array(
-				    'scopes'=>array('thisClient'),
-				),
+			'criteria'=>$criteria ,
+			));
+		} else {
+			if(0)
+			{
+				$dataProvider = new CActiveDataProvider('Channels', array(
+					'criteria'=>array(
+					    'scopes'=>array('thisClient'),
+					),
+				));
+			}
+			$dataProvider = new CActiveDataProvider('Channels', array(
+					'criteria'=>$criteria ,
 			));
 		}
 
