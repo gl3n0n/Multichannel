@@ -30,7 +30,11 @@ $this->menu=array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 	'BrandId',
-	'ClientId',
+	//'ClientId',
+	array(
+	'name' => 'ClientId',
+	'value'=> '$data->clientBrands->CompanyName',
+	),
 	array(
 		'name'  => 'BrandName',
 		'value' => 'CHtml::link($data->BrandName,Yii::app()->createUrl("brands/update",array("id"=>$data->primaryKey)))',
@@ -41,9 +45,18 @@ $this->menu=array(
 	'DurationTo',
 	'Status',
 	'DateCreated',
-	'CreatedBy',
-	'DateUpdated',
-	'UpdatedBy',
+	//'CreatedBy',
+	array(
+		'name' => 'CreatedBy',
+		'value'=> '$data->brandCreateUsers->Username',
 	),
-)); ?>
+	'DateUpdated',
+	//'UpdatedBy',
+	array(
+		'name' => 'UpdatedBy',
+		'value'=> '$data->brandUpdateUsers->Username',
+	),
+	),
+)); 
+?>
 

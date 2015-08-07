@@ -201,9 +201,9 @@ class BrandsController extends Controller
 				'criteria'=>$criteria ,
 			));
 		}
-
+		//get models
 		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
+			'dataProvider'=> $dataProvider,
 		));
 	}
 

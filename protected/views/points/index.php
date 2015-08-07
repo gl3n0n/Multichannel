@@ -19,10 +19,23 @@ $this->menu=array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 	'PointsId',
-	'ClientId',
-	'BrandId',
-	'CampaignId',
-	'ChannelId',
+	array(
+		'name' => 'ClientId',
+		'value' => '$data->pointClients->CompanyName',
+		),
+	array(
+		'name' => 'BrandId',
+		'value' => '$data->pointBrands->BrandName',
+		),
+	array(
+		'name' => 'CampaignId',
+		'value' => '$data->pointCampaigns->CampaignName',
+		),
+	array(
+		'name' => 'ChannelId',
+		'value' => '$data->pointChannels->ChannelName',
+		),
+
 	'From',
 	'To',
 	'Value',
@@ -31,7 +44,14 @@ $this->menu=array(
 	'PointCapping',
 	'Status',
 	'DateCreated',
-	'CreatedBy',
-	'UpdatedBy',
+	array(
+		'name' => 'CreatedBy',
+		'value' => '$data->pointCreateUsers->Username',
+		),
+	'DateUpdated',
+	array(
+		'name' => 'UpdatedBy',
+		'value' => '$data->pointUpdateUsers->Username',
+	),
 	),
 )); ?>

@@ -77,6 +77,8 @@ class Clients extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'userInfo'=>array(self::HAS_ONE, 'Users', 'ClientId'),
+			'clientCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
+			'clientUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
 		);
 	}
 

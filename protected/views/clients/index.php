@@ -23,7 +23,8 @@ $this->menu=array(
 		<input type="text" id='search' name="search" id="list-search" placeholder="CompanyName" title="Search Company Name">
 		<button type="submit">Search</button>
 	</fieldset>
-<?php $this->endWidget(); ?>
+<?php $this->endWidget(); 
+?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
@@ -41,8 +42,20 @@ $this->menu=array(
 			'Landline',
 			'Status',
 			'DateCreated',
-			'CreatedBy',
+			//'CreatedBy',
+			array(
+			'name' => 'CreatedBy',
+			'value'=> '$data->clientCreateUsers->Username',
+			),			
 			'DateUpdated',
-			'UpdatedBy',
+			//'UpdatedBy',
+			array(
+			'name' => 'UpdatedBy',
+			'value'=> '($data->clientUpdateUsers != null )?($data->clientUpdateUsers->Username):("")',
+			),			
 	),
-)); ?>
+)); 
+
+
+?>
+

@@ -26,7 +26,6 @@ $this->menu=array(
 			'name' => 'ClientId',
 			'value' => $model->clientBrands->CompanyName,
 			),
-
 		'BrandName',
 		'Description',
 		'DurationFrom',

@@ -135,7 +135,6 @@ class ClientsController extends Controller
 		if($search) $criteria->compare('CompanyName', $search, true);
 		
 		
-		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'ADMIN')
 		{
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true);

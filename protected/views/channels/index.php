@@ -30,9 +30,21 @@ $this->menu=array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 	'ChannelId',
-	'ClientId',
-	'BrandId',
-	'CampaignId',
+	//'ClientId',
+	array(
+	'name' => 'ClientId',
+	'value' =>'$data->channelClients->CompanyName',
+	),	
+	//'BrandId',
+	array(
+	'name' => 'BrandId',
+	'value'=> '$data->channelBrands->BrandName',
+	),	
+	//'CampaignId',
+	array(
+	'name'  => 'CampaignId',
+	'value' => '$data->channelCampaigns->CampaignName',
+	),	
 	//'ChannelName',
 	array(
 	'name'  => 'ChannelName',
@@ -46,7 +58,15 @@ $this->menu=array(
 	'Type',
 	'Status',
 	'DateCreated',
-	'CreatedBy',
-	'UpdatedBy',
+	//'CreatedBy',
+	array(
+	'name' => 'CreatedBy',
+	'value'=> '$data->channelCreateUsers->Username',
+	),	
+	//'UpdatedBy',
+	array(
+	'name' => 'UpdatedBy',
+	'value'=> '$data->channelUpdateUsers->Username',
+	),	
 	),
 )); ?>

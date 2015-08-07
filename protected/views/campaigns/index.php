@@ -30,8 +30,16 @@ $this->menu=array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 	'CampaignId',
-	'ClientId',
-	'BrandId',
+	//'ClientId',
+	array(
+	'name' => 'ClientId',
+	'value'=> '$data->campaignClients->CompanyName',
+	),
+	//'BrandId',
+	array(
+	'name' => 'BrandId',
+	'value'=> '$data->campaignBrands->BrandName',
+	),
 	//'CampaignName',
 	array(
 	'name'  => 'CampaignName',
@@ -44,7 +52,16 @@ $this->menu=array(
 	'Type',
 	'Status',
 	'DateCreated',
-	'CreatedBy',
-	'UpdatedBy',
+	//'CreatedBy',
+	array(
+		'name' => 'CreatedBy',
+		'value'=> '$data->campaignCreateUsers->Username',
+	),	
+	//'UpdatedBy',
+	array(
+	'name'  => 'UpdatedBy',
+	'value' => '$data->campaignUpdateUsers->Username',
 	),
-)); ?>
+     ),
+)); 
+?>
