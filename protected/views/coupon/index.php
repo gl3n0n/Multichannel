@@ -12,7 +12,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>	</h1>
+<h1>Coupons</h1>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("coupon/index"),
@@ -30,7 +30,6 @@ $this->menu=array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 	'CouponId',
-	//'Code',
 	'Type',
 	'TypeId',
 	'Source',

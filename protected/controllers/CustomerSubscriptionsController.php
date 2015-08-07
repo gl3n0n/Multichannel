@@ -132,7 +132,7 @@ class CustomerSubscriptionsController extends Controller
 		{
 			$criteria = new CDbCriteria;
 			$criteria->addCondition('CustomerId = :customer_id');
-			$criteria->addCondition('ClientId = :clientId');
+			$criteria->addCondition('ClientId   = :clientId');
 			$criteria->params = array(':customer_id' => $customer_id, ':clientId' => Yii::app()->user->ClientId);
 			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
 					'criteria'=> $criteria,

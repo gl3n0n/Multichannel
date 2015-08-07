@@ -151,7 +151,14 @@ class RaffleController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Raffle');
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('Source', $search, true);
+
+		$dataProvider = new CActiveDataProvider('Raffle', array(
+		'criteria'=>$criteria ,
+		));
+
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));

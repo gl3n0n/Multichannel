@@ -13,7 +13,18 @@ $this->menu=array(
 ?>
 
 <h1>Raffles</h1>
-
+<div>
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'action'=>Yii::app()->createUrl("raffle/index"),
+	'method'=>'get',
+)); ?>
+	<fieldset>
+		<legend>Search By Source</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Source" title="Search Source">
+		<button type="submit">Search</button>
+	</fieldset>
+<?php $this->endWidget(); ?>
+</div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',

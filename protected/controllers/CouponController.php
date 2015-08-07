@@ -417,8 +417,8 @@ class CouponController extends Controller
 	public function actionIndex()
 	{
 
-		$search   = Yii::app()->request->getParam('search');
-				$criteria = new CDbCriteria;
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
 		if($search) $criteria->compare('Source', $search, true);
 
 		$dataProvider = new CActiveDataProvider('Coupon', array(
