@@ -29,7 +29,11 @@ $this->menu=array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-	'CouponId',
+	array(
+	'name' => 'CouponId',
+	'type' => 'raw',
+	'value'=> 'CHtml::link($data->CouponId,Yii::app()->createUrl("coupon/update",array("id"=>$data->primaryKey)))',
+	), 
 	'Type',
 	'TypeId',
 	'Source',

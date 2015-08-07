@@ -29,7 +29,13 @@ $this->menu=array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-		'RewardConfigId',
+		//'RewardConfigId',
+		array(
+			'name' => 'RewardConfigId',
+			'type' => 'raw',
+			'value'=> 'CHtml::link($data->RewardConfigId,Yii::app()->createUrl("rewardDetails/update",array("id"=>$data->primaryKey)))',
+			), 
+
 		array(
 			'name' => 'RewardId',
 			'value' => '$data->rdetailRewardslists->Title',

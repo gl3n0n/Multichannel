@@ -27,9 +27,14 @@ $this->menu=array(
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	//'itemView'=>'_view',
+	//'itemView'=>'_view',CHtml::link(CHtml::encode($data->RaffleId), array('view', 'id'=>$data->RaffleId))
 	'columns'=>array(
-		'RaffleId',
+		//'RaffleId',
+		array(
+		'name' => 'RaffleId',
+		'type' => 'raw',
+		'value'=> 'CHtml::link($data->RaffleId,Yii::app()->createUrl("raffle/update",array("id"=>$data->primaryKey)))',
+		), 
 		'Source',
 		'NoOfWinners',
 		'BackUp',
