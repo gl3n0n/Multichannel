@@ -419,7 +419,7 @@ class CouponController extends Controller
 
 		$search   = Yii::app()->request->getParam('search');
 				$criteria = new CDbCriteria;
-		if($search) $criteria->compare('Code', $search, true);
+		if($search) $criteria->compare('Source', $search, true);
 
 		$dataProvider = new CActiveDataProvider('Coupon', array(
 		'criteria'=>$criteria ,

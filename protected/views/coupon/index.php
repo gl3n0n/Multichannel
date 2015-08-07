@@ -19,8 +19,8 @@ $this->menu=array(
 	'method'=>'get',
 )); ?>
 	<fieldset>
-		<legend>Search Code</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Coupon Code" title="Search Code">
+		<legend>Search By Source</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Source" title="Search Source">
 		<button type="submit">Search</button>
 	</fieldset>
 <?php $this->endWidget(); ?>
@@ -30,7 +30,7 @@ $this->menu=array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 	'CouponId',
-	'Code',
+	//'Code',
 	'Type',
 	'TypeId',
 	'Source',
