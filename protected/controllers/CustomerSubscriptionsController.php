@@ -126,8 +126,8 @@ class CustomerSubscriptionsController extends Controller
 	 */
 	public function actionIndex($customer_id='')
 	{
-		
-		$customer_id = Yii::app()->getRequest()->getParam('customer_id');
+		$search      = trim(Yii::app()->request->getParam('search'));
+		$customer_id = trim(Yii::app()->getRequest()->getParam('customer_id'));
 		if ($customer_id != '')
 		{
 			$criteria = new CDbCriteria;
@@ -140,10 +140,17 @@ class CustomerSubscriptionsController extends Controller
 		}
 		else
 		{
+			$criteria = new CDbCriteria;
+			if(strlen($search))
+			{
+				$criteria->with = array(
+					'subsChannels' => array('joinType'=>'LEFT JOIN'),
+				);
+				$criteria->addCondition(" subsChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+			}
+
 			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
-				'criteria'=>array(
-				    'scopes'=>array('thisClient'),
-				),
+				'criteria'=> $criteria,
 			));
 		}
 		

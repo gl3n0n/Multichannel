@@ -125,7 +125,14 @@ class CustomersController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Customers');
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if($search) 
+			$criteria->compare('FirstName', $search, true);
+
+		$dataProvider = new CActiveDataProvider('Customers', array(
+			'criteria'=>$criteria ,
+			));
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
