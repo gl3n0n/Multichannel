@@ -25,9 +25,15 @@ $this->menu=array(
 		'FdaNo',
 		'DrawDate',
 		'DateCreated',
-		'CreatedBy',
+		array(
+		'name'  => 'CreatedBy',
+		'value' => '$data->raffleCreateUsers->Username',
+		),
 		'DateUpdated',
-		'UpdatedBy',
+		array(
+		'name'  => 'UpdatedBy',
+		'value' => '($data->raffleUpdateUsers!=null)?($data->raffleUpdateUsers->Username):("")',
+		),
 		'Status',
 		'CouponId',
 		),

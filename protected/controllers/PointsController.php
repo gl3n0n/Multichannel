@@ -359,13 +359,30 @@ class PointsController extends Controller
 			'dataProvider'=>$dataProvider,
 		));
 		*/
+		
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if(strlen($search))
+		{
+			$criteria->with = array(
+				'pointChannels' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" pointChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+		}
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
-			$dataProvider = new CActiveDataProvider('Points');
+			$dataProvider = new CActiveDataProvider('Points', array(
+						'criteria'=>$criteria ,
+			));
 		} else {
+			if(0){
 			$dataProvider = new CActiveDataProvider('Points', array(
 				'criteria'=>array(
 				    'scopes'=>array('thisClient'),
 				),
+			));
+			}
+			$dataProvider = new CActiveDataProvider('Points', array(
+				'criteria'=>$criteria ,
 			));
 		}
 

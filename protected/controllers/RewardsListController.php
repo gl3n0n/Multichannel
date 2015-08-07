@@ -159,15 +159,26 @@ class RewardsListController extends Controller
 			'dataProvider'=>$dataProvider,
 		));
 		*/
+		$search   = Yii::app()->request->getParam('search');
+				$criteria = new CDbCriteria;
+		if($search) $criteria->compare('Title', $search, true);
 		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
-			$dataProvider = new CActiveDataProvider('RewardsList');
+			$dataProvider = new CActiveDataProvider('RewardsList', array(
+							'criteria'=>$criteria ,
+			));
 		} else {
+			if(0){
 			$dataProvider = new CActiveDataProvider('RewardsList', array(
 				'criteria'=>array(
 				    'scopes'=>array('thisClient'),
 				),
 			));
+			}
+			$dataProvider = new CActiveDataProvider('RewardsList', array(
+							'criteria'=>$criteria ,
+			));
+			
 		}
 
 		$this->render('index',array(

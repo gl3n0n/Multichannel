@@ -21,23 +21,23 @@ $this->menu=array(
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
-		'RewardConfigId',
-		array(
-			'name' => 'RewardId',
-			'value' => $model->rdetailRewardslists->Title,
-			),
-		array(
-			'name' => 'ChannelId',
-			'value' => $model->rdetailChannels->ChannelName,
-			),
-		'Inventory',
-		'Limitations',
-		'Value',
-		'Availability',
-		'Status',
-		'DateCreated',
-		'CreatedBy',
-		'DateUpdated',
-		'UpdatedBy',
+	'RewardConfigId',
+	array(
+		'name' => 'RewardId',
+		'value' => $model->rdetailRewardslists->Title,
+		),
+	array(
+		'name' => 'ChannelId',
+		'value' => $model->rdetailChannels->ChannelName,
+		),
+	'Inventory',
+	'Limitations',
+	'Value',
+	'Availability',
+	'Status',
+	'DateCreated',
+	'CreatedBy',
+	'DateUpdated',
+	'UpdatedBy',
 	),
 )); ?>

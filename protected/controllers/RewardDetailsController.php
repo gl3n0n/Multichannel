@@ -339,10 +339,25 @@ class RewardDetailsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('RewardDetails');
+	
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if(strlen($search))
+		{
+			$criteria->with = array(
+				'rdetailChannels' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" rdetailChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+		}
+		
+		
+		$dataProvider = new CActiveDataProvider('RewardDetails', array(
+			'criteria'=>$criteria ,
+		));
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
+
 	}
 
 	/**

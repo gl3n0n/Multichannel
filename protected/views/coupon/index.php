@@ -12,25 +12,49 @@ $this->menu=array(
 );
 ?>
 
-<h1>Coupons</h1>
-
+<h1>	</h1>
+<div>
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'action'=>Yii::app()->createUrl("coupon/index"),
+	'method'=>'get',
+)); ?>
+	<fieldset>
+		<legend>Search Code</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Coupon Code" title="Search Code">
+		<button type="submit">Search</button>
+	</fieldset>
+<?php $this->endWidget(); ?>
+</div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-		'CouponId',
-		'Code',
-		'Type',
-		'TypeId',
-		'Source',
-		'ExpiryDate',
-		'Status',
-		'DateCreated',
-		'CreatedBy',
-		'UpdatedBy',
-		'Image',
-		'Quantity',
-		'LimitPerUser',
-		'File',
+	'CouponId',
+	'Code',
+	'Type',
+	'TypeId',
+	'Source',
+	'ExpiryDate',
+	'Status',
+	'DateCreated',
+	array(
+		'name'  => 'CreatedBy',
+		'value' => '$data->couponCreateUsers->Username',
+		),
+	'DateUpdated',
+	array(
+		'name'  => 'UpdatedBy',
+		'value' => '($data->couponUpdateUsers!=null)?($data->couponUpdateUsers->Username):("")',
+		),
+	array(
+		'name' => 'Image',
+		'type' => 'raw',
+		'value'=> 'CHtml::link('.
+			  'CHtml::image($data->Image,"",array("width"=>"120px"))'.
+			  ',$data->Image)',
+	),
+	'Quantity',
+	'LimitPerUser',
+	'File',
 	),	
 )); ?>

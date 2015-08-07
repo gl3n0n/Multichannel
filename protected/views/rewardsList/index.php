@@ -13,7 +13,18 @@ $this->menu=array(
 ?>
 
 <h1>Rewards Lists</h1>
-
+<div>
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'action'=>Yii::app()->createUrl("rewardsList/index"),
+	'method'=>'get',
+)); ?>
+	<fieldset>
+		<legend>Search Title</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Title" title="Search Title">
+		<button type="submit">Search</button>
+	</fieldset>
+<?php $this->endWidget(); ?>
+</div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
@@ -21,11 +32,24 @@ $this->menu=array(
 	'RewardId',
 	'Title',
 	'Description',
-	'Image',
+	array(
+	'name' => 'Image',
+	'type' => 'raw',
+	'value'=> 'CHtml::link('.
+		  'CHtml::image($data->Image,"",array("width"=>"120px"))'.
+		  ',$data->Image)',
+	),
 	'Availability',
 	'Status',
 	'DateCreated',
-	'CreatedBy',
-	'UpdatedBy',
+	array(
+		'name'  => 'CreatedBy',
+		'value' => '$data->rewardUpdateUsers->Username',
+		),
+	'DateUpdated',
+	array(
+		'name' => 'UpdatedBy',
+		'value' => '$data->rewardUpdateUsers->Username',
 	),
+			),
 )); ?>
