@@ -10,7 +10,26 @@ $this->menu=array(
 	array('label'=>'Create Points', 'url'=>array('create')),
 	//array('label'=>'Manage Points', 'url'=>array('admin')),
 );
+
+if (Yii::app()->utils->getUserInfo('AccessType') == 'ADMIN')
+{
+$this->menu=array(
+	array('label'=>'List Points',   'url'=>array('index')),
+	array('label'=>'Create Points', 'url'=>array('create')),
+	//array('label'=>'Update Points', 'url'=>array('update', 'id'=>'$data->PointsId')),
+	//array('label'=>'Manage Customer Points', 'url'=>array('/pointsLog/pointid?points_id=' . '$data->ChannelId')),
+);
+}
+else
+{
+	$this->menu=array(
+	array('label'=>'List Points',   'url'=>array('index')),
+	array('label'=>'Create Points', 'url'=>array('create')),
+	//array('label'=>'Update Points', 'url'=>array('update', 'id'=>'0')),
+);
+}
 ?>
+
 
 <h1>Points</h1>
 <div>
@@ -29,7 +48,12 @@ $this->menu=array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-	'PointsId',
+	//'PointsId',
+	array(
+		'name'  => 'PointsId',
+		'value' => 'CHtml::link($data->PointsId,Yii::app()->createUrl("points/view",array("id"=>$data->primaryKey)))',
+		'type'  => 'raw',
+		),	
 	array(
 		'name' => 'ClientId',
 		'value' => '$data->pointClients->CompanyName',
