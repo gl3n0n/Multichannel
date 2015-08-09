@@ -43,8 +43,8 @@ $this->menu=array(
 			'value' => $model->pointlogChannels->ChannelName,
 			),
 			array(
-			'name' => 'PointsId',
-			'value' => $model->pointlogPoints->Value,
+			'name' => 'Points',
+			//'value' => $model->pointlogPoints->Value,
 			),
 		'DateCreated',
 	),

@@ -7,7 +7,7 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	// array('label'=>'Create PointsLog', 'url'=>array('create/?id='.$model->PointsId)),
+	array('label'=>'Create PointsLog', 'url'=>array('create1')),
 	// array('label'=>'Manage PointsLog', 'url'=>array('admin')),
 );
 
@@ -27,34 +27,44 @@ $this->menu=array(
 <?php $this->endWidget(); ?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
-	'dataProvider'=>$dataProvider,
+       'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-	'PointLogId',
- 	array(
-		'name' => 'PointsId',
-		'value' => '$data->pointlogPoints->Value',
-		),
-   'SubscriptionId',
- 	array(
-		'name' => 'ClientId',
-		'value' => '$data->pointlogClients->CompanyName',
-		),
- 	array(
-		'name' => 'BrandId',
-		'value' => '$data->pointlogBrands->BrandName',
-		),
- 	array(
-		'name' => 'CampaignId',
-		'value' => '$data->pointlogCampaigns->CampaignName',
-		),
- 	array(
-		'name' => 'ChannelId',
-		'value' => '$data->pointlogChannels->ChannelName',
-		),
-	'DateCreated',
-   'CreatedBy',
-	'DateUpdated',
-	'UpdatedBy',
+	array(
+		'name'  => 'PointLogId',
+		'value' => 'CHtml::link($data->PointLogId,Yii::app()->createUrl("pointsLog/view",array("id"=>$data->primaryKey)))',
+		'type'  => 'raw',
+		),	
+	array(
+		'name'  => 'CustomerId',
+		'value' => 'CHtml::link($data->pointlogCustomers->Email,Yii::app()->createAbsoluteUrl("customers/$data->CustomerId"))',
+		'type'  => 'raw',
+		),	
+	'SubscriptionId',
+	array(
+	'name'  => 'ClientId',
+	'value' => '$data->pointlogClients->CompanyName',
+	'type'  => 'raw',
 	),
+	array(
+	'name'  => 'BrandId',
+	'value' => '$data->pointlogBrands->BrandName',
+	'type'  => 'raw',
+	),
+	array(
+	'name'  => 'CampaignId',
+	'value' => '$data->pointlogCampaigns->CampaignName',
+	'type'  => 'raw',
+	),
+	array(
+	'name'  => 'ChannelId',
+	'value' => '$data->pointlogChannels->ChannelName',
+	'type'  => 'raw',
+	),
+	'PointsId',
+	array(
+		'name' => 'CreatedBy',
+		'value'=> '($data->pointlogCreateUsers != null)?($data->pointlogCreateUsers->Username):("")',
+	),
+    ),
 )); ?>

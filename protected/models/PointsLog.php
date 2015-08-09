@@ -35,11 +35,14 @@ class PointsLog extends CActiveRecord
 		return array(
 			array('SubscriptionId', 'required'),
 			array('SubscriptionId, CreatedBy', 'numerical', 'integerOnly'=>true),
-			array('CustomerId, ClientId, BrandId, CampaignId, ChannelId, PointsId', 'length', 'max'=>11),
 			array('DateCreated', 'safe'),
+			array('CustomerId, ClientId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
+			array('Points', 'match', 'pattern'=>'/^(-)?[0-9]+$/'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, PointsId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
+			array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
+			//array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
+			array('BrandId, CampaignId, ChannelId, DateCreated', 'safe', 'on'=>'searchi'),
 			// array('BrandId, CampaignId, ChannelId, DateCreated', 'safe', 'on'=>'searchi'),
 		);
 	}
@@ -58,6 +61,8 @@ class PointsLog extends CActiveRecord
 			'pointlogChannels'=>array(self::BELONGS_TO, 'Channels', 'ChannelId'),
 			'pointlogCustomers'=>array(self::BELONGS_TO, 'Customers', 'CustomerId'),
 			'pointlogPoints'=>array(self::BELONGS_TO, 'Points', 'PointsId'),
+			'pointlogCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
+			'pointlogUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
 
 		);
 	}
@@ -82,13 +87,13 @@ class PointsLog extends CActiveRecord
 	{
 		return array(
 			'PointLogId' => 'Point Log ID',
-			'CustomerId' => 'Customer Email',
+			'CustomerId' => 'Customer Name',
 			'SubscriptionId' => 'Subscription',
 			'ClientId' => 'Client Name',
 			'BrandId' => 'Brand Name',
 			'CampaignId' => 'Campaign Name',
 			'ChannelId' => 'Channel Name',
-			'PointsId' => 'Points Value',
+			'Points'    => 'Points Value',
 		);
 	}
 
