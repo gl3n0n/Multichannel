@@ -108,39 +108,14 @@
 		<hr>
 
 		<h3>Company Information</h3>
-
+	
 		<div class="row">
-			<?php echo $form->labelEx($submodel,'CompanyName'); ?>
-			<?php echo $form->textField($submodel,'CompanyName'); ?>
-			<?php echo $form->error($submodel,'CompanyName'); ?>
-		</div>
+		<?php echo $form->labelEx($submodel,'ClientId'); ?>
+		<?php echo $form->dropDownList($submodel,'ClientId',$client_list,array(
+		      'prompt' => '--Select a Client--',
+		    )); ?>
+		<?php echo $form->error($submodel,'ClientId'); ?>
 
-		<div class="row">
-			<?php echo $form->labelEx($submodel,'Status'); ?>
-			<?php echo ZHtml::enumDropDownList($submodel, 'Status', array(
-			    // 'id'=>'create-client-status',
-			    'name'=>'Clients[Status]',
-			    'value'=>'',
-				)); ?>
-			<?php echo $form->error($submodel,'Status'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($submodel,'Address'); ?>
-			<?php echo $form->textField($submodel,'Address'); ?>
-			<?php echo $form->error($submodel,'Address'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($submodel,'Landline'); ?>
-			<?php echo $form->textField($submodel,'Landline'); ?>
-			<?php echo $form->error($submodel,'Landline'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($submodel,'Email'); ?>
-			<?php echo $form->textField($submodel,'Email'); ?>
-			<?php echo $form->error($submodel,'Email'); ?>
 		</div>
 	</div>
 	

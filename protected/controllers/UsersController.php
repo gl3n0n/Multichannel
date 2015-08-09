@@ -116,6 +116,130 @@ class UsersController extends Controller
 				if($UsersModel->AccessType === 'SUPERADMIN') 
 				{
 					$ClientSaved = true; // Bypass the client creation
+					$UsersModel->ClientId = 0;
+				}
+				else
+				{
+					$ClientSaved = true; // Bypass the client creation
+					$ClientsModel = new Clients;
+					$ClientsModel->attributes = $_POST['Clients'];
+					$UsersModel->ClientId = $ClientsModel->ClientId;
+				}
+
+				$UserValidated = $UsersModel->validate();
+				
+				//chk-uniq-user
+				$userNameMod = $UsersModel->userNameExistsNew($UsersModel->Username);
+				if( $userNameMod )
+				{
+					$UsersModel->addError('Username', 'User already exists. ');
+					$UserValidated = 0;
+				}
+				//chk uniq-email
+				$emailModel = $UsersModel->emailExistsNew($UsersModel->Email);
+				if( $emailModel )
+				{
+					$UsersModel->addError('Email', 'Email already exists. ');
+					$UserValidated = 0;
+				}
+				//chk client-id
+				if($UsersModel->AccessType === 'ADMIN') 
+				{
+					$clientId = trim($_POST['Clients']['ClientId']);
+					$ClientsModel->ClientId = $clientId;
+					$UsersModel->ClientId   = $clientId;
+					
+					if($clientId == '' or $clientId == 0)
+					{
+						$ClientsModel->addError('ClientId', 'Must select a valid Client. ');
+						$UserValidated = 0;
+					}
+				}
+				//echo "<hr> validate: $UserValidated<hr>" . @var_export($UsersModel,true);
+				//exit;
+				// Encryption is done in the model, beforeSave()
+        		        //$UsersModel->Password = md5($_POST['Users']['Password']);
+
+				if($UserValidated && $ClientSaved)
+				{
+					$UsersModel->save(false);
+					$response = array(
+						'message'=>'User successfully created.',
+					);
+				}
+				else
+				{
+					if($UsersModel->AccessType === 'SUPERADMIN') 
+					{
+						$fieldErrors = array(
+							'Users' => $UsersModel->errors
+						);
+					}
+					else
+					{
+						$fieldErrors = array(
+							'Clients' => $ClientsModel->errors,
+							//'Users' => $UsersModel->errors
+							'Users' => $UsersModel->errors
+						);
+					}
+					
+
+					$response = array(
+						'error'=>true,
+						'message'=>'User not saved.',
+						'fieldErrors'=>$fieldErrors,
+					);
+				}
+				
+				$transaction->commit();
+				Yii::app()->utils->sendJSONResponse($response);
+
+			} catch (CDbException $ex) {
+				$transaction->rollback();
+				Yii::app()->utils->sendJSONResponse(array(
+					'hasError'=>true,
+					'message'=>'We have encountered an error while saving your data.',
+					'data'=>$ex->getMessage(),				));
+			} catch (Exception $ex) {
+				$transaction->rollback();
+				Yii::app()->utils->sendJSONResponse(array(
+					'hasError'=>true,
+					'message'=>'Oops! Something went wrong. Please try again in a few minutes.',
+					'data'=>$ex->getMessage(),
+				));
+			}
+		}
+		else
+		{
+			Yii::app()->utils->sendJSONResponse(array(
+				'hasError'=>true,
+				'message'=>'Invalid action',
+			));
+		}
+	}
+
+	// Validation rules? Look in the model classes.
+	public function ORIGactionDoCreate()
+	{
+		if(isset($_POST['Users'], $_POST['Clients']))
+		{
+			$response = array();
+			$transaction = Yii::app()->db->beginTransaction();
+			$UserSaved = false;
+			$ValidUser = false;
+			$ClientSaved = true;
+
+			try {
+				$UsersModel = new Users;
+				$UsersModel->attributes = $_POST['Users'];
+				$UsersModel->DateCreated = new CDbExpression('NOW()');
+				$UsersModel->DateUpdated = new CDbExpression('NOW()');
+				$UsersModel->CreatedBy = Yii::app()->user->id;
+				
+				if($UsersModel->AccessType === 'SUPERADMIN') 
+				{
+					$ClientSaved = true; // Bypass the client creation
 				}
 				else
 				{
@@ -127,7 +251,10 @@ class UsersController extends Controller
 
 					$ClientSaved = $ClientsModel->save();
 
-					if($ClientSaved) $UsersModel->ClientId = $ClientsModel->ClientId;
+					if($ClientSaved) 
+					{
+						$UsersModel->ClientId = $ClientsModel->ClientId;
+					}
 				}
 
 				$UserValidated = $UsersModel->validate();
@@ -194,6 +321,7 @@ class UsersController extends Controller
 		}
 	}
 
+	
 	public function actionCreate()
 	{
 		$UsersModel   = new Users;
@@ -238,10 +366,21 @@ class UsersController extends Controller
 		// $model = Users::model();
 		// $users = $model->getCommandBuilder()->createFindCommand($model->tableSchema, $criteria)->queryAll();
 
+		$_cust = Clients::model()->findAll(array(
+			'select'=>'ClientId, CompanyName', 'condition'=>'status=\'ACTIVE\''));
+		$cust  = array();
+		foreach($_cust as $row) {
+			$cust[$row->ClientId] = "{$row->CompanyName}";
+		}
+		
+		
 		// Pass true as the third parameter to assign the output to a variable.
-		$createForm = $this->renderPartial('_formCreate', array('model'=>new Users, 'submodel'=>new Clients), true);
+		$createForm = $this->renderPartial('_formCreate', array('model'=>new Users, 
+		'submodel'      =>new Clients,
+		'client_list' => $cust), true);
 
-		$this->render('index', array('createForm'=>$createForm));
+		$this->render('index', array('createForm'=>$createForm,
+					     ));
 	}
 
         public function actionEdit($id)
@@ -250,7 +389,7 @@ class UsersController extends Controller
                 $UserModel = array();
                 $form_fields = array('FirstName','MiddleName','LastName','Email','ContactNumber','Status','Password','ConfirmPassword');
 
-                // var_dump($_POST['Users']); exit;
+                //@var_dump($_POST['Users']); exit;
 
                 foreach($_POST['Users'] as $idx => $val) {
                     if( in_array($idx, $form_fields)) $UserModel[$idx] = $val;
@@ -261,8 +400,8 @@ class UsersController extends Controller
                 $model->attributes = $UserModel;
                 $model->UpdatedBy = Yii::app()->user->id;
                 $model_validated = $model->validate();
-
-                if($model_validated)
+		
+		if($model_validated)
                 {
                     if($model->save(false))
                     {

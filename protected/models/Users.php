@@ -56,14 +56,14 @@ class Users extends CActiveRecord
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('Username, FirstName, LastName, ContactNumber, Email, Address', 'required'),
+            array('Username, FirstName, LastName, Email', 'required'),
             array('CreatedBy, Password, ConfirmPassword', 'required', 'on'=>'insert'),
             array('UpdatedBy', 'required', 'on'=>'update'),
             array('CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
             array('Birthdate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
             array('Username', 'length', 'max'=>32),
             array('Username', 'validateUsername'),
-            array('Email', 'emailExists'),
+            array('Email',    'emailExists'),
             array('Password, ConfirmPassword', 'length', 'min'=>8, 'max'=>64),
             array('Password, ConfirmPassword', 'match', 'pattern'=>'/^[a-zA-Z0-9]*$/', 'on'=>array('insert', 'create', 'update')),
             array('Password', 'compare', 'compareAttribute'=>'ConfirmPassword'),
@@ -86,7 +86,7 @@ class Users extends CActiveRecord
                 )),
             // Call them custom validations. Bale param1 = column name, param2 = function name na naka declare sa baba
             array('Email', 'email'),
-            array('ContactNumber', 'validateContactNumber'),
+            //array('ContactNumber', 'validateContactNumber'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
                         array('Password, ConfirmPassword', 'safe', 'on'=>'update'),
@@ -150,15 +150,45 @@ class Users extends CActiveRecord
         if( $UserModel)
             $this->addError('Username', 'User already exists.');
     }
+    public function emailExistsOrig()
+    {
+	    $UserModel = Users::model()->findByAttributes(array('Email'=>$this->Email), array('select'=>'Email, UserId'));
+
+	    if( $UserModel && $UserModel->Email !== $this->Email)
+		$this->addError('Email', 'Email already exists.');
+    }
     
     public function emailExists()
     {
-        $UserModel = Users::model()->findByAttributes(array('Email'=>$this->Email), array('select'=>'Email, UserId'));
 
-        if( $UserModel && $UserModel->Email !== $this->Email)
-            $this->addError('Email', 'Email already exists.');
+	$criteria = new CDbCriteria;
+	$criteria->select = 'Username, UserId, Email';
+	$criteria->addCondition('UserId <> :uid');
+        $criteria->params[':uid'] = $this->UserId;
+	$UserModel = Users::model()->findByAttributes(array('Email'=> $this->Email), $criteria);
+	//echo "<hr>CHECK EMAIL<hr>".@var_export($criteria,true);
+	if( $UserModel )
+		$this->addError('Email', 'Email already exists.');
+		
     }
+    
+    public function emailExistsNew($email)
+    {
 
+	$criteria = new CDbCriteria;
+	$criteria->select = 'Username, UserId, Email';
+	$UserModel = Users::model()->findByAttributes(array('Email'=> $email), $criteria);
+	return $UserModel;
+    }
+    
+    public function userNameExistsNew($usr)
+    {
+    
+    	$criteria = new CDbCriteria;
+    	$criteria->select = 'Username, UserId, Email';
+    	$UserModel = Users::model()->findByAttributes(array('Username'=> $usr), $criteria);
+    	return $UserModel;
+    }
     // Custom validation ng ContactNumber
     public function validateContactNumber()
     {

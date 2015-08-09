@@ -52,23 +52,6 @@
                 <?php echo $form->error($model,'Lastname'); ?>
         </div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'Password'); ?>
-		<?php echo $form->passwordField($model,'Password'); ?>
-		<?php echo $form->error($model,'Password'); ?>
-	</div>
-
-        <div class="row">
-                <?php echo $form->labelEx($model,'ConfirmPassword'); ?>
-                <?php echo $form->passwordField($model,'ConfirmPassword'); ?>
-                <?php echo $form->error($model,'ConfirmPassword'); ?>
-        </div>
-
-        <div class="row">
-                <?php echo $form->labelEx($model,'Email'); ?>
-                <?php echo $form->textField($model,'Email'); ?>
-                <?php echo $form->error($model,'Email'); ?>
-        </div>
 
         <div class="row">
                 <?php echo $form->labelEx($model,'ContactNumber'); ?>
