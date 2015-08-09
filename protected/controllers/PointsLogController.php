@@ -163,6 +163,7 @@ class PointsLogController extends Controller
 	 */
 	public function actionIndex()
 	{
+      /*
 		$model=new PointsLog('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['PointsLog']))
@@ -174,7 +175,17 @@ class PointsLogController extends Controller
 		$dataProvider = new CActiveDataProvider('PointsLog', array(
 				'criteria'=>$criteria,
 			));
-			
+      */  			
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if(strlen($search))
+		{
+			$criteria->with = array(
+				'pointslogChannels' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" pointslogChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+		}
+
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'model'=>$model,
