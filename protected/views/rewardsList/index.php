@@ -50,12 +50,12 @@ $this->menu=array(
 	'DateCreated',
 	array(
 		'name'  => 'CreatedBy',
-		'value' => '$data->rewardUpdateUsers->Username',
+		'value'=> '($data->rewardCreateUsers != null )?($data->rewardCreateUsers->Username):("")',
 		),
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
-		'value' => '$data->rewardUpdateUsers->Username',
+		'value'=> '($data->rewardUpdateUsers != null )?($data->rewardUpdateUsers->Username):("")',
 	),
 			),
 )); ?>

@@ -52,12 +52,12 @@ $this->menu=array(
 		'DateCreated',
 		array(
 		'name' => 'CreatedBy',
-		'value'=> '$data->rdetailCreateUsers->Username',
+		'value'=> '($data->rdetailCreateUsers != null )?($data->rdetailCreateUsers->Username):("")',
 		),
 		'DateUpdated',
 		array(
 		'name' => 'UpdatedBy',
-		'value'=> '$data->rdetailUpdateUsers->Username',
+		'value'=> '($data->rdetailUpdateUsers != null )?($data->rdetailUpdateUsers->Username):("")',
 		),
 	),
 )); ?>
