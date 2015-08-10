@@ -444,15 +444,18 @@ class UsersController extends Controller
         // Otherwise, if user is a superadmin, just get the record by ID
         if($is_superadmin)
         {
-            $model = Users::model()->findByPk($id, array('select'=>'UserId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated'));
+            $model = Users::model()->findByPk($id, 
+            array('select'=>'UserId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated'));
         }
         else
         {
             $criteria = new CDbCriteria;
-            $criteria->addCondition('ClientId = :clientId AND UserId = :userId');
-            $criteria->params = array(':clientId' => Users::model()->findByPk(Yii::app()->user->id)->ClientId, ':userId' => $id);
+            //$criteria->addCondition('ClientId = :clientId AND UserId = :userId');
+            //$criteria->params = array(':clientId' => Users::model()->findByPk(Yii::app()->user->id)->ClientId, ':userId' => $id);
             $criteria->select = 'UserId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated';
-            $model = Users::model()->findByAttributes($criteria);
+            $model = Users::model()->findByAttributes(
+            		array('ClientId'=> Users::model()->findByPk(Yii::app()->user->id)->ClientId,
+            		      'UserId'  => $id),$criteria);
         }
 
 		if($model) {
@@ -474,10 +477,26 @@ class UsersController extends Controller
 			// redirect to not found..
 			$data['error'] = 'I am unable to find that user.';
 			$data['Username'] = '';
-			$data['created'] = '';
-			$data['updated'] = '';
+			$data['created']  = '';
+			$data['updated']  = '';
+			$data['UserId'        ] = '';
+			$data['Username'      ] = '';
+			$data['FirstName'     ] = '';
+			$data['MiddleName'    ] = '';
+			$data['LastName'      ] = '';
+			$data['ContactNumber' ] = '';
+			$data['Email'         ] = '';
+			$data['AccessType'    ] = '';
+			$data['Status'        ] = '';
+			$data['Birthdate'     ] = '';
+			$data['DateUpdated'   ] = '';
 		}
-
+		
+		if(0){
+			echo Yii::app()->user->id."#HEHEHE<hr>".@var_export($model,true);
+			echo Yii::app()->user->id."#HEHEHE<hr>".@var_export($data,true);
+			exit;
+		}
 		//$this->render('view', array(
 		//	'data'=>$data,
 		//	));

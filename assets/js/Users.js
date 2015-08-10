@@ -196,7 +196,7 @@ var ListUsers = function() {
 	self._request = null;
 
 	self.listUrl = BaseUrl + 'users/list';
-	self.viewLinkUrl = BaseUrl + 'users/edit/';
+	self.viewLinkUrl = BaseUrl + 'users/view/';
 
 	self.page = null;
 	self.data = [];
