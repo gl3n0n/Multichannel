@@ -5,105 +5,270 @@ class ReportsController extends Controller
 	public $extraJS;
 	public $mainDivClass;
 	public $modals;
-	
-	public function actionCreate()
-	{
-		$model = new Reports;
-		$_brands = Brands::model()->thisClient()->findAll(array(
-			'select'=>'BrandId, BrandName', 'condition'=>'status=\'ACTIVE\''));
-		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
-		
-		$_campaigns = Campaigns::model()->findAll(array(
-			'select'=>'CampaignId, BrandId, CampaignName', 'condition'=>'status=\'ACTIVE\''));
-		$campaigns = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
-		
-		$_channels = Channels::model()->with('channelCampaigns')->findAll(array('condition'=>'t.status=\'ACTIVE\''));
-		
-		$channels = array(); //CHtml::listData($_channels, 'ChannelId', 'ChannelName');
-		foreach($_channels as $row) {
-			$channels[$row->ChannelId] = "{$row->ChannelName} ({$row->channelCampaigns->CampaignName})";
-		}
-		$customers = array(); //CHtml::listData($_channels, 'ChannelId', 'ChannelName');
-		$_customers = Customers::model()->findAll();
-		foreach($_customers as $row) {
-			$customers[$row->CustomerId] = "{$row->Email}";
-		}
-		/*
-		$form_view = $this->renderPartial('_form', array(
-			'model'=>$model,
-			'brands_list'=>$brands,
-			'channels_list'=>$channels,
-			'campaigns_list'=>$campaigns,
-			'customers_list'=>$customers,
-		), true);
-		*/
+	public $csvRoot;
+	/**
+	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
+	 * using two-column layout. See 'protected/views/layouts/column2.php'.
+	 */
+	public $layout='//layouts/column2';
 
-		if(isset($_POST['Reports'])) {
-			Yii::app()->user->setFlash('notice', 'Something went wrong and the developers are working on it.');
-
-		}
-
-
-		$_form = $this->renderPartial('_form2', array(
-		    'model'=>$model,
-		    'brands'=>$brands,
-		    'campaigns'=>$campaigns,
-		    'channels'=>$channels,
-		    'customers'=>$customers,
-		), true);
-		// echo '<pre>';
-		// print_r($brands);
-		// print_r($campaigns);
-		// print_r($channels);
-		// print_r($customers);
-		// exit();
-
-		$this->render('create2', array(
-		    'model'=>$model,
-		    '_form'=>$_form,
-		));
-		
-	}
-
-	public function actionDelete()
-	{
-		$this->render('delete');
-	}
-
-	public function actionIndex()
-	{
-		$this->render('index');
-	}
-
-	public function actionUpdate()
-	{
-		$this->render('update');
-	}
-
-	// Uncomment the following methods and override them if needed
-	/*
+	/**
+	 * @return array action filters
+	 */
 	public function filters()
 	{
-		// return the filter configuration for this controller, e.g.:
 		return array(
-			'inlineFilterName',
-			array(
-				'class'=>'path.to.FilterClass',
-				'propertyName'=>'propertyValue',
-			),
+			'accessControl', // perform access control for CRUD operations
+			// 'postOnly + delete', // we only allow deletion via POST request
 		);
 	}
 
-	public function actions()
+	/**
+	 * Specifies the access control rules.
+	 * This method is used by the 'accessControl' filter.
+	 * @return array access control rules
+	 */
+	public function accessRules()
 	{
-		// return external action classes, e.g.:
 		return array(
-			'action1'=>'path.to.ActionClass',
-			'action2'=>array(
-				'class'=>'path.to.AnotherActionClass',
-				'propertyName'=>'propertyValue',
-			),
+			array('allow',
+				'users'=>array('@')
+				),
+			array('deny'),
 		);
 	}
-	*/
+
+	/**
+	 * Displays a particular model.
+	 * @param integer $id the ID of the model to be displayed
+	 */
+	public function actionView($id)
+	{
+		//echo "<hr>[$id]actionView: " .@var_export($this->loadModel($id),true);
+		$this->render('view',array(
+			'model'=>$this->loadModel($id),
+		));
+	}
+
+	
+	/**
+	 * Lists all models.
+	 */
+	public function actionIndex()
+	{
+		
+		$this->csvRoot = sprintf("%s/assets/tmf-reports/",Yii::app()->request->baseUrl);
+		
+		$model=new Reports('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Reports']))
+		$model->attributes=$_GET['Reports'];
+
+
+		//criteria
+		$criteria = new CDbCriteria;
+		$filterSrch     = 0;
+		
+		
+		//channel-name
+		$byChannel   = trim(Yii::app()->request->getParam('byChannel'));
+		if(strlen($byChannel))
+		{
+			$filterSrch++;
+			$criteria->with = array(
+				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" pointlogChannels.ChannelName LIKE '%".addslashes($byChannel)."%' ");
+			$criteria->addCondition('t.ClientId = :clientId');
+			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
+		}
+		//campaign
+		$byCampaign   = trim(Yii::app()->request->getParam('byCampaign'));
+		if(strlen($byCampaign))
+		{
+			$filterSrch++;
+			$criteria->with = array(
+				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" pointlogCampaigns.CampaignName LIKE '%".addslashes($byCampaign)."%' ");
+			$criteria->addCondition('t.ClientId = :clientId');
+			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
+		}
+		//brand
+		$byBrand   = trim(Yii::app()->request->getParam('byBrand'));
+		if(strlen($byBrand))
+		{
+			$filterSrch++;
+			$criteria->with = array(
+				'pointlogBrands' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" pointlogBrands.BrandName LIKE '%".addslashes($byBrand)."%' ");
+			$criteria->addCondition('t.ClientId = :clientId');
+			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
+		}
+		//customer
+		$byCustomerName   = trim(Yii::app()->request->getParam('byCustomerName'));
+		if(strlen($byCustomerName))
+		{
+			$filterSrch++;
+			$criteria->with = array(
+				'pointlogCustomers' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" (
+						 pointlogCustomers.Email     LIKE '%".addslashes($byCustomerName)."%' OR
+						 pointlogCustomers.FirstName LIKE '%".addslashes($byCustomerName)."%' 
+						 ) ");
+			$criteria->addCondition('t.ClientId = :clientId');
+			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
+		}
+
+		
+		//no-filter
+		if($filterSrch<=0)
+		{
+			$criteria->scopes = array('thisClient');
+		}
+		
+		$dataProvider = new CActiveDataProvider('Reports', array(
+				'criteria'=>$criteria,
+				));
+		
+		//get csv
+		$csv = $this->formatCsv($criteria);
+		
+		//exit;
+		$this->render('index',array(
+			'dataProvider'=>$dataProvider,
+			'model'=>$model,
+			'downloadCSV'=> (@intval($csv['total'])>0)?($csv['fn']):(''),
+		));
+	}
+
+	/**
+	 * Returns the data model based on the primary key given in the GET variable.
+	 * If the data model is not found, an HTTP exception will be raised.
+	 * @param integer $id the ID of the model to be loaded
+	 * @return PointsLog the loaded model
+	 * @throws CHttpException
+	 */
+	public function loadModel($id)
+	{
+		$model=PointsLog::model()->findByPk($id);
+		if($model===null)
+			throw new CHttpException(404,'The requested page does not exist.');
+		return $model;
+	}
+
+	/**
+	 * Performs the AJAX validation.
+	 * @param PointsLog $model the model to be validated
+	 */
+	protected function performAjaxValidation($model)
+	{
+		if(isset($_POST['ajax']) && $_POST['ajax']==='points-log-form')
+		{
+			echo CActiveForm::validate($model);
+			Yii::app()->end();
+		}
+	}
+	
+	public function actionCsv()
+	{
+		$fn   = trim(Yii::app()->request->getParam('fn'));
+		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/msexcel');
+		header('Content-Disposition: attachment; filename='.basename($csv));
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		header('Content-Length: '. filesize($csv));
+		@flush();
+		readfile($csv);
+	}	
+
+	protected function formatCsv($criteria)
+	{
+		$fn   = sprintf("%s-%s-%s-%s.csv",Yii::app()->params['reportPfx'],@date("YmdHis"),uniqid(),md5(uniqid()));
+		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
+		
+		//get it
+		$csvs = new CActiveDataProvider('Reports', array(
+			'criteria'=>$criteria,
+		));
+		
+		//set
+		$csvs->setPagination(false);
+		$total = 0;
+		
+
+
+		//hdr
+		$hdr = sprintf('="CUSTOMER NAME",="CUSTOMER EMAIL",="COMPANY NAME",="BRAND NAME",="CAMPAIGN NAME",="CHANNEL NAME",="CREATED BY",="",');
+		$this->io_save($csv, str_replace("\n",'', $hdr)."\n",'a');
+		//get csv
+		foreach($csvs->getData() as $row) 
+		{
+		    $total++;
+		    //customer
+		    $custmail = $row->pointlogCustomers->Email;
+		    $custname = sprintf("%s %s",$row->pointlogCustomers->FirstName,$row->pointlogCustomers->LastName );
+		    
+		    //comp
+		    $compname  = $row->pointlogClients->CompanyName;
+		    
+		    //brand
+		    $brandname = $row->pointlogBrands->BrandName;
+		    
+		    //campaign
+		    $cmpgnname = $row->pointlogCampaigns->CampaignName;
+		    
+		    //channel
+		    $chnlname  = $row->pointlogChannels->ChannelName;
+		    
+		    //by
+		    $by        = ($row->pointlogCreateUsers != null)?($row->pointlogCreateUsers->Username):("");
+		    
+		    //hdr
+		    $str = sprintf('="%s",="%s",="%s",="%s",="%s",="%s",="%s",="",',
+					$custname,
+					$custmail,
+					$compname,
+					$brandname,
+					$cmpgnname,
+					$chnlname,
+					$by );
+		    $this->io_save($csv, str_replace("\n",'', $str)."\n",'a');
+
+		}
+		
+		
+		
+		//give it back
+		return array(
+			'total' => $total,
+			'fn'    => $fn
+		);
+	}
+	
+	protected function io_save($fname='', $body='', $mode = 'w')
+	{
+		//mode of fopen
+		$mode  = @preg_match("/^(a|append)$/i", $mode) ? ('a') :  ('w');
+		
+		//open it
+		$fh = fopen($fname, $mode);
+		if($fh)
+		{
+			fwrite($fh, $body);
+			fclose($fh); 
+			$is_ok  = true;
+			
+		}
+		
+		//give it back ;-)
+		return $is_ok;
+		 
+	}
+
 }

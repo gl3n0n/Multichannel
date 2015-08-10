@@ -99,6 +99,10 @@ return array(
 		'uploadCouponDir'=>'/var/www/html/multichannel/protected/uploads/coupons/',
 		'uploadImageDir'=>'/var/www/html/multichannel/images/',
 		'baseUploadUrl' => 'http://104.156.53.150/multichannel/images/',
-		'updatePoints' => 'http://104.156.53.150/multichannel-api/points/update.php',
+		'updatePoints'  => 'http://104.156.53.150/multichannel-api/points/update.php',
+		'reportPfx'     => 'Cust-Rpt',
+		'reportCsv'     => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
+				     ('C:\wamp\www\Multichannel\protected\downloads'):
+				     ('/var/www/html/multichannel/protected/downloads')),
 	),
 );
