@@ -9,10 +9,89 @@ class Points {
 			$this->subscription_id = $subscription_id;
         }
 
-		public function isAllowed($brand_id, $campaign_id, $channel_id, $client_id)
+		public function isAllowed($brand_id, $campaign_id, $channel_id, $client_id, $points_id)
         {
-            $query_keys = array();
-            $curdate = date("Y-m-d H:i:s");
+			// Check if Client is valid
+			$client_check_query = "SELECT * FROM clients WHERE Status = 'ACTIVE' AND ClientId = " . $this->conn->quote($client_id, 'integer') . " LIMIT 1";
+			$client_check_res = $this->conn->query($client_check_query);
+
+			if (PEAR::isError($client_check_res)) {
+				return false;
+			}
+
+			$client_check_row = $client_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (0 >= sizeof($client_check_row))
+			{
+				return array("INVALID_CLIENT");
+			}
+			
+			$curdate = date("Y-m-d H:i:s");
+			// Check if brand is valid
+			$brand_check_query = "SELECT * FROM brands WHERE Status = 'ACTIVE' AND BrandId = " . $this->conn->quote($brand_id, 'integer') . 
+								 " AND DurationFrom <= " . $this->conn->quote($curdate, 'timestamp') . 
+								 " AND DurationTo >= " . $this->conn->quote($curdate, 'timestamp') . " LIMIT 1";
+
+			$brand_check_res = $this->conn->query($brand_check_query);
+			if (PEAR::isError($brand_check_res)) {
+				return false;
+			}
+
+			$brand_check_row = $brand_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+			if (0 >= sizeof($brand_check_row))
+			{
+				return array("INVALID_BRAND");
+			}
+			
+			// Check if campaign is valid
+			$campaign_check_query = "SELECT * FROM campaigns WHERE Status = 'ACTIVE' AND CampaignId = " . $this->conn->quote($campaign_id, 'integer') . 
+								 " AND DurationFrom <= " . $this->conn->quote($curdate, 'timestamp') . 
+								 " AND DurationTo >= " . $this->conn->quote($curdate, 'timestamp') . " LIMIT 1";
+
+			$campaign_check_res = $this->conn->query($campaign_check_query);
+			if (PEAR::isError($campaign_check_res)) {
+				return false;
+			}
+
+			$campaign_check_row = $campaign_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (0 >= sizeof($campaign_check_row))
+			{
+				return array("INVALID_CAMPAIGN");
+			}
+
+			// Check if channel is valid
+			$channel_check_query = "SELECT * FROM channels WHERE Status = 'ACTIVE' AND ChannelId = " . $this->conn->quote($channel_id, 'integer') . 
+								 " AND DurationFrom <= " . $this->conn->quote($curdate, 'timestamp') . 
+								 " AND DurationTo >= " . $this->conn->quote($curdate, 'timestamp') . " LIMIT 1";
+
+			$channel_check_res = $this->conn->query($channel_check_query);
+			if (PEAR::isError($channel_check_res)) {
+				return false;
+			}
+
+			$channel_check_row = $channel_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (0 >= sizeof($channel_check_row))
+			{
+				return array("INVALID_CHANNEL");
+			}
+		
+			// Check if action is valid
+			$points_check_query = "SELECT * FROM points WHERE Status = 'ACTIVE' AND PointsId = " . $this->conn->quote($points_id, 'integer') . 
+								 " AND `From` <= " . $this->conn->quote($curdate, 'timestamp') . 
+								 " AND `To` >= " . $this->conn->quote($curdate, 'timestamp') . " LIMIT 1";
+
+			$points_check_res = $this->conn->query($points_check_query);
+			if (PEAR::isError($points_check_res)) {
+				return false;
+			}
+
+			$points_check_row = $points_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (0 >= sizeof($points_check_row))
+			{
+				return array("INVALID_POINTS");
+			}
+            /*$query_keys = array();
+            
             if (!empty($channel_id))
             {
                 $tbl = 'channels';
@@ -35,8 +114,8 @@ class Points {
             }
 
             $query_keys[] = "Status = 'ACTIVE'";
-            //$query_keys[] = '`DurationFrom` <= '. $this->conn->quote($curdate, 'text');
-            $query_keys[] = '`DurationTo` >= '. $this->conn->quote($curdate, 'text');
+            $query_keys[] = '`DurationFrom` <= '. $this->conn->quote($curdate, 'timestamp');
+            $query_keys[] = '`DurationTo` >= '. $this->conn->quote($curdate, 'timestamp');
 
             $result_types = array(
                     'count(1) as cnt' => 'integer'
@@ -53,9 +132,11 @@ class Points {
                 $cnt = $row['cnt'];
             }
             if ($cnt == 0)
-                return false;
+                return array("INVALID_PROMO");
             else
                 return true;
+			*/
+			return true;
         }
 
 		public function inquire($customer_id, $brand_id, $campaign_id, $channel_id, $client_id)
@@ -323,7 +404,7 @@ class Points {
 			}
 		}
 		
-		public function subtractClaimPoints($points)
+		public function subtractClaimPoints($points,$customer_id, $brand_id, $campaign_id, $channel_id, $client_id)
 		{
 			$check_point = $this->inquire($customer_id, $brand_id, $campaign_id, $channel_id, $client_id);
 			if(!$check_point['balance'] || ($check_point['balance'] + $points) < 0)

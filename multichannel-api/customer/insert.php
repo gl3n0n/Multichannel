@@ -14,12 +14,21 @@
 	$fb_id = $_POST['fb_id'];
 	$twitter_handle = $_POST['twitter_handle'];
 	$created_by = $_POST['created_by'];
+	$client_id = $_POST['client_id'];
 
 	$response = array(
 		'result_code' => '',
 	);
 
 	$table_name = 'customers';
+
+	if (!empty($client_id) && !preg_match(DIGIT_REGEX, $client_id))
+    {
+        $response['result_code'] = 403;
+        $response['error_txt'] = 'Forbidden';
+        echo json_encode($response);
+        return;
+    }
 
 	if (empty($fb_id) && empty($email))
     {
@@ -57,7 +66,7 @@
 	$customer = new Customer($dbconn, $customer_id);
 
 	$response = $customer->add($first_name, $middle_name, $last_name, $gender, $birthdate,
-							   $address, $status, $fb_id, $twitter_handle, $email, $contact_number);
+							   $address, $status, $fb_id, $twitter_handle, $email, $contact_number, $client_id); 
 
 	if ($response)
 	{

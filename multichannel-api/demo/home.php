@@ -104,7 +104,7 @@ FB.getLoginStatus(function(response) {
 if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['claim'])
 {
 
-	$url = 'http://104.156.53.150/multichannel-api/points/update.php';
+	/*$url = 'http://104.156.53.150/multichannel-api/points/update.php';
 	$data = array('subscription_id' => $_SESSION['subscription_id'], 'points' => $_POST['points_to_deduct'], 'brand_id' => $_POST['brand_id'], 'action' => 'CLAIM');
 	//print_r($data);
 	$options = array(
@@ -115,15 +115,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['claim'])
 		),
 	);
 	$context  = stream_context_create($options);
-	$result = file_get_contents($url, false, $context);
+	$result = file_get_contents($url, false, $context);*/
 
 	//echo $result;
 	// ADD TO REDEEMED REWARDS
     $url = 'http://104.156.53.150/multichannel-api/reward/redeem.php';
-	$data = array('client_id' => $_SESSION['client_id'], 'user_id' => $_SESSION['login_id'],
+	$data = array('client_id' => $_POST['client_id'], 'user_id' => $_SESSION['login_id'],
 				  'channel_id' => $_POST['channel_id'], 'campaign_id' => $_POST['campaign_id'],
 				  'brand_id' => $_POST['brand_id'],'reward_id' => $_POST['reward_id'],
+				  'subscription_id' => $_SESSION['subscription_id'], 'points' => $_POST['points_to_deduct'], 'customer_id' => $_SESSION['login_id'],
 				  'source' => 'POINTS', 'action' => 'Claim Reward', 'reward_config_id' => $_POST['reward_config_id'], 'current_inventory' => $_POST['current_inventory']);
+	//print_r($data);
 	$options = array(
 		'http' => array(
 			'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -131,9 +133,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['claim'])
 			'content' => http_build_query($data),
 		),
 	);
-	// print_r($data);
+
 	$context  = stream_context_create($options);
 	$result = file_get_contents($url, false, $context);
+	//var_dump($result);
 }
 ?>	
 
@@ -173,7 +176,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['action'])
 				  'channel_id' => $_POST['channel_id'], 'campaign_id' => $_POST['campaign_id'],
 				  'brand_id' => $_POST['brand_id'],'points' => $_POST['points'], 'points_id' => $_POST['points_id'], 'client_id' => $_POST['client_id'], 'action' => 'ADD');
 	// echo '<pre>';
-	// print_r($data);
+	//print_r($data);
 	// exit();
 	$options = array(
 		'http' => array(
@@ -661,7 +664,44 @@ else if ($result_arr_add->{"result_code"} == 405)
 <b>Rewards Available:</b>
 </br>
 <?php
+$url = 'http://104.156.53.150/multichannel-api/reward/retrieve_redeemable.php';
+$data = array('customer_id' => $_SESSION['login_id']);
+
+$options = array(
+	'http' => array(
+		'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+		'method'  => 'POST',
+		'content' => http_build_query($data),
+	),
+);
+$context  = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+$redeemable_rewards = json_decode($result, true);
+$arr_rdmble_rwrds = $redeemable_rewards["results"];
 $rewards_available_counter = 0;
+foreach ($arr_rdmble_rwrds as &$reward)
+{
+?>
+	<form action="" method="post">
+	<p><input style="text-align: right" type="submit" value="Claim"/>  <?php echo $reward['title']; ?> - <?php echo $reward['description']; ?> (worth <?php echo $reward['value']; ?> point(s)) </p>
+	<input type="hidden" name="claim" value="true">
+	<input type="hidden" name="points_to_deduct" value="<?php echo "-" . $reward['value']; ?>">
+	<input type="hidden" name="channel_id" value="<?php echo $reward['channelid']; ?>">
+	<input type="hidden" name="campaign_id" value="<?php echo $reward['campaignid']; ?>">
+	<input type="hidden" name="brand_id" value="<?php echo $reward['brandid']; ?>">
+	<input type="hidden" name="reward_id" value="<?php echo $reward['rewardid']; ?>">
+	<input type="hidden" name="client_id" value="<?php echo $reward['clientid']; ?>">
+	<input type="hidden" name="reward_config_id" value="<?php echo $reward['rewardconfigid']; ?>">
+	<input type="hidden" name="current_inventory" value="<?php echo $reward['inventory']; ?>">
+	</form>
+<?php
+	$rewards_available_counter++;
+}
+
+?>
+<?php
+/*$rewards_available_counter = 0;
 
 foreach ($array_of_rewards as &$reward_params)
 {
@@ -692,6 +732,7 @@ foreach ($array_of_rewards as &$reward_params)
 				<input type="hidden" name="campaign_id" value="<?php echo $reward['campaignid']; ?>">
 				<input type="hidden" name="brand_id" value="<?php echo $reward['brandid']; ?>">
 				<input type="hidden" name="reward_id" value="<?php echo $reward['rewardid']; ?>">
+				<input type="hidden" name="client_id" value="<?php echo $reward['clientid']; ?>">
 				<input type="hidden" name="reward_config_id" value="<?php echo $reward['rewardconfigid']; ?>">
 				<input type="hidden" name="current_inventory" value="<?php echo $reward['currentinventory']; ?>">
 				</form>
@@ -702,9 +743,10 @@ foreach ($array_of_rewards as &$reward_params)
 			$j++;
 		}
 	}
-}
+}*/
+?>
 
-
+<?php
 if ($rewards_available_counter == 0)
 {
 	echo "</br>No available rewards, participate in campaigns to gain points.</br></br>";

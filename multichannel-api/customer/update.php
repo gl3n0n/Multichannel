@@ -15,6 +15,7 @@
 	$twitter_handle = $_POST['twitter_handle'];
 	$email = $_POST['email'];
 	$contact_number = $_POST['contact_number'];
+	$client_id = $_POST['client_id'];
 
     $response = array(
         'result_code' => '',
@@ -28,7 +29,8 @@
         return;
     }
 
-    if (!empty($customer_id) && !preg_match(DIGIT_REGEX, $customer_id))
+    if (!empty($customer_id) && !preg_match(DIGIT_REGEX, $customer_id) || 
+		!empty($client_id) && !preg_match(DIGIT_REGEX, $client_id))
     {
         $response['result_code'] = 403;
         $response['error_txt'] = 'Forbidden';
@@ -59,7 +61,7 @@
 
 	$customer = new Customer($dbconn, $customer_id);
     $response = $customer->update($first_name, $middle_name, $last_name, $gender, $birthdate,
-								  $address, $status, $fb_id, $twitter_handle, $email, $contact_number);
+								  $address, $status, $fb_id, $twitter_handle, $email, $contact_number, $client_id);
     if (!$response)
     {
 		$response['result_code'] = 500;

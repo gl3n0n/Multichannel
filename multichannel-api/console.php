@@ -21,6 +21,8 @@
                     <option value="/multichannel-api/points/inquire.php">Inquire Balance</option>
                     <option value="/multichannel-api/points/update.php">Add / Deduct Points</option>
 					<option value="/multichannel-api/reports/generate_report2.php">Generate Report</option>
+					<option value="/multichannel-api/customer/insert.php">Insert Customer</option>
+					<option value="/multichannel-api/customer/update.php">Update Customer Details</option>
                     <option value="/multichannel-api/customer/retrieve.php">Retrieve Customer</option>
                     <option value="/multichannel-api/customer/update.php">Update Customer</option>
 					<option value="/multichannel-api/customer/retrieve_subscriptions.php">Customer Subscriptions</option> 

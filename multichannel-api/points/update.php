@@ -27,7 +27,34 @@
     $points_class = new Points($dbconn, $subscription_id);
 
 	//
-	if ($points_class->isAllowed($brand_id, $campaign_id, $channel_id, $client_id))
+	$allowed_flag = $points_class->isAllowed($brand_id, $campaign_id, $channel_id, $client_id, $points_id);
+	
+	if ($allowed_flag[0] == "INVALID_CLIENT")
+	{
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Invalid Client';
+	}
+	else if ($allowed_flag[0] == "INVALID_BRAND")
+	{
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Invalid Brand';
+	}
+	else if ($allowed_flag[0] == "INVALID_CAMPAIGN")
+	{
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Invalid Campaign';
+	}
+	else if ($allowed_flag[0] == "INVALID_CHANNEL")
+	{
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Invalid Channel';
+	}
+	else if ($allowed_flag[0] == "INVALID_POINTS")
+	{
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Invalid Promo';
+	}
+	else if ($allowed_flag)
     {
 		// check if add or subtract
 		if ($action != 'ADD')
@@ -35,7 +62,7 @@
 		{
 			if ($action == 'CLAIM')
 			{
-				$total_points = $points_class->subtractClaimPoints($points);
+				$total_points = $points_class->subtractClaimPoints($points,$customer_id, $brand_id, $campaign_id, $channel_id, $client_id);
 			}
 			else
 			{
@@ -101,8 +128,8 @@
 	}
 	else
 	{
-		$response['result_code'] = 403;
-        $response['error_txt'] = 'Promo expired';
+		$response['result_code'] = 500;
+        $response['error_txt'] = 'Error Occurred';
 	}
 
     echo json_encode($response);

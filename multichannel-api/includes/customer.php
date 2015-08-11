@@ -3,7 +3,7 @@ class Customer {
         public $customer_id;
         public $conn;
 
-        public function Customer($conn, $customer_id) 
+        public function Customer($conn, $customer_id)  
         {
             $this->customer_id = $customer_id;
             $this->conn = $conn;
@@ -11,6 +11,75 @@ class Customer {
         }
 
 		public function isAllowed($brand_id, $campaign_id, $channel_id, $client_id)
+        {
+			// Check if Client is valid
+			$client_check_query = "SELECT * FROM clients WHERE Status = 'ACTIVE' AND ClientId = " . $this->conn->quote($client_id, 'integer') . " LIMIT 1";
+			$client_check_res = $this->conn->query($client_check_query);
+
+			if (PEAR::isError($client_check_res)) {
+				return false;
+			}
+
+			$client_check_row = $client_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (0 >= sizeof($client_check_row))
+			{
+				return array("INVALID_CLIENT");
+			}
+			
+			$curdate = date("Y-m-d H:i:s");
+			// Check if brand is valid
+			$brand_check_query = "SELECT * FROM brands WHERE Status = 'ACTIVE' AND BrandId = " . $this->conn->quote($brand_id, 'integer') . 
+								 " AND DurationFrom <= " . $this->conn->quote($curdate, 'timestamp') . 
+								 " AND DurationTo >= " . $this->conn->quote($curdate, 'timestamp') . " LIMIT 1";
+
+			$brand_check_res = $this->conn->query($brand_check_query);
+			if (PEAR::isError($brand_check_res)) {
+				return false;
+			}
+
+			$brand_check_row = $brand_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+			if (0 >= sizeof($brand_check_row))
+			{
+				return array("INVALID_BRAND");
+			}
+			
+			// Check if campaign is valid
+			$campaign_check_query = "SELECT * FROM campaigns WHERE Status = 'ACTIVE' AND CampaignId = " . $this->conn->quote($campaign_id, 'integer') . 
+								 " AND DurationFrom <= " . $this->conn->quote($curdate, 'timestamp') . 
+								 " AND DurationTo >= " . $this->conn->quote($curdate, 'timestamp') . " LIMIT 1";
+
+			$campaign_check_res = $this->conn->query($campaign_check_query);
+			if (PEAR::isError($campaign_check_res)) {
+				return false;
+			}
+
+			$campaign_check_row = $campaign_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (0 >= sizeof($campaign_check_row))
+			{
+				return array("INVALID_CAMPAIGN");
+			}
+
+			// Check if channel is valid
+			$channel_check_query = "SELECT * FROM channels WHERE Status = 'ACTIVE' AND ChannelId = " . $this->conn->quote($channel_id, 'integer') . 
+								 " AND DurationFrom <= " . $this->conn->quote($curdate, 'timestamp') . 
+								 " AND DurationTo >= " . $this->conn->quote($curdate, 'timestamp') . " LIMIT 1";
+
+			$channel_check_res = $this->conn->query($channel_check_query);
+			if (PEAR::isError($channel_check_res)) {
+				return false;
+			}
+
+			$channel_check_row = $channel_check_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (0 >= sizeof($channel_check_row))
+			{
+				return array("INVALID_CHANNEL");
+			}
+
+			return true;
+        }
+
+		/*public function isAllowed($brand_id, $campaign_id, $channel_id, $client_id)
         {
             $query_keys = array();
             $curdate = date("Y-m-d H:i:s");
@@ -59,13 +128,13 @@ class Customer {
                 return false;
             else
                 return true;
-        }
+        }*/
 
 		public function add($first_name, $middle_name, $last_name, $gender, $birthdate,
-							$address, $status, $fb_id, $twitter_handle, $email, $contact_number)
+							$address, $status, $fb_id, $twitter_handle, $email, $contact_number,$client_id)
 		{
 			$curdate = date('Y-m-d H:i:s');
-			$types = array('text','text','text','text','text','text','text','text','text','text','timestamp');
+			$types = array('text','text','text','text','text','text','text','text','text','text','timestamp', 'integer');
 
 			$fields_values = array(
 				'FirstName' => $first_name,
@@ -79,6 +148,7 @@ class Customer {
 				'FBId' => $fb_id,
 				'TwitterHandle' => $twitter_handle,
 				'DateCreated' => $curdate,
+				'ClientId' => $client_id,
 			);
 
 			$select_query = "SELECT * FROM customers WHERE Email = " . $this->conn->quote($email) . " OR FBId = " . $this->conn->quote($fb_id);
@@ -239,7 +309,7 @@ class Customer {
 		}
 
 		public function update($first_name, $middle_name, $last_name, $gender, $birthdate,
-							   $address, $status, $fb_id, $twitter_handle, $email, $contact_number)
+							   $address, $status, $fb_id, $twitter_handle, $email, $contact_number, $client_id)
 		{
 			$query_keys = array();
 

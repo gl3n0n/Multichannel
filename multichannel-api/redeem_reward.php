@@ -150,18 +150,13 @@ class RedeemReward {
 					$table_name = 'reward_details';
 					$query_keys = array();
 					$query_keys[] = 'RewardConfigId = '. $this->conn->quote($reward_config_id, 'integer');
-					
-					if (sizeof($query_keys) == 0)
-						$query_string = null;
-					else
-						$query_string = implode(' AND ', $query_keys);
 						
 					$fields_values = array();
 					$fields_values['Inventory'] = $new_inventory;
 					$types = array('integer');
 					
 					$affectedRows = $this->conn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
-					if (PEAR::isError($affectedRows)) {
+					if (PEAR::isError($res)) {
 						return false;
 					}
 				}
@@ -193,8 +188,6 @@ class RedeemReward {
 				$query_string = implode(' AND ', $query_keys);
 
 			$query .= "WHERE " . $query_string . " LIMIT 1";
-			
-			//echo $query;
 
 			$res = $this->conn->query($query);
 	
