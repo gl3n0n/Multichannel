@@ -271,4 +271,85 @@ class ReportsController extends Controller
 		 
 	}
 
+
+	//more reports
+	public function actionPointsgain()
+	{
+
+		
+		$model=new Reports('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Reports']))
+		$model->attributes=$_GET['Reports'];
+
+
+		//criteria
+		$criteria   = new CDbCriteria;
+		$filterSrch = 0;
+
+
+		//important
+		//brands		
+		$_brands = Brands::model()->findAll(array(
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
+		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
+
+		//campaigns
+		$_campaigns = Campaigns::model()->findAll(array(
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE '"));
+		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
+
+		//clients		
+		$_clients   = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE '"));
+		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
+		
+		//channels
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+		
+
+		//get all
+		$cid        = Yii::app()->user->id;
+		$gdata      = Yii::app()->db->createCommand()
+				->select('CS.CustomerId, CS.ClientId, CS.BrandId, CS.CampaignId, CS.ChannelId, CP.Balance')
+				->from('Customer_Subscriptions CS, 
+					Customer_Points CP')
+				->where('CS.CustomerId =:vId 
+						AND CS.Status =:vStatus 
+						AND CP.SubscriptionId = CS.SubscriptionId',
+					array(':vId'=>$cid,':vStatus'=> 'ACTIVE'))
+				->group('CS.ClientId, CS.BrandId, CS.CampaignId, CS.ChannelId')			
+				->queryAll();
+		$modRes     = array();
+		$sumall     = 0;
+		$total      = 0;
+		foreach($gdata as $row)
+		{
+			$total++;
+			$modRes[] = array(
+				'CLIENTS'    => $clients[$row['ClientId']],
+				'BRANDS'     => $brands[$row['BrandId']],
+				'CAMPAIGNS'  => $campaigns[$row['CampaignId']],
+				'CHANNELS'   => $channels[$row['ChannelId']],
+				'BALANCE'    => $row['Balance'],
+			);
+			$sumall  += $row['Balance'];
+			
+		}
+		
+		if(0){
+		echo "<hr> $sumall#CustomerSubscriptions<hr>".@var_export($modRes,true);			 		
+		exit;
+		}
+		
+		//exit;
+		$this->render('pointsgain',array(
+			'dataRes'=>$modRes,
+			'dataPts'=>$sumall,
+		));
+	}
+
+
 }

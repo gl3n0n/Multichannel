@@ -5,15 +5,54 @@ $this->breadcrumbs=array(
 	'Reports',
 );
 
-?>
-<h1>Reports</h1>
 
+//overwrite
+if(Yii::app()->user->AccessType === "SUPERADMIN")
+{
+	$this->menu=array(
+	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgain')),
+	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
+	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
+	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
+	);
+}
+
+?>
+<script>
+function downloadCSV(csvPath) 
+{
+	var iframe;
+	iframe = document.getElementById("csvdownloader");
+	if (iframe == null) {
+		iframe = document.createElement('iframe');
+		iframe.id = "csvdownloader";
+		iframe.style.visibility = 'hidden';
+		document.body.appendChild(iframe);
+	}
+	iframe.src = csvPath;
+	return true;
+}
+$( document ).ready(function() {
+    //$("#reportFilter").show();
+    $("#DIVFILTER").click(function(){
+	$("#reportFilter").toggle();
+    });
+});
+</script>
+<h1>Reports</h1>
+<fieldset class='filterSrchBold'>
+<legend id='DIVFILTER'>
+<h3>
+Search Filter(s)
+</h3>
+</legend>
+<div id='reportFilter'>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
-	<fieldset style="padding: 0.2em 0.5em;border:1px solid #aaaaaa;color:blue;font-size:90%;text-align:left;height:40px;">
+	<fieldset class='filterSrch'>
 		<legend>Search Customer Name / Email</legend>
 		<input type="text" id='byCustomerName' name="byCustomerName" id="list-search" placeholder="CustomerName" title="Search Customer Name/Email">
 		<button type="submit" id='btnByCustomerName'>Search</button>
@@ -27,7 +66,7 @@ $this->breadcrumbs=array(
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
-	<fieldset style="padding: 0.2em 0.5em;border:1px solid #aaaaaa;color:blue;font-size:90%;text-align:left;height:40px;">
+	<fieldset class='filterSrch'>
 		<legend>Search Brand Name</legend>
 		<input type="text" id='byBrand' name="byBrand" id="list-search" placeholder="BrandName" title="Search Brand Name">
 		<button type="submit" id='btnByBrandName'>Search</button>
@@ -41,7 +80,7 @@ $this->breadcrumbs=array(
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
-	<fieldset style="padding: 0.2em 0.5em;border:1px solid #aaaaaa;color:blue;font-size:90%;text-align:left;height:40px;">
+	<fieldset class='filterSrch'>
 		<legend>Search Campaign Name</legend>
 		<input type="text" id='byCampaign' name="byCampaign" id="list-search" placeholder="CampaignName" title="Search Campaign Name">
 		<button type="submit" id='btnByCampaignName'>Search</button>
@@ -55,7 +94,7 @@ $this->breadcrumbs=array(
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
-	<fieldset style="padding: 0.2em 0.5em;border:1px solid #aaaaaa;color:blue;font-size:90%;text-align:left;height:40px;">
+	<fieldset class='filterSrch'>
 		<legend>Search Channel Name</legend>
 		<input type="text" id='byChannel' name="byChannel" id="list-search" placeholder="ChannelName" title="Search Channel Name">
 		<button type="submit" id='btnByChannel'>Search</button>
@@ -75,27 +114,13 @@ if(!empty($downloadCSV))
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
-	<fieldset style="padding: 0.2em 0.5em;border:1px solid #aaaaaa;color:blue;font-size:90%;text-align:left;height:40px;">
+	<fieldset class='filterSrch'>
 		<legend>CSV</legend>
 		<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("reports/csv")?>/?fn=<?php echo $downloadCSV?>');">
 		DOWNLOAD CSV 
 		</a>
 	</fieldset>
-	 <script>
-		function downloadCSV(csvPath) 
-		{
-			var iframe;
-			iframe = document.getElementById("csvdownloader");
-			if (iframe == null) {
-				iframe = document.createElement('iframe');
-				iframe.id = "csvdownloader";
-				iframe.style.visibility = 'hidden';
-				document.body.appendChild(iframe);
-			}
-			iframe.src = csvPath;
-			return true;
-		}
-	</script>
+
 	<iframe id="csvdownloader" style="display:none"
 	 width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
 <?php $this->endWidget(); ?>
@@ -103,6 +128,9 @@ if(!empty($downloadCSV))
 <?php
 }//show download
 ?>
+
+</div>
+</fieldset>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
        'dataProvider'=>$dataProvider,
        'columns' => array(
