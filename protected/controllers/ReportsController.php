@@ -351,5 +351,111 @@ class ReportsController extends Controller
 		));
 	}
 
+	public function actionCampaignPart()
+	{
+		$search      = trim(Yii::app()->request->getParam('search'));
+		$customer_id = trim(Yii::app()->user->id);
+		$criteria = new CDbCriteria;
+		$criteria->addCondition('CustomerId = :customer_id');
+		$criteria->addCondition("Status     = 'ACTIVE' ");
+		$criteria->params = array(':customer_id' => $customer_id);
+		
+		if(strlen($search))
+		{
+			$criteria->with = array(
+				'subsChannels' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" subsChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+		}
+		$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
+			'criteria'=> $criteria,
+		));
+
+
+		$this->render('campaignpart',array(
+			'dataProvider'=>$dataProvider,
+		));
+
+	}
+	
+	public function actionRedeemrewards()
+	{
+		$search      = trim(Yii::app()->request->getParam('search'));
+		$customer_id = trim(Yii::app()->user->id);
+		$criteria = new CDbCriteria;
+		$criteria->addCondition('UserId = :customer_id');
+		$criteria->params = array(':customer_id' => $customer_id);
+		if(strlen($search))
+		{
+			$criteria->with = array(
+				'rewardChannels' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" rewardChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+		}
+		$dataProvider = new CActiveDataProvider('RewardsRedeem', array(
+			'criteria'=> $criteria,
+		));
+
+
+		$this->render('redeemrewards',array(
+			'dataProvider'=>$dataProvider,
+		));
+
+	}
+
+	public function actionRedeemcoupons()
+	{
+		$search      = trim(Yii::app()->request->getParam('search'));
+		$customer_id = trim(Yii::app()->user->id);
+		$criteria = new CDbCriteria;
+		$criteria->addCondition('CustomerId = :customer_id');
+		$criteria->params = array(':customer_id' => $customer_id);
+		if(strlen($search))
+		{
+			$criteria->with = array(
+				'rewardChannels' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->addCondition(" rewardChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+		}
+		$dataProvider = new CActiveDataProvider('CouponsRedeem', array(
+			'criteria'=> $criteria,
+		));
+
+
+		$this->render('redeemcoupons',array(
+			'dataProvider'=>$dataProvider,
+		));
+
+	}
+	
+	public function actionPointsgainbal()
+	{
+			$search      = trim(Yii::app()->request->getParam('search'));
+			$customer_id = trim(Yii::app()->user->id);
+			$criteria = new CDbCriteria;
+			$criteria->addCondition('CustomerId = :customer_id');
+			$criteria->params = array(':customer_id' => $customer_id);
+			if(strlen($search))
+			{
+				$criteria->with = array(
+					'rewardChannels' => array('joinType'=>'LEFT JOIN'),
+				);
+				$criteria->addCondition(" rewardChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+			}
+			$criteria->with = array(
+				'mapBalance' => array('joinType'=>'LEFT JOIN'),
+			);
+			$criteria->distinct=true;
+			$criteria->select='t.ClientId, t.BrandId, t.CampaignId, t.ChannelId';					
+			$dataProvider = new CActiveDataProvider('PointsGained', array(
+				'criteria'=> $criteria,
+			));
+	
+	
+			$this->render('pointsgainbal',array(
+				'dataProvider'=>$dataProvider,
+			));
+	
+	}
 
 }

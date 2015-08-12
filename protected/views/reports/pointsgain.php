@@ -54,7 +54,17 @@ Current Total Points: <?=@intval($dataPts)?>
 	</tr>
 	<?php
 	}
+	if($css <= 0)
+	{
 	?>
+	<tr><td colspan="10" class="empty">
+		<span class="empty">
+		No results found.
+		</span>
+	    </td>
+	</tr>
+	<?php
+	}?>
 	</tbody>
 </table>
 <?php

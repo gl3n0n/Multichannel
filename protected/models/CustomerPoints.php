@@ -50,6 +50,16 @@ class CustomerPoints extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'subsCustSubs'       =>array(self::MANY_MANY,  'CustomerSubscriptions', 'SubscriptionId'),
+			/**
+			'subsCustClients'    =>array(self::MANY_MANY,  'Clients', 
+						'Customer_Subscriptions(SubscriptionId,ClientId)'),
+			'subsCustBrands'     =>array(self::MANY_MANY,  'Brands', 
+						'Customer_Subscriptions(SubscriptionId,BrandId)'), 
+			'subsCustChannels'   =>array(self::MANY_MANY,  'Channels', 
+						'Customer_Subscriptions(SubscriptionId,ChannelId)'),                				                				
+			'subsCustCampaigns'  =>array(self::MANY_MANY,  'Campaigns', 
+						'Customer_Subscriptions(SubscriptionId,CampaignId)'), **/      			
 		);
 	}
 
