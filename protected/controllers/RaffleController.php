@@ -5,6 +5,7 @@ class RaffleController extends Controller
 	public $extraJS;
 	public $mainDivClass;
 	public $modals;
+	public $statusMsg;
 	
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -36,11 +37,11 @@ class RaffleController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update','pending','approve'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+				'actions'=>array('admin','delete','pending','approve'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -178,6 +179,155 @@ class RaffleController extends Controller
 			'model'=>$model,
 		));
 	}
+
+
+
+	
+
+	/**
+	 * Manages all models.
+	 */
+	public function actionPending()
+	{
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('Source', $search, true);
+
+		//all-pending
+		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
+		
+
+		//brands		
+		$_brands = Brands::model()->findAll(array(
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
+		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
+
+		//campaigns
+		$_campaigns = Campaigns::model()->findAll(array(
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE '"));
+		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
+
+		//clients		
+		$_clients   = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE '"));
+		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
+		
+		//channels
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+    		
+    		//provider
+    		$dataProvider = new CActiveDataProvider('Coupon', array(
+				'criteria'=>$criteria ,
+			));
+    		
+    		
+    		
+		
+		//send it
+		$dataProvider = new CActiveDataProvider('Raffle', array(
+			'criteria'=>$criteria ,
+		));
+		
+		$mapping =  array(
+			'Brands'       => $brands,
+			'Campaigns'    => $campaigns,
+			'Clients'      => $clients,
+			'Channels'     => $channels,
+		);
+		
+		$this->render('pending',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+		));
+	}
+	
+		
+
+	/**
+	* approve via API.
+	*/
+	public function actionApprove()
+	{
+	
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('Source', $search, true);
+
+		//all-pending
+		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
+		
+		//important
+		//brands		
+		$_brands = Brands::model()->findAll(array(
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
+		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
+
+		//campaigns
+		$_campaigns = Campaigns::model()->findAll(array(
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE '"));
+		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
+
+		//clients		
+		$_clients   = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE '"));
+		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
+		
+		//channels
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+		
+		$mapping =  array(
+			'Brands'       => $brands,
+			'Campaigns'    => $campaigns,
+			'Clients'      => $clients,
+			'Channels'     => $channels,
+		);	
+		
+		//statys msg
+		$this->statusMsg = '';
+		$apiUtils  = new Utils;
+		$uid       = trim(Yii::app()->request->getParam('uid'));
+		$model     = Raffle::model()->findByPk($uid);
+		//chk
+		if(Yii::app()->user->AccessType !== "SUPERADMIN")
+		{
+		    $this->statusMsg = Yii::app()->params['notAllowedStatus'];
+		}
+		else
+		{
+		    
+		    $api   = array(
+		    		'data' => array('raffle_id'     => $uid, 
+		    				'status'        => $model->Status,
+		    				'updated_by'    => $model->UpdatedBy,
+		    				'source'        => $model->Source,
+		    				'no_of_winners' => $model->NoOfWinners,
+		    				'draw_date'     => $model->DrawDate,
+		    			        'update_raffle' => true),
+		    		'url'  => Yii::app()->params['api-url']['update_raffle'],
+		    		);
+		    $ret   = $apiUtils->send2Api($api);
+		    
+		    $this->statusMsg = ( ( $ret["result_code"] == 200) ?
+		                       ( 'Successfully generated the raffle.' ) :
+		                       ( sprintf("Error occurred while generating the  raffle.<br/><br/>[%s]",trim($ret["error_txt"]))) );
+		}
+		
+		//provider
+    		$dataProvider = new CActiveDataProvider('Raffle', array(
+				'criteria'  =>$criteria ,
+			));		
+			
+		$this->render('pending',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+			));			
+	}
+
+
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.

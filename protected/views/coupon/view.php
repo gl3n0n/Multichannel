@@ -31,14 +31,18 @@ $this->menu=array(
 		'DateCreated',
 		array(
 			'name' => 'CreatedBy',
-			'value' => $model->couponCreateUsers->Username,
+			'value' => (($model->couponCreateUsers != null)?($model->couponCreateUsers->Username):('') ),
 			),
 		'DateUpdated',
 		array(
 			'name' => 'UpdatedBy',
-			'value' => $model->couponUpdateUsers->Username,
+			'value' => (($model->couponUpdateUsers != null)?($model->couponUpdateUsers->Username):('') ),
 			),
-		'Image',
+		array(
+		'name' => 'Image',
+		'type' => 'raw',
+		'value'=> CHtml::image($model->Image,"",array("width"=>"120px") )
+		),		
 		'Quantity',
 		'LimitPerUser',
 		'File',

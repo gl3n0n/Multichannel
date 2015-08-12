@@ -93,6 +93,7 @@ return array(
 	'params'=>array(
 		// this is used in contact page
 		'adminEmail'=>'webmaster@example.com',
+		'notAllowedStatus' => "Oops, you don't have permission to perform this task!",
 		'list'=>array(
 			'perPage'=>10,
 			),
@@ -104,5 +105,9 @@ return array(
 		'reportCsv'     => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
 				     ('C:\wamp\www\Multichannel\protected\downloads'):
 				     ('/var/www/html/multichannel/protected/downloads')),
+		'api-url'       => array(
+					'update_coupon' => 'http://104.156.53.150/multichannel-api/coupon/generate.php',
+					'update_raffle' => 'http://104.156.53.150/multichannel-api/raffle_engine/update.php',
+				),
 	),
 );

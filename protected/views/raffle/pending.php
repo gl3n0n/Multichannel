@@ -11,7 +11,6 @@ $this->menu=array(
 	// array('label'=>'Manage Raffle', 'url'=>array('admin')),
 );
 
-
 //overwrite
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
@@ -22,13 +21,16 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 }
 ?>
 
-<h1>Raffles</h1>
+<h1>Pending Raffles</h1>
 <div>
+
 <?php 
-
-
+if($this->statusMsg != null)
+{
+    echo "<h5 style='color:red'>$this->statusMsg</h5>";
+}
 $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("raffle/index"),
+	'action'=>Yii::app()->createUrl("raffle/pending"),
 	'method'=>'get',
 )); ?>
 	<fieldset>
@@ -38,32 +40,26 @@ $form=$this->beginWidget('CActiveForm', array(
 	</fieldset>
 <?php $this->endWidget(); ?>
 </div>
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php 
+
+$this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',CHtml::link(CHtml::encode($data->RaffleId), array('view', 'id'=>$data->RaffleId))
 	'columns'=>array(
-		//'RaffleId',
+		'CouponId',
 		array(
 		'name' => 'RaffleId',
 		'type' => 'raw',
 		'value'=> 'CHtml::link($data->RaffleId,Yii::app()->createUrl("raffle/update",array("id"=>$data->primaryKey)))',
 		), 
-		'Source',
 		'NoOfWinners',
-		'BackUp',
 		'FdaNo',
-		'DrawDate',
-		'DateCreated',
+		'Source',
 		array(
-		'name'  => 'CreatedBy',
-		'value' => '$data->raffleCreateUsers->Username',
-		),
-		'DateUpdated',
-		array(
-		'name'  => 'UpdatedBy',
-		'value' => '($data->raffleUpdateUsers!=null)?($data->raffleUpdateUsers->Username):("")',
-		),
-		'Status',
-		'CouponId',
-		),
+		'name' => 'Action',
+		'type' => 'raw',
+		'value'=> '($data->Status !== "PENDING")?(""):(CHtml::link("Approve",Yii::app()->createUrl("raffle/approve/",array("uid"=>$data->primaryKey))))'
+		), 
+	
+		),		
 )); ?>

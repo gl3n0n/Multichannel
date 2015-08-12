@@ -8,8 +8,16 @@ $this->breadcrumbs=array(
 
 $this->menu=array(
 	array('label'=>'Create Coupon', 'url'=>array('create')),
-	// array('label'=>'Manage Coupon', 'url'=>array('admin')),
 );
+
+//overwrite
+if(Yii::app()->user->AccessType === "SUPERADMIN")
+{
+	$this->menu=array(
+	array('label'=>'Create Coupon',   'url'=>array('create')),
+	array('label'=>'Pending Coupons', 'url'=>array('pending')),
+	);
+}
 ?>
 
 <h1>Coupons</h1>
@@ -32,7 +40,7 @@ $this->menu=array(
 	array(
 	'name' => 'CouponId',
 	'type' => 'raw',
-	'value'=> 'CHtml::link($data->CouponId,Yii::app()->createUrl("coupon/update",array("id"=>$data->primaryKey)))',
+	'value'=> 'CHtml::link($data->CouponId,Yii::app()->createUrl("coupon/view",array("id"=>$data->primaryKey)))',
 	), 
 	'Type',
 	'TypeId',

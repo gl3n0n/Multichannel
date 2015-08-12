@@ -5,6 +5,9 @@ class CouponController extends Controller
 	public $extraJS;
 	public $mainDivClass;
 	public $modals;	
+	public $mappings;
+	public $statusMsg;
+	
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
@@ -31,11 +34,11 @@ class CouponController extends Controller
 	{
 		return array(
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','index','view'),
+				'actions'=>array('create','update','index','view','pending','approve'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+				'actions'=>array('admin','delete','pending','approve'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -422,7 +425,7 @@ class CouponController extends Controller
 		if($search) $criteria->compare('Source', $search, true);
 
 		$dataProvider = new CActiveDataProvider('Coupon', array(
-		'criteria'=>$criteria ,
+			'criteria'=>$criteria ,
 		));
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
@@ -443,6 +446,157 @@ class CouponController extends Controller
 			'model'=>$model,
 		));
 	}
+	
+	
+
+	/**
+	 * Manages all models.
+	 */
+	public function actionPending()
+	{
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('Source', $search, true);
+
+		//all-pending
+		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
+		$criteria->addCondition("t.edit_flag = '1' ");
+		
+
+		//brands		
+		$_brands = Brands::model()->findAll(array(
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
+		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
+
+		//campaigns
+		$_campaigns = Campaigns::model()->findAll(array(
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE '"));
+		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
+
+		//clients		
+		$_clients   = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE '"));
+		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
+		
+		//channels
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+    		
+    		//provider
+    		$dataProvider = new CActiveDataProvider('Coupon', array(
+				'criteria'=>$criteria ,
+			));
+    		
+    		if(0){
+    		echo '<hr><hr>'.@var_export($dataProvider->getData(),true);
+    		echo '<hr><hr>'.@var_export($brands,true);
+    		echo '<hr><hr>'.@var_export($campaigns,true);
+    		echo '<hr><hr>'.@var_export($clients,true);
+    		echo '<hr><hr>'.@var_export($channels,true);
+    		exit;
+    		}
+    		
+    		
+		
+		//send it
+		$dataProvider = new CActiveDataProvider('Coupon', array(
+			'criteria'=>$criteria ,
+		));
+		
+		$mapping =  array(
+			'Brands'       => $brands,
+			'Campaigns'    => $campaigns,
+			'Clients'      => $clients,
+			'Channels'     => $channels,
+		);
+		
+		$this->render('pending',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+		));
+	}
+
+	/**
+	* approve via API.
+	*/
+	public function actionApprove()
+	{
+	
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('Source', $search, true);
+
+		//all-pending
+		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
+		$criteria->addCondition("t.edit_flag = '1' ");
+
+		//important
+		//brands		
+		$_brands = Brands::model()->findAll(array(
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
+		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
+
+		//campaigns
+		$_campaigns = Campaigns::model()->findAll(array(
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE '"));
+		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
+
+		//clients		
+		$_clients   = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE '"));
+		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
+		
+		//channels
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+		
+		$mapping =  array(
+			'Brands'       => $brands,
+			'Campaigns'    => $campaigns,
+			'Clients'      => $clients,
+			'Channels'     => $channels,
+		);	
+		
+		//statys msg
+		$this->statusMsg = '';
+		$apiUtils  = new Utils;
+		$uid       = trim(Yii::app()->request->getParam('uid'));
+		
+		//chk
+		if(Yii::app()->user->AccessType !== "SUPERADMIN")
+		{
+		    $this->statusMsg = Yii::app()->params['notAllowedStatus'];
+		}
+		else
+		{
+		    
+		    $api   = array(
+		    		'data' => array('coupon_id'     => $uid, 
+		    			        'update_coupon' => true),
+		    		'url'  => Yii::app()->params['api-url']['update_coupon'],
+		    		);
+		    $ret   = $apiUtils->send2Api($api);
+		    
+		    $this->statusMsg = ( ( $ret["result_code"] == 200) ?
+		                       ( 'Successfully updated the  coupon.' ) :
+		                       ( sprintf("Error occurred while updating the  coupon.<br/><br/>[%s]",trim($ret["error_txt"]))) );
+		}
+		
+		//provider
+    		$dataProvider = new CActiveDataProvider('Coupon', array(
+				'criteria'  =>$criteria ,
+			));		
+			
+		$this->render('pending',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+			));			
+	}
+
+
+
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
