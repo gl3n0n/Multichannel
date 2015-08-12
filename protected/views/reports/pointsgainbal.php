@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
 	$this->menu=array(
-	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgain')),
+	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
 	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
 	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
 	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
@@ -32,12 +32,11 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 <?php $this->endWidget(); ?>
 </div>
 <?php 
-@var_dump($dataProvider->getData());
+
 $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-		'SubscriptionId',
 		array(
 			'name' => 'ClientId',
 			'value' => '$data->mapClients->CompanyName',
@@ -55,8 +54,8 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'value' => '$data->mapChannels->ChannelName',
 			),
 		array(
-		'name' => 'Points',
-		'value' => '$data->mapBalance',
+		'name'  => 'Points',
+		'value' => '$data->mapPoints->Balance',
 		),			
 		'Status',
 	),	

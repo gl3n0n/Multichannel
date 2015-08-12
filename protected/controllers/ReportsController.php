@@ -340,14 +340,20 @@ class ReportsController extends Controller
 		}
 		
 		if(0){
-		echo "<hr> $sumall#CustomerSubscriptions<hr>".@var_export($modRes,true);			 		
-		exit;
+			echo "<hr> $sumall#CustomerSubscriptions<hr>".@var_export($modRes,true);			 		
+			exit;
 		}
-		
+	
+		//$dataSet=new CActiveDataProvider('CustomerSubscriptions',array('data'=> $modRes));
+		$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
+					'criteria'=> $criteria,
+		));
+		$dataProvider->setData($modRes);
 		//exit;
 		$this->render('pointsgain',array(
 			'dataRes'=>$modRes,
 			'dataPts'=>$sumall,
+			'dataProvider'=>$dataProvider,
 		));
 	}
 

@@ -5,10 +5,11 @@ $this->breadcrumbs=array(
 	'Reports',
 );
 
+
 ?>
 <h1>Breakdown of Points Gained</h1>
 <div>
- <!--//
+
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("reports/pointsgain"),
 	'method'=>'get',
@@ -18,8 +19,11 @@ $this->breadcrumbs=array(
 		<input type="text" id='search' name="search" id="list-search" placeholder="ChannelName" title="Search Channel Name">
 		<button type="submit">Search</button>
 	</fieldset>
-<?php $this->endWidget(); ?>
-//-->
+<?php $this->endWidget(); 
+
+?>
+
+
 </div>
 <div id="yw1" class="grid-view">
 <br/>
