@@ -31,8 +31,17 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	</fieldset>
 <?php $this->endWidget(); ?>
 </div>
-<?php 
+<br/>
+<br/>
 
+<?php
+$sumall = 0;
+$dataProvider->setPagination(false);
+foreach($dataProvider->getData() as $kk )
+{
+	$sumall += ($kk->mapPoints != null)?($kk->mapPoints->Balance):(0);
+}
+echo "<h2>Current Total Points: $sumall</h3>";
 $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',

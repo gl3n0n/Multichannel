@@ -362,8 +362,8 @@ class ReportsController extends Controller
 		$search      = trim(Yii::app()->request->getParam('search'));
 		$customer_id = trim(Yii::app()->user->id);
 		$criteria = new CDbCriteria;
-		$criteria->addCondition('CustomerId = :customer_id');
-		$criteria->addCondition("Status     = 'ACTIVE' ");
+		$criteria->addCondition('t.CustomerId = :customer_id');
+		$criteria->addCondition("t.Status     = 'ACTIVE' ");
 		$criteria->params = array(':customer_id' => $customer_id);
 		
 		if(strlen($search))
@@ -439,20 +439,19 @@ class ReportsController extends Controller
 			$search      = trim(Yii::app()->request->getParam('search'));
 			$customer_id = trim(Yii::app()->user->id);
 			$criteria = new CDbCriteria;
-			$criteria->addCondition('CustomerId = :customer_id');
-			$criteria->params = array(':customer_id' => $customer_id);
+			
 			if(strlen($search))
 			{
-				$criteria->with = array(
-					'rewardChannels' => array('joinType'=>'LEFT JOIN'),
-				);
-				$criteria->addCondition(" rewardChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+			   $criteria->addCondition(" t.ChannelId IN ( SELECT Channels.ChannelId FROM Channels WHERE Channels.ChannelName LIKE '%".addslashes($search)."%') ");
 			}
-			$criteria->with = array(
-				'mapBalance' => array('joinType'=>'LEFT JOIN'),
-			);
+			$criteria->addCondition('CustomerId = :customer_id');
+			$criteria->params = array(':customer_id' => $customer_id);
+			$criteria->with   = array(
+							'mapBalance' => array('joinType'=>'LEFT JOIN'),
+						);
 			$criteria->distinct=true;
-			$criteria->select='t.ClientId, t.BrandId, t.CampaignId, t.ChannelId';					
+			$criteria->select= 't.ClientId, t.BrandId, t.CampaignId, t.ChannelId';					
+			$criteria->group = 't.ClientId, t.BrandId, t.CampaignId, t.ChannelId';
 			$dataProvider = new CActiveDataProvider('PointsGained', array(
 				'criteria'=> $criteria,
 			));
