@@ -85,6 +85,7 @@ class Coupon extends CActiveRecord
             		'couponMap'        =>array(self::HAS_MANY,   'CouponMapping','CouponId'),
             		'couponCreateUsers'=>array(self::BELONGS_TO, 'Users',  'CreatedBy'),
 			'couponUpdateUsers'=>array(self::BELONGS_TO, 'Users',  'UpdatedBy'),
+			/**
 			'couponClients'    =>array(self::MANY_MANY,  'Clients', 
                 				'Coupon_Mapping(CouponMappingId,ClientId)'),
 			'couponBrands'     =>array(self::MANY_MANY,  'Brands', 
@@ -93,6 +94,7 @@ class Coupon extends CActiveRecord
                 				'Coupon_Mapping(CouponMappingId,ChannelId)'),                				                				
 			'couponCampaigns'  =>array(self::MANY_MANY,  'Campaigns', 
                 				'Coupon_Mapping(CouponMappingId,CampaignId)'),                				                				
+                				**/
 		);
 	}
 
