@@ -312,7 +312,7 @@ class RaffleController extends Controller
 		    $ret   = $apiUtils->send2Api($api);
 		    
 		    $this->statusMsg = ( ( $ret["result_code"] == 200) ?
-		                       ( 'Successfully generated the raffle.' . @var_export($ret,true)) :
+		                       ( 'Successfully generated the raffle.') :
 		                       ( sprintf("Error occurred while generating the  raffle.<br/><br/>[%s]",trim($ret["error_txt"]))) );
 		}
 		
