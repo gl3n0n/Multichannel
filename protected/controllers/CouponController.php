@@ -482,7 +482,16 @@ class CouponController extends Controller
 		$_channels   = Channels::model()->findAll(array(
 				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
 		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
-    		
+		
+		//try 
+		$criteria->with=array(
+		'couponMap.couponClients',
+		'couponMap.couponBrands',
+		'couponMap.couponChannels',
+		'couponMap.couponCampaigns',
+		'couponMap',
+		);
+		
     		//provider
     		$dataProvider = new CActiveDataProvider('Coupon', array(
 				'criteria'=>$criteria ,
