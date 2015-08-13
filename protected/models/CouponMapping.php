@@ -45,6 +45,10 @@ class CouponMapping extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'couponClients'    =>array(self::BELONGS_TO,  'Clients','ClientId'     ),
+			'couponBrands'     =>array(self::BELONGS_TO,  'Brands','BrandId'       ),
+			'couponChannels'   =>array(self::BELONGS_TO,  'Channels','ChannelId'   ),
+			'couponCampaigns'  =>array(self::BELONGS_TO,  'Campaings','CampaignId' ),
 		);
 	}
 
