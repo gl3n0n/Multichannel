@@ -111,7 +111,7 @@ class BrandsController extends Controller
 				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			}
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-			$model->setAttribute("CreatedBy", Yii::app()->user->UserId);
+			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
