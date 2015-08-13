@@ -301,7 +301,7 @@ class RaffleController extends Controller
 		    
 		    $api   = array(
 		    		'data' => array('raffle_id'     => $uid, 
-		    				'status'        => $model->Status,
+		    				'status'        => 'ACTIVE',
 		    				'updated_by'    => $model->UpdatedBy,
 		    				'source'        => $model->Source,
 		    				'no_of_winners' => $model->NoOfWinners,
