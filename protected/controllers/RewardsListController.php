@@ -175,6 +175,7 @@ class RewardsListController extends Controller
 				),
 			));
 			}
+			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('RewardsList', array(
 							'criteria'=>$criteria ,
 			));

@@ -191,12 +191,12 @@ class BrandsController extends Controller
 		$criteria = new CDbCriteria;
 		if($search) $criteria->compare('BrandName', $search, true);
 
-
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('Brands', array(
 				'criteria'=>$criteria ,
 			));
 		} else {
+			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('Brands', array(
 				'criteria'=>$criteria ,
 			));

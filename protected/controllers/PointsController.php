@@ -381,6 +381,7 @@ class PointsController extends Controller
 				),
 			));
 			}
+			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('Points', array(
 				'criteria'=>$criteria ,
 			));

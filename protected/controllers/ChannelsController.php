@@ -284,6 +284,7 @@ class ChannelsController extends Controller
 					),
 				));
 			}
+			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('Channels', array(
 					'criteria'=>$criteria ,
 			));

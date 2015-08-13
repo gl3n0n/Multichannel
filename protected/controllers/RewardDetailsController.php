@@ -350,7 +350,10 @@ class RewardDetailsController extends Controller
 			$criteria->addCondition(" rdetailChannels.ChannelName LIKE '%".addslashes($search)."%' ");
 		}
 		
-		
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')   
+		{
+			$criteria->compare('ClientId', Yii::app()->user->ClientId, true);    
+		}
 		$dataProvider = new CActiveDataProvider('RewardDetails', array(
 			'criteria'=>$criteria ,
 		));

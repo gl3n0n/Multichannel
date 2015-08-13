@@ -200,6 +200,7 @@ class CampaignsController extends Controller
 				),
 			));
 			}
+			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('Campaigns', array(
 							'criteria'=>$criteria ,
 			));		
