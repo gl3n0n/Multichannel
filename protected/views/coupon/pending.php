@@ -43,7 +43,7 @@ if(0){
 foreach($dataProvider->getData() as $row)
 {
 echo "<hr>";
-echo @var_export($row->couponMap[0]->couponClients,true);
+echo @var_export($row->couponMap[0]->couponBrands,true);
 }
 exit;
 }
@@ -64,7 +64,7 @@ $this->widget('CGridViewEtc', array(
 	array(
 	'name'  => 'Brands',
 	//'value' => '$this->grid->etc[\'Brands\'][$data->couponMap[0]->BrandId]',
-	'value' => '($data->couponMap[0]->couponBrands != null )?$data->>couponMap[0]->couponBrands->BrandName:("")',
+	'value' => '($data->couponMap[0]->couponBrands != null )?$data->couponMap[0]->couponBrands->BrandName:("")',
 	),
 	array(
 		'name'  => 'Channels',

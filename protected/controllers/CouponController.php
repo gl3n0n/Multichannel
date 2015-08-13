@@ -64,7 +64,7 @@ class CouponController extends Controller
 	 */
 	public function actionCreate()
 	{
-		error_reporting(E_ALL|E_STRICT);
+		//error_reporting(E_ALL|E_STRICT);
 		$model=new Coupon;
 		
 
@@ -139,7 +139,7 @@ class CouponController extends Controller
                 if($params['CouponMode'] === 'user') {
     				$model->TypeId = 'USER-GENERATED';
                     if ($couponUploadFile !== null && $couponUploadFile->getSize()) {
-    					$couponFilename = mktime() . '_' . $couponUploadFile->name;
+    					$couponFilename = md5(uniqid()) . '_' . $couponUploadFile->name;
     					$model->File = '/var/www/html/multichannel/protected/uploads/coupons/' . $couponFilename;
                     }
                     else {
@@ -153,7 +153,7 @@ class CouponController extends Controller
                 $UploadFile = CUploadedFile::getInstance($model,'Image');
 
                 if ($UploadFile !== null) {
-                    $imageFilename = mktime() . '_' . $UploadFile->name;
+                    $imageFilename = md5(uniqid()) . '_' . $UploadFile->name;
                     $model->Image = Yii::app()->params['baseUploadUrl'] . 'coupon/' . $imageFilename;
                     
                 } else {
@@ -334,7 +334,7 @@ class CouponController extends Controller
             if($model->CouponMode==='user') {
 				if ($couponUploadFile !== null && $couponUploadFile->getSize()) {
                 // if ($couponUploadFile !== null) {
-                    $couponFilename = mktime() . '_' . $couponUploadFile->name;
+                    $couponFilename = md5(uniqid()) . '_' . $couponUploadFile->name;
                     $model->File = '/var/www/html/multichannel/protected/uploads/coupons/' . $couponFilename;
                 }
                 else {
@@ -424,9 +424,29 @@ class CouponController extends Controller
 		$criteria = new CDbCriteria;
 		if($search) $criteria->compare('Source', $search, true);
 
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')   
+		{
+		
+			//relations
+			$criteria->with = array('couponMap',
+			                        'couponClients');
+			$criteria->together = true; // ADDED THIS
+			$criteria->condition = "couponMap.CouponId = t.CouponId AND 
+                        			couponMap.ClientId = couponClients.ClientId AND 
+                        			couponClients.ClientId= '".addslashes(Yii::app()->user->ClientId)."' ";
+		}
+
+		//create data
 		$dataProvider = new CActiveDataProvider('Coupon', array(
 			'criteria'=>$criteria ,
 		));
+		
+		if(0){
+			echo "####<hr>".@var_dump($dataProvider->getData(),true);
+			exit;
+		}
+		
+		
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -459,8 +479,7 @@ class CouponController extends Controller
 		if($search) $criteria->compare('Source', $search, true);
 
 		//all-pending
-		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
-		$criteria->addCondition("t.edit_flag = '0' ");
+		
 		
 
 		//brands		
@@ -483,7 +502,39 @@ class CouponController extends Controller
 				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
 		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
 		
+		
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')   
+		{
+
+			//relations
+			$criteria->with = array('couponMap',
+						'couponClients',
+						'couponMap.couponClients',
+						'couponMap.couponBrands',
+						'couponMap.couponChannels',
+						'couponMap.couponCampaigns');
+			$criteria->together  = true; // ADDED THIS
+			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '0' AND 
+						 couponMap.CouponId = t.CouponId AND 
+						 couponMap.ClientId = couponClients.ClientId AND 
+						 couponClients.ClientId= '".addslashes(Yii::app()->user->ClientId)."' ";
+		}
+		else
+		{
+			//relations
+			$criteria->with = array('couponMap',
+						'couponClients',
+						'couponMap.couponClients',
+						'couponMap.couponBrands',
+						'couponMap.couponChannels',
+						'couponMap.couponCampaigns');
+			$criteria->together  = true; // ADDED THIS
+			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '0' AND 
+						 couponMap.CouponId = t.CouponId AND 
+						 couponMap.ClientId = couponClients.ClientId "; 
+		}
 		//try 
+		if(0){
 		$criteria->with=array(
 		'couponMap.couponClients',
 		'couponMap.couponBrands',
@@ -491,14 +542,19 @@ class CouponController extends Controller
 		'couponMap.couponCampaigns',
 		'couponMap',
 		);
-		
+		}
     		//provider
     		$dataProvider = new CActiveDataProvider('Coupon', array(
 				'criteria'=>$criteria ,
 			));
     		
     		if(0){
-    		echo '<hr><hr>'.@var_export($dataProvider->getData(),true);
+    		
+    		foreach($dataProvider->getData() as $row)
+    		{
+    			echo '<hr><hr>'.@var_export($row,true);
+    		}
+    		
     		echo '<hr><hr>'.@var_export($brands,true);
     		echo '<hr><hr>'.@var_export($campaigns,true);
     		echo '<hr><hr>'.@var_export($clients,true);
@@ -560,7 +616,7 @@ class CouponController extends Controller
 		$_channels   = Channels::model()->findAll(array(
 				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
 		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
-		
+	
 		$mapping =  array(
 			'Brands'       => $brands,
 			'Campaigns'    => $campaigns,

@@ -14,6 +14,13 @@ $this->menu=array(
 	// array('label'=>'Delete Coupon', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->CouponId),'confirm'=>'Are you sure you want to delete this item?')),
 	// array('label'=>'Manage Coupon', 'url'=>array('admin')),
 );
+
+//overwrite
+if(Yii::app()->user->AccessType === "SUPERADMIN")
+{
+	$this->menu[] =	array('label'=>'Pending Coupons', 'url'=>array('pending'));
+}
+
 ?>
 
 <h1>View Coupon #<?php echo $model->CouponId; ?></h1>
