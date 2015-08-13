@@ -460,7 +460,7 @@ class CouponController extends Controller
 
 		//all-pending
 		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
-		$criteria->addCondition("t.edit_flag = '1' ");
+		$criteria->addCondition("t.edit_flag = '0' ");
 		
 
 		//brands		
