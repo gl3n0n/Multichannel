@@ -40,6 +40,9 @@ $form=$this->beginWidget('CActiveForm', array(
 </div>
 <?php 
 
+echo "<hr>".@var_export($dataProvider->getData(),true) ;
+exit;
+
 $this->widget('CGridViewEtc', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
