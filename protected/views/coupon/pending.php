@@ -39,9 +39,14 @@ $form=$this->beginWidget('CActiveForm', array(
 <?php $this->endWidget(); ?>
 </div>
 <?php 
-
-echo "<hr>".@var_export($dataProvider->getData(),true) ;
+if(0){
+foreach($dataProvider->getData() as $row)
+{
+echo "<hr>";
+echo @var_export($row->couponMap[0]->couponClients,true);
+}
 exit;
+}
 
 $this->widget('CGridViewEtc', array(
 	'dataProvider'=>$dataProvider,
@@ -51,7 +56,7 @@ $this->widget('CGridViewEtc', array(
 	array(
 	'name' => 'CouponId',
 	'type' => 'raw',
-	'value'=> 'CHtml::link($data->CouponId,Yii::app()->createUrl("coupon/approve",array("id"=>$data->primaryKey)))',
+	'value'=> 'CHtml::link($data->CouponId,Yii::app()->createUrl("coupon/view",array("id"=>$data->primaryKey)))',
 	), 
 	'Quantity',
 	'LimitPerUser',
@@ -59,15 +64,15 @@ $this->widget('CGridViewEtc', array(
 	array(
 	'name'  => 'Brands',
 	//'value' => '$this->grid->etc[\'Brands\'][$data->couponMap[0]->BrandId]',
-	'value' => '($data->couponBrands != null && @count($data->couponBrands))?$data->couponBrands[0]->BrandName:("")',
+	'value' => '($data->couponMap[0]->couponBrands != null )?$data->>couponMap[0]->couponBrands->BrandName:("")',
 	),
 	array(
 		'name'  => 'Channels',
-	'value' => '($data->couponChannels != null && @count($data->couponChannels))?$data->couponChannels[0]->ChannelName:("")',
+	'value' => '($data->couponMap[0]->couponChannels != null )?$data->couponMap[0]->couponChannels->ChannelName:("")',
 	),
 	array(
 		'name'  => 'Campaigns',
-		'value' => '($data->couponCampaigns != null && @count($data->couponCampaigns))?$data->couponCampaigns[0]->CampaignName:("")',
+		'value' => '($data->couponMap[0]->couponCampaigns != null )?$data->couponMap[0]->couponCampaigns->CampaignName:("")',
 	),	
 	array(
 		'name' => 'Action',
