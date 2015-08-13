@@ -48,7 +48,7 @@ class CouponMapping extends CActiveRecord
 			'couponClients'    =>array(self::BELONGS_TO,  'Clients','ClientId'     ),
 			'couponBrands'     =>array(self::BELONGS_TO,  'Brands','BrandId'       ),
 			'couponChannels'   =>array(self::BELONGS_TO,  'Channels','ChannelId'   ),
-			'couponCampaigns'  =>array(self::BELONGS_TO,  'Campaings','CampaignId' ),
+			'couponCampaigns'  =>array(self::BELONGS_TO,  'Campaigns','CampaignId' ),
 		);
 	}
 
