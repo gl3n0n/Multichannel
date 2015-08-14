@@ -42,7 +42,7 @@ class Clients extends CActiveRecord
 			array('CompanyName', 'length', 'max'=>32),
 			array('Address', 'length', 'max'=>255),
 			array('Email', 'length', 'max'=>50),
-			array('Landline', 'length', 'max'=>30),
+			//array('Landline', 'length', 'max'=>30),
 			array('Status', 'length', 'max'=>8),
 			array('Status', 'in', 'range'=>array(
 				self::STATUS_ACTIVE, 
@@ -54,7 +54,7 @@ class Clients extends CActiveRecord
 			array('DateCreated, DateUpdated', 'safe'),
 			// Call them custom validations. Bale param1 = column name, param2 = function name na naka declare sa baba
             array('Email', 'email'),
-            array('Landline', 'validateContactNumber'),
+            //array('Landline', 'validateContactNumber'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('ClientId, CompanyName, Address, Email, Landline, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
