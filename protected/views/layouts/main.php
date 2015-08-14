@@ -46,7 +46,10 @@
 				array('label'=>'Rewards List', 'url'=>array('/rewardsList'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Coupon', 'url'=>array('/coupon'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Raffle', 'url'=>array('/raffle'), 'visible'=>!Yii::app()->user->isGuest),
-				array('label'=>'Customers Report', 'url'=>array('/customerSubscriptions'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="ADMIN"),
+				array('label'=>'Customers Subscriptions', 'url'=>array('/customerSubscriptions'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="ADMIN"),
+				array('label'=>'Customer Report', 'url'=>array('/reports'), 'visible'=>!Yii::app()->user->isGuest),
+				
+				
 				array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
 				array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
 			),
@@ -55,7 +58,8 @@
 	<?php if(isset($this->breadcrumbs)):?>
 		<?php $this->widget('zii.widgets.CBreadcrumbs', array(
 			'links'=>$this->breadcrumbs,
-		)); ?><!-- breadcrumbs -->
+		));
+		?><!-- breadcrumbs -->
 	<?php endif?>
 
 	<?php echo $content; ?>

@@ -7,7 +7,7 @@ $this->breadcrumbs=array(
 );
 
 //overwrite
-if(Yii::app()->user->AccessType === "SUPERADMIN")
+if(1)
 {
 	$this->menu=array(
 	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),

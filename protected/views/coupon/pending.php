@@ -16,7 +16,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	$this->menu=array(
 		array('label'=>'Create Coupon',    'url'=>array('create')),
 		array('label'=>'Pending Coupons',  'url'=>array('pending')),
-		array('label'=>'Redeemed Coupons', 'url'=>array('redeemedview')),	
+		//array('label'=>'Redeemed Coupons', 'url'=>array('redeemedview')),	
 		);
 }
 ?>

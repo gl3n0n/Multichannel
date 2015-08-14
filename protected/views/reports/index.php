@@ -7,7 +7,7 @@ $this->breadcrumbs=array(
 
 
 //overwrite
-if(Yii::app()->user->AccessType === "SUPERADMIN")
+if(1)
 {
 	$this->menu=array(
 	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
@@ -41,11 +41,11 @@ $( document ).ready(function() {
 </script>
 <h1>Reports</h1>
 <fieldset class='filterSrchBold'>
-<legend id='DIVFILTER'>
-<h3>
-Search Filter(s)
-</h3>
-</legend>
+	<legend id='DIVFILTER'>
+	<h3>
+	Search Filter(s)
+	</h3>
+	</legend>
 <div id='reportFilter'>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(

@@ -6,6 +6,8 @@ class ReportsController extends Controller
 	public $mainDivClass;
 	public $modals;
 	public $csvRoot;
+	public $statusMsg;
+	
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
@@ -79,8 +81,6 @@ class ReportsController extends Controller
 				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
 			);
 			$criteria->addCondition(" pointlogChannels.ChannelName LIKE '%".addslashes($byChannel)."%' ");
-			$criteria->addCondition('t.ClientId = :clientId');
-			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
 		}
 		//campaign
 		$byCampaign   = trim(Yii::app()->request->getParam('byCampaign'));
@@ -91,8 +91,6 @@ class ReportsController extends Controller
 				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
 			);
 			$criteria->addCondition(" pointlogCampaigns.CampaignName LIKE '%".addslashes($byCampaign)."%' ");
-			$criteria->addCondition('t.ClientId = :clientId');
-			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
 		}
 		//brand
 		$byBrand   = trim(Yii::app()->request->getParam('byBrand'));
@@ -103,8 +101,6 @@ class ReportsController extends Controller
 				'pointlogBrands' => array('joinType'=>'LEFT JOIN'),
 			);
 			$criteria->addCondition(" pointlogBrands.BrandName LIKE '%".addslashes($byBrand)."%' ");
-			$criteria->addCondition('t.ClientId = :clientId');
-			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
 		}
 		//customer
 		$byCustomerName   = trim(Yii::app()->request->getParam('byCustomerName'));
@@ -118,17 +114,16 @@ class ReportsController extends Controller
 						 pointlogCustomers.Email     LIKE '%".addslashes($byCustomerName)."%' OR
 						 pointlogCustomers.FirstName LIKE '%".addslashes($byCustomerName)."%' 
 						 ) ");
-			$criteria->addCondition('t.ClientId = :clientId');
-			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
 		}
 
 		
 		//no-filter
-		if($filterSrch<=0)
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
 		{
-			$criteria->scopes = array('thisClient');
+			$criteria->addCondition('t.ClientId = :clientId');
+			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
 		}
-		
+
 		$dataProvider = new CActiveDataProvider('Reports', array(
 				'criteria'=>$criteria,
 				));
@@ -409,7 +404,7 @@ class ReportsController extends Controller
 
 	}
 
-	public function actionRedeemcoupons()
+	public function actionRedeemcouponsxxx()
 	{
 		$search      = trim(Yii::app()->request->getParam('search'));
 		$customer_id = trim(Yii::app()->user->id);
@@ -438,29 +433,200 @@ class ReportsController extends Controller
 	{
 			$search      = trim(Yii::app()->request->getParam('search'));
 			$customer_id = trim(Yii::app()->user->id);
-			$criteria = new CDbCriteria;
-			
+			$criteria    = new CDbCriteria;
+			$filter      = '';
 			if(strlen($search))
 			{
-			   $criteria->addCondition(" t.ChannelId IN ( SELECT Channels.ChannelId FROM Channels WHERE Channels.ChannelName LIKE '%".addslashes($search)."%') ");
+			   $filter .=  " AND channels.ChannelName LIKE '%".addslashes($search)."%'  ";
 			}
-			$criteria->addCondition('CustomerId = :customer_id');
-			$criteria->params = array(':customer_id' => $customer_id);
-			$criteria->with   = array(
-							'mapBalance' => array('joinType'=>'LEFT JOIN'),
-						);
-			$criteria->distinct=true;
-			$criteria->select= 't.ClientId, t.BrandId, t.CampaignId, t.ChannelId';					
-			$criteria->group = 't.ClientId, t.BrandId, t.CampaignId, t.ChannelId';
-			$dataProvider = new CActiveDataProvider('PointsGained', array(
-				'criteria'=> $criteria,
-			));
-	
-	
+			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+			{
+				if(strlen($customer_id))
+				{
+				   $filter .=  " AND CustomerId ='".addslashes($search)."' ";
+				}
+			}
+
+
+			if(1){
+			$rawSql   = "
+			SELECT CustomerPointId, 
+			customer_subscriptions.SubscriptionId, 
+			Balance,Used,
+			Total,
+			CustomerId,
+			customer_subscriptions.BrandId as BrandId,
+			customer_subscriptions.CampaignId as CampaignId,
+			customer_subscriptions.ChannelId as ChannelId,
+			customer_subscriptions.Status as Status,
+			campaigns.CampaignName as CampaignName,
+			clients.CompanyName as CompanyName,
+			brands.BrandName as BrandName,
+			channels.ChannelName as ChannelName
+			FROM customer_points 
+			join customer_subscriptions on customer_points.SubscriptionId = customer_subscriptions.SubscriptionId 
+			join brands on customer_subscriptions.BrandId       = brands.BrandId
+			join channels on customer_subscriptions.ChannelId   = channels.ChannelId
+			join campaigns on customer_subscriptions.CampaignId = campaigns.CampaignId
+			join clients on customer_subscriptions.ClientId     = clients.ClientId
+			WHERE 1=1
+			AND customer_subscriptions.Status = 'ACTIVE'
+			$filter
+			";
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField'       => 'CustomerPointId',
+				    'totalItemCount' => $rawCount,
+				    )
+			);
+
+			}
+			
+			
+
+			$mapping =  $this->getMoreLists();
+
 			$this->render('pointsgainbal',array(
-				'dataProvider'=>$dataProvider,
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+
+
 			));
 	
 	}
 
+
+	public function getMoreLists()
+	{
+
+		//brands		
+		$_brands = Brands::model()->findAll(array(
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE'"));
+		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
+
+		//campaigns
+		$_campaigns = Campaigns::model()->findAll(array(
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE'"));
+		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
+
+		//clients		
+		$_clients   = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE'"));
+		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
+
+		//channels
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+
+
+		//customers
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$cand   = (Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  ? (" AND ClientId='$clid' ") : ('');
+		$_customers = Customers::model()->findAll(array(
+				'select'=>'CustomerId, Email', 'condition'=>" status='ACTIVE' $cand "));
+		$customers = CHtml::listData($_customers, 'CustomerId', 'Email');
+		
+		//give mapping
+		return array(
+			'Brands'       => $brands,
+			'Campaigns'    => $campaigns,
+			'Clients'      => $clients,
+			'Channels'     => $channels,
+			'custList'     => $customers
+			);
+	 }
+/**
+	 * Manages all models.
+	 */
+	public function actionRedeemcoupons()
+	{
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		//all-pending
+		
+		if(empty($uid))
+			$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
+		
+		
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$xtra   = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+		{
+			$xtra   = " AND coupon_mapping.ClientId = '$clid'  ";
+		}
+		$filter = '';
+		if(strlen($search)) 
+		    $filter = " AND generated_coupons.Code LIKE '%".addslashes($search)."%' ";
+		
+		if(1){
+		$rawSql   = "
+				SELECT 
+					FirstName, 
+					MiddleName, LastName, Email,BrandName, 
+					generated_coupons.GeneratedCouponId, 
+					generated_coupons.CustomerId as CustomerId, 
+					generated_coupons.CouponId as CouponId, 
+					generated_coupons.Code as Code, 
+					coupon.Type, TypeId, Source, ExpiryDate, 
+					coupon.Status, coupon_mapping.ClientId, 
+					coupon_mapping.BrandId, 
+					coupon_mapping.ChannelId, 
+					coupon_mapping.CampaignId, 
+					campaigns.CampaignName as CampaignName, 
+					channels.ChannelName as ChannelName, 
+					DateRedeemed 
+				FROM 
+				coupon join generated_coupons on coupon.CouponId = generated_coupons.CouponId 
+				       join coupon_mapping on coupon_mapping.CouponMappingId = generated_coupons.CouponMappingId 
+				       join brands on coupon_mapping.BrandId = brands.BrandId 
+				       join customers on customers.CustomerId = generated_coupons.CustomerId 
+				       join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId 
+				       join channels on channels.ChannelId = coupon_mapping.ChannelId
+				WHERE 1=1
+				AND generated_coupons.Status IN ('REDEEMED')
+				$xtra
+				$filter
+		";
+		$rawData  = Yii::app()->db->createCommand($rawSql); 
+		$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dataProvider    = new CSqlDataProvider($rawData, array(
+					    'keyField' => 'GeneratedCouponId',
+					    'totalItemCount' => $rawCount,
+					    )
+			);
+		
+		}
+    		if(0){
+    		
+    		//echo '<hr><hr>'.@var_export($criteria,true);
+    		//echo '<hr><hr>'.@var_export($dataProvider,true);
+    		foreach($dataProvider->getData() as $row)
+    		{
+    			echo '<hr><hr>'.@var_export($row,true);
+    		}
+    		
+    		echo '<hr><hr>'.@var_export($brands,true);
+    		echo '<hr><hr>'.@var_export($campaigns,true);
+    		echo '<hr><hr>'.@var_export($clients,true);
+    		echo '<hr><hr>'.@var_export($channels,true);
+    		exit;
+    		}
+    		
+    		
+		$mapping =  $this->getMoreLists();
+		
+		$this->render('redeemcoupons',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+			
+			
+		));
+	}
+	 
 }

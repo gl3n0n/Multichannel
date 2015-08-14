@@ -7,7 +7,7 @@ $this->breadcrumbs=array(
 );
 
 //overwrite
-if(Yii::app()->user->AccessType === "SUPERADMIN")
+if(1)
 {
 	$this->menu=array(
 	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
@@ -39,7 +39,7 @@ $sumall = 0;
 $dataProvider->setPagination(false);
 foreach($dataProvider->getData() as $kk )
 {
-	$sumall += ($kk->mapPoints != null)?($kk->mapPoints->Balance):(0);
+	$sumall += @intval($kk["Balance"]);
 }
 echo "<h2>Current Total Points: $sumall</h3>";
 $this->widget('zii.widgets.grid.CGridView', array(
@@ -48,24 +48,23 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	'columns'=>array(
 		array(
 			'name' => 'ClientId',
-			'value' => '$data->mapClients->CompanyName',
+			'value' => '$data["CompanyName"]',
 			),
 		array(
 			'name' => 'BrandId',
-			'value' => '$data->mapBrands->BrandName',
+			'value' => '$data["BrandName"]',
 			),
 		array(
 			'name'  => 'CampaignId',
-			'value' => '$data->mapCampaigns->CampaignName',
+			'value' => '$data["CampaignName"]',
 		),			
 		array(
 			'name' => 'ChannelId',
-			'value' => '$data->mapChannels->ChannelName',
+			'value' => '$data["ChannelName"]',
 			),
 		array(
 		'name'  => 'Points',
-		'value' => '$data->mapPoints->Balance',
+		'value' => '$data["Balance"]',
 		),			
-		'Status',
 	),	
 )); ?>

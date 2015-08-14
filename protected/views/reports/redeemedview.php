@@ -16,13 +16,12 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	$this->menu=array(
 		array('label'=>'Create Coupon',    'url'=>array('create')),
 		array('label'=>'Pending Coupons',  'url'=>array('pending')),
-		//array('label'=>'Redeemed Coupons', 'url'=>array('redeemedview')),
-
+		array('label'=>'Redeemed Coupons', 'url'=>array('redeemedview')),
 	);
 }
 ?>
 
-<h1>Generated Coupons</h1>
+<h1>Redeemed Coupons</h1>
 <div>
 <?php 
 if($this->statusMsg != null)
@@ -30,12 +29,12 @@ if($this->statusMsg != null)
     echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
 }
 $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("coupon/genapprove"),
+	'action'=>Yii::app()->createUrl("coupon/redeemedview"),
 	'method'=>'get',
 )); ?>
 	<fieldset>
-		<legend>Search By Source</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Source" title="Search Source">
+		<legend>Search By Code</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Code" title="Search Code">
 		<button type="submit">Search</button>
 	</fieldset>
 <?php $this->endWidget(); ?>
@@ -69,9 +68,9 @@ $this->widget('CGridViewEtc', array(
 	'etc' => $mapping,
 	'columns'=>array(
 		array(
-			'name' => 'Generated Coupon Id',
+			'name' => 'Redeemed By',
 			'type' => 'raw',
-			'value'=> '$data["GeneratedCouponId"]',
+			'value'=> '$data["Email"]',
 		), 
 		array(
 			'name' => 'Coupon Id',
@@ -84,19 +83,30 @@ $this->widget('CGridViewEtc', array(
 			'value'=> '$data["Code"]',
 		), 
 		array(
-		    'name'  => 'Details',
+		    'name'  => 'Brand Name',
 		    'type'  => 'raw',
-		    'value' => '$this->grid->etcButtonCoupon($data,$this->grid->etc["custList"])',
+		    'value'=> '$data["BrandName"]',
 		),
-		/**
 		array(
-		    'name'  => 'QR-Code',
+		    'name'  => 'Brand Name',
 		    'type'  => 'raw',
-		    'value' => '$this->grid->getQrCodeImage($data)',
-		),**/
-
-		
-		
+		    'value'=> '$data["BrandName"]',
+		),
+		array(
+		    'name'  => 'Campaign Name',
+		    'type'  => 'raw',
+		    'value'=> '$data["CampaignName"]',
+		),
+		array(
+		    'name'  => 'Channel Name',
+		    'type'  => 'raw',
+		    'value'=> '$data["ChannelName"]',
+		),
+		array(
+		    'name'  => 'Date Redeemed',
+		    'type'  => 'raw',
+		    'value'=> '$data["DateRedeemed"]',
+		),
 	),
 )); 
 

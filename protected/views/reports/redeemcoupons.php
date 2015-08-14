@@ -7,7 +7,7 @@ $this->breadcrumbs=array(
 );
 
 //overwrite
-if(Yii::app()->user->AccessType === "SUPERADMIN")
+if(1)
 {
 	$this->menu=array(
 	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
@@ -17,47 +17,96 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	);
 }
 ?>
-
-<h1>List of Redemeed Coupons</h1>
+<h1>Redeemed Coupons</h1>
 <div>
-<?php $form=$this->beginWidget('CActiveForm', array(
+<?php 
+if($this->statusMsg != null)
+{
+    echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
+}
+$form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("reports/redeemcoupons"),
 	'method'=>'get',
 )); ?>
 	<fieldset>
-		<legend>Search Channel Name</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="ChannelName" title="Search Channel Name">
+		<legend>Search By Code</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Code" title="Search Code">
 		<button type="submit">Search</button>
 	</fieldset>
 <?php $this->endWidget(); ?>
+<script>
+
+    // Controll submit form event
+    function generateCoupon(id)
+    {
+    	document.getElementById("mainFrm"+id).submit();
+    }
+
+
+</script>
+
 </div>
 <?php 
+if(0)
+{
+	foreach($dataProvider->getData() as $row)
+	{
+	echo "<hr>";
+	echo @var_export($row,true);
+	}
+	exit;
+}
 
-$this->widget('zii.widgets.grid.CGridView', array(
+$this->widget('CGridViewEtc', array(
+	'id' => 'gen-approve-view',
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
+	'etc' => $mapping,
 	'columns'=>array(
 		array(
-		'name'  => 'Redeemed By',
-		'value' => '$data->rewardCustomers->Email',
-		),
-		'CouponId',
+			'name' => 'Redeemed By',
+			'type' => 'raw',
+			'value'=> '$data["Email"]',
+		), 
+		array(
+			'name' => 'Coupon Id',
+			'type' => 'raw',
+			'value'=> '$data["CouponId"]',
+		), 
 		array(
 			'name' => 'Code',
-			'value' => '$data->rewardCoupons->Code',
-			),
+			'type' => 'raw',
+			'value'=> '$data["Code"]',
+		), 
 		array(
-			'name' => 'BrandId',
-			'value' => '$data->rewardBrands->BrandName',
-			),
+		    'name'  => 'Brand Name',
+		    'type'  => 'raw',
+		    'value'=> '$data["BrandName"]',
+		),
 		array(
-			'name'  => 'CampaignId',
-			'value' => '$data->rewardCampaigns->CampaignName',
-		),			
+		    'name'  => 'Brand Name',
+		    'type'  => 'raw',
+		    'value'=> '$data["BrandName"]',
+		),
 		array(
-			'name' => 'ChannelId',
-			'value' => '$data->rewardChannels->ChannelName',
-			),
-		'DateRedeemed',
-	),	
-)); ?>
+		    'name'  => 'Campaign Name',
+		    'type'  => 'raw',
+		    'value'=> '$data["CampaignName"]',
+		),
+		array(
+		    'name'  => 'Channel Name',
+		    'type'  => 'raw',
+		    'value'=> '$data["ChannelName"]',
+		),
+		array(
+		    'name'  => 'Date Redeemed',
+		    'type'  => 'raw',
+		    'value'=> '$data["DateRedeemed"]',
+		),
+	),
+)); 
+
+
+
+
+?>

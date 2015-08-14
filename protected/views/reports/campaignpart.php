@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
 	$this->menu=array(
-	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgain')),
+	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
 	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
 	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
 	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
