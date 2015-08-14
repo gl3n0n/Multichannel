@@ -14,9 +14,10 @@ $this->menu=array(
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
 	$this->menu=array(
-	array('label'=>'Create Coupon',   'url'=>array('create')),
-	array('label'=>'Pending Coupons', 'url'=>array('pending')),
-	);
+		array('label'=>'Create Coupon',    'url'=>array('create')),
+		array('label'=>'Pending Coupons',  'url'=>array('pending')),
+		array('label'=>'Redeemed Coupons', 'url'=>array('redeemedview')),	
+		);
 }
 ?>
 
@@ -25,7 +26,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 <?php 
 if($this->statusMsg != null)
 {
-    echo "<h5 style='color:red'>$this->statusMsg</h5>";
+    echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
 }
 $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("coupon/pending"),
@@ -77,7 +78,10 @@ $this->widget('CGridViewEtc', array(
 	array(
 		'name' => 'Action',
 		'type' => 'raw',
-		'value'=> '($data->Status !== "PENDING")?(""):(CHtml::link("Approve",Yii::app()->createUrl("coupon/approve/",array("uid"=>$data->primaryKey))))'
+		'value'=> '($data->Status !== "PENDING")?
+				(($data->edit_flag==1)?(CHtml::link("Update Approved",Yii::app()->createUrl("coupon/approveupdate/",array("uid"=>$data->primaryKey)))):
+				((CHtml::link("View Generated",Yii::app()->createUrl("coupon/generatedview/",array("uid"=>$data->primaryKey)))))):
+				(CHtml::link("Approve",Yii::app()->createUrl("coupon/approve/",array("uid"=>$data->primaryKey))))'
 		), 
 	
 	),	

@@ -7,6 +7,7 @@ class CouponController extends Controller
 	public $modals;	
 	public $mappings;
 	public $statusMsg;
+	public $xuid;
 	
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -34,11 +35,15 @@ class CouponController extends Controller
 	{
 		return array(
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','index','view','pending','approve'),
+				'actions'=>array('create','update','index','view',
+				'pending','approve','approveupdate',
+				'generatedview','genapproved','redeemedview'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','pending','approve'),
+				'actions'=>array('admin','delete',
+				'pending','approve','approveupdate',
+				'generatedview','genapproved','redeemedview'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -484,25 +489,25 @@ class CouponController extends Controller
 
 		//brands		
 		$_brands = Brands::model()->findAll(array(
-				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE'"));
 		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
 
 		//campaigns
 		$_campaigns = Campaigns::model()->findAll(array(
-			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE '"));
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE'"));
 		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
 
 		//clients		
 		$_clients   = Clients::model()->findAll(array(
-				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE '"));
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE'"));
 		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
 		
 		//channels
 		$_channels   = Channels::model()->findAll(array(
-				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
 		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
 		
-		
+		$xtrasql     = (strlen($search) > 0) ? (" t.Source LIKE '%".addslashes($search)."%' AND ") : (""); 
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')   
 		{
 
@@ -514,9 +519,9 @@ class CouponController extends Controller
 						'couponMap.couponChannels',
 						'couponMap.couponCampaigns');
 			$criteria->together  = true; // ADDED THIS
-			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '0' AND 
+			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '1' AND 
 						 couponMap.CouponId = t.CouponId AND 
-						 couponMap.ClientId = couponClients.ClientId AND 
+						 couponMap.ClientId = couponClients.ClientId AND $xtrasql
 						 couponClients.ClientId= '".addslashes(Yii::app()->user->ClientId)."' ";
 		}
 		else
@@ -529,8 +534,8 @@ class CouponController extends Controller
 						'couponMap.couponChannels',
 						'couponMap.couponCampaigns');
 			$criteria->together  = true; // ADDED THIS
-			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '0' AND 
-						 couponMap.CouponId = t.CouponId AND 
+			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '1' AND 
+						 couponMap.CouponId = t.CouponId AND $xtrasql
 						 couponMap.ClientId = couponClients.ClientId "; 
 		}
 		//try 
@@ -588,42 +593,6 @@ class CouponController extends Controller
 	public function actionApprove()
 	{
 	
-		$search   = trim(Yii::app()->request->getParam('search'));
-		$criteria = new CDbCriteria;
-		if($search) $criteria->compare('Source', $search, true);
-
-		//all-pending
-		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
-		$criteria->addCondition("t.edit_flag = '1' ");
-
-		//important
-		//brands		
-		$_brands = Brands::model()->findAll(array(
-				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
-		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
-
-		//campaigns
-		$_campaigns = Campaigns::model()->findAll(array(
-			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE '"));
-		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
-
-		//clients		
-		$_clients   = Clients::model()->findAll(array(
-				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE '"));
-		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
-		
-		//channels
-		$_channels   = Channels::model()->findAll(array(
-				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE '"));
-		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
-	
-		$mapping =  array(
-			'Brands'       => $brands,
-			'Campaigns'    => $campaigns,
-			'Clients'      => $clients,
-			'Channels'     => $channels,
-		);	
-		
 		//statys msg
 		$this->statusMsg = '';
 		$apiUtils  = new Utils;
@@ -649,18 +618,267 @@ class CouponController extends Controller
 		                       ( sprintf("Error occurred while updating the  coupon.<br/><br/>[%s]",trim($ret["error_txt"]))) );
 		}
 		
-		//provider
-    		$dataProvider = new CActiveDataProvider('Coupon', array(
-				'criteria'  =>$criteria ,
-			));		
-			
-		$this->render('pending',array(
-			'dataProvider' => $dataProvider,
-			'mapping'      => $mapping,
-			));			
+		
+		//redirect it
+		$this->actionPending();
+		return;
+		
+	}
+
+	/**
+	* approve via API.
+	**/
+	public function actionApproveupdate()
+	{
+	
+		//statys msg
+		$this->statusMsg = '';
+		$apiUtils  = new Utils;
+		$uid       = trim(Yii::app()->request->getParam('uid'));
+		
+		//chk
+		if(Yii::app()->user->AccessType !== "SUPERADMIN")
+		{
+		    $this->statusMsg = Yii::app()->params['notAllowedStatus'];
+		}
+		else
+		{
+		    
+		    $api   = array(
+		    		'data' => array('coupon_id'          => $uid, 
+		    			        'update_edit_coupon' => true),
+		    		'url'  => Yii::app()->params['api-url']['update_coupon'],
+		    		);
+		    $ret   = $apiUtils->send2Api($api);
+		    
+		    $this->statusMsg = ( ( $ret["result_code"] == 200) ?
+		                       ( 'Successfully generating the  coupon.' ) :
+		                       ( sprintf("Error occurred while generating the  coupon.<br/><br/>[%s]",trim($ret["error_txt"]))) );
+		}
+		
+		
+		//redirect it
+		$this->actionPending();
+		return;
+		
 	}
 
 
+
+	/**
+	 * Manages all models.
+	 */
+	public function actionGeneratedview()
+	{
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		if($search) $criteria->compare('Source', $search, true);
+		//all-pending
+		
+		
+		$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
+		if($this->xuid >  0)
+			$uid  = $this->xuid ;
+		
+
+		if(1){
+		$rawSql   = "
+			SELECT 
+			coupon_mapping.CouponMappingId,
+			coupon_mapping.ClientId as ClientId,
+			brands.BrandId as BrandId, campaigns.CampaignId as CampaignId, 
+			channels.ChannelId as ChannelId,BrandName,
+			ChannelName,CampaignName ,
+			GC.CouponId,
+			GC.GeneratedCouponId,
+			GC.Code,
+			GC.Status
+			FROM generated_coupons GC
+				join coupon_mapping on GC.CouponId     = coupon_mapping.CouponId 
+				join brands on brands.BrandId          = coupon_mapping.BrandId 
+				join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId 
+				join channels on channels.ChannelId    = coupon_mapping.ChannelId 
+			WHERE GC.CouponId = '$uid'
+				AND   GC.Status IN ('PENDING')
+		";
+		$rawData  = Yii::app()->db->createCommand($rawSql); 
+		$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dataProvider    = new CSqlDataProvider($rawData, array(
+					    'keyField' => 'GeneratedCouponId',
+					    'totalItemCount' => $rawCount,
+					    )
+			);
+		
+		}
+		
+    		if(0){
+    		
+    		//echo '<hr><hr>'.@var_export($criteria,true);
+    		//echo '<hr><hr>'.@var_export($dataProvider,true);
+    		foreach($dataProvider->getData() as $row)
+    		{
+    			echo '<hr><hr>'.@var_export($row,true);
+    		}
+    		
+    		echo '<hr><hr>'.@var_export($brands,true);
+    		echo '<hr><hr>'.@var_export($campaigns,true);
+    		echo '<hr><hr>'.@var_export($clients,true);
+    		echo '<hr><hr>'.@var_export($channels,true);
+    		exit;
+    		}
+    		
+		$this->render('genapprove',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $this->getMoreLists(),
+			
+			
+		));
+	}
+
+
+
+
+
+	/**
+	* approve via API.
+	*/
+	public function actionGenapproved()
+	{
+	
+		//statys msg
+		$this->statusMsg = '';
+		$apiUtils  = new Utils;
+		
+		//chk
+		if(Yii::app()->user->AccessType !== "SUPERADMIN")
+		{
+		    $this->statusMsg = Yii::app()->params['notAllowedStatus'];
+		}
+		else
+		{
+		    
+		    $api   = array(
+		    		'data' => array('coupon_id'           => trim(Yii::app()->request->getParam('CouponId')), 
+		    				'generated_coupon_id' => trim(Yii::app()->request->getParam('GeneratedCouponId')),
+		    				'coupon_mapping_id'   => trim(Yii::app()->request->getParam('CouponMappingId')),
+		    				'customer_id'         => trim(Yii::app()->request->getParam('CustomerId')),
+		    			        'redeem_coupon'       => true),
+		    		'url'  => Yii::app()->params['api-url']['redeem_coupon'],
+		    		);
+		    $data   = $apiUtils->send2Api($api);
+		    
+			if ($data["result_code"] == 200)
+			{
+				$this->statusMsg = "Notice: <font color='green'>Successfully claimed coupon.<br>  </font>";
+			}
+			else if ($data["result_code"] == 409)
+			{
+				$this->statusMsg = "Notice: <font color='red'>Limit exceeded for this coupon.<br>  </font>";
+			}
+			else
+			{
+				$this->statusMsg = "Notice: <font color='red'>Invalid Coupon.<br>  </font>";
+			}
+
+		}
+		
+		
+		//redirect it
+		$this->xuid = Yii::app()->request->getParam('CouponId');
+		$this->actionGeneratedview();
+		return;
+		
+	}
+
+	
+	
+	/**
+	 * Manages all models.
+	 */
+	public function actionRedeemedview()
+	{
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		//all-pending
+		
+		if(empty($uid))
+			$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
+		
+		
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$xtra   = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+		{
+			$xtra   = " AND coupon_mapping.ClientId = '$clid'  ";
+		}
+		$filter = '';
+		if(strlen($search)) 
+		    $filter = " AND generated_coupons.Code LIKE '%".addslashes($search)."%' ";
+		
+		if(1){
+		$rawSql   = "
+				SELECT 
+					FirstName, 
+					MiddleName, LastName, Email,BrandName, 
+					generated_coupons.GeneratedCouponId, 
+					generated_coupons.CustomerId as CustomerId, 
+					generated_coupons.CouponId as CouponId, 
+					generated_coupons.Code as Code, 
+					coupon.Type, TypeId, Source, ExpiryDate, 
+					coupon.Status, coupon_mapping.ClientId, 
+					coupon_mapping.BrandId, 
+					coupon_mapping.ChannelId, 
+					coupon_mapping.CampaignId, 
+					campaigns.CampaignName as CampaignName, 
+					channels.ChannelName as ChannelName, 
+					DateRedeemed 
+				FROM 
+				coupon join generated_coupons on coupon.CouponId = generated_coupons.CouponId 
+				       join coupon_mapping on coupon_mapping.CouponMappingId = generated_coupons.CouponMappingId 
+				       join brands on coupon_mapping.BrandId = brands.BrandId 
+				       join customers on customers.CustomerId = generated_coupons.CustomerId 
+				       join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId 
+				       join channels on channels.ChannelId = coupon_mapping.ChannelId
+				WHERE 1=1
+				AND generated_coupons.Status IN ('REDEEMED')
+				$xtra
+				$filter
+		";
+		$rawData  = Yii::app()->db->createCommand($rawSql); 
+		$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dataProvider    = new CSqlDataProvider($rawData, array(
+					    'keyField' => 'GeneratedCouponId',
+					    'totalItemCount' => $rawCount,
+					    )
+			);
+		
+		}
+    		if(0){
+    		
+    		//echo '<hr><hr>'.@var_export($criteria,true);
+    		//echo '<hr><hr>'.@var_export($dataProvider,true);
+    		foreach($dataProvider->getData() as $row)
+    		{
+    			echo '<hr><hr>'.@var_export($row,true);
+    		}
+    		
+    		echo '<hr><hr>'.@var_export($brands,true);
+    		echo '<hr><hr>'.@var_export($campaigns,true);
+    		echo '<hr><hr>'.@var_export($clients,true);
+    		echo '<hr><hr>'.@var_export($channels,true);
+    		exit;
+    		}
+    		
+    		
+		$mapping =  $this->getMoreLists();
+		
+		$this->render('redeemedview',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+			
+			
+		));
+	}
 
 
 	/**
@@ -690,4 +908,55 @@ class CouponController extends Controller
 			Yii::app()->end();
 		}
 	}
+	public function getFuncs()
+	{
+		return 'Hellow';
+	}
+
+	public function getMoreLists()
+	{
+
+		//brands		
+		$_brands = Brands::model()->findAll(array(
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE'"));
+		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
+
+		//campaigns
+		$_campaigns = Campaigns::model()->findAll(array(
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE'"));
+		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
+
+		//clients		
+		$_clients   = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE'"));
+		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
+
+		//channels
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+
+		$_channels   = Channels::model()->findAll(array(
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
+		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
+
+
+		//customers
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$cand   = (Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  ? (" AND ClientId='$clid' ") : ('');
+		$_customers = Customers::model()->findAll(array(
+				'select'=>'CustomerId, Email', 'condition'=>" status='ACTIVE' $cand "));
+		$customers = CHtml::listData($_customers, 'CustomerId', 'Email');
+		
+		//give mapping
+		return array(
+			'Brands'       => $brands,
+			'Campaigns'    => $campaigns,
+			'Clients'      => $clients,
+			'Channels'     => $channels,
+			'custList'     => $customers
+			);
+	 }
+
 }
+

@@ -27,7 +27,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 <?php 
 if($this->statusMsg != null)
 {
-    echo "<h5 style='color:red'>$this->statusMsg</h5>";
+    echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
 }
 $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("raffle/pending"),
@@ -50,7 +50,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		array(
 		'name' => 'RaffleId',
 		'type' => 'raw',
-		'value'=> 'CHtml::link($data->RaffleId,Yii::app()->createUrl("raffle/update",array("id"=>$data->primaryKey)))',
+		'value'=> 'CHtml::link($data->RaffleId,Yii::app()->createUrl("raffle/view",array("id"=>$data->primaryKey)))',
 		), 
 		'NoOfWinners',
 		'FdaNo',
@@ -58,7 +58,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		array(
 		'name' => 'Action',
 		'type' => 'raw',
-		'value'=> '($data->Status !== "PENDING")?(""):(CHtml::link("Approve",Yii::app()->createUrl("raffle/approve/",array("uid"=>$data->primaryKey))))'
+		'value'=> '($data->Status !== "PENDING")?(CHtml::link("Generate Participants",Yii::app()->createUrl("raffle/genraffle",array("raffleid"=>$data->primaryKey,"couponid"=>"$data->CouponId","numwinners"=>"$data->NoOfWinners")))):(CHtml::link("Approve",Yii::app()->createUrl("raffle/approve/",array("uid"=>$data->primaryKey))))'
 		), 
 	
 		),		

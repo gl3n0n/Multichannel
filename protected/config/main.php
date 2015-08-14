@@ -108,6 +108,12 @@ return array(
 		'api-url'       => array(
 					'update_coupon' => 'http://104.156.53.150/multichannel-api/coupon/generate.php',
 					'update_raffle' => 'http://104.156.53.150/multichannel-api/raffle_engine/update.php',
+					'get_qrcode'    => 'http://104.156.53.150/multichannel-api/coupon/retrieve_qr.php',
+					'link_qrcode'   => 'http://104.156.53.150/multichannel-api/coupon/qr_codes',
+					'redeem_coupon' => 'http://104.156.53.150/multichannel-api/coupon/redeem.php',
+					'draw_winner'   => 'http://104.156.53.150/multichannel-api/raffle_engine/draw_winner.php',
+					
+					
 				),
 	),
 );

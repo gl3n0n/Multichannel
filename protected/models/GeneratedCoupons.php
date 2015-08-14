@@ -18,6 +18,8 @@
  */
 class GeneratedCoupons extends CActiveRecord
 {
+	public $GeneratedCouponId;
+	
 	/**
 	 * @return string the associated database table name
 	 */
@@ -54,9 +56,12 @@ class GeneratedCoupons extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'mappingdetails'=>array(self::HAS_ONE, 'CouponMapping', 'CouponMappingId'),
+			'mappingdetails'=>array(self::HAS_ONE,       'CouponMapping', 'CouponId'),
+			'couponCreateUsers'=>array(self::BELONGS_TO, 'Users',  'CreatedBy'),
+			'couponUpdateUsers'=>array(self::BELONGS_TO, 'Users',  'UpdatedBy'),
 		);
 	}
+	
 	
 	public function scopes()
 	{
@@ -135,5 +140,19 @@ class GeneratedCoupons extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	public function getListCustomers()
+	{
+	
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$cand   = (Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  ? (" AND ClientId='$clid' ") : ('');
+		$_customers = Customers::model()->findAll(array(
+				'select'=>'CustomerId, Email', 'condition'=>" status='ACTIVE' $cand "));
+		$customers = CHtml::listData($_customers, 'CustomerId', 'Email');
+	    
+	    return CHtml::dropDownlist('customers','',$customers, array(
+	        'data-id'   => $this->GeneratedCouponId,
+		));
 	}
 }
