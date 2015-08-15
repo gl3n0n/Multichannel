@@ -68,7 +68,7 @@ class Users extends CActiveRecord
             array('Password, ConfirmPassword', 'match', 'pattern'=>'/^[a-zA-Z0-9]*$/', 'on'=>array('insert', 'create', 'update')),
             array('Password', 'compare', 'compareAttribute'=>'ConfirmPassword'),
             array('Password', 'checkPassword', 'compareAttribute'=>'ConfirmPassword', 'on'=>'update'),
-            array('DateCreated, DateUpdated, CreatedBy, UpdatedBy, MiddleName, Gender, Birthday', 'safe'),
+            array('DateCreated, DateUpdated, CreatedBy, UpdatedBy, MiddleName, Gender, Birthday,ContactNumber', 'safe'),
             array('Gender', 'in', 'range'=>array(
                 self::GENDER_MALE, 
                 self::GENDER_FEMALE
