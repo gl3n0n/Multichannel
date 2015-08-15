@@ -30,7 +30,7 @@ if($this->statusMsg != null)
     echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
 }
 $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("coupon/genapprove"),
+	'action'=>Yii::app()->createUrl("coupon/generatedview"),
 	'method'=>'get',
 )); ?>
 	<fieldset>
