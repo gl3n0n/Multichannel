@@ -36,7 +36,7 @@ $this->menu=array(
 	array(
 		'name' => 'Subscriptions',
 		'type' => 'raw',
-		'value'=> 'CHtml::link("View Subscriptions","../customerSubscriptions/?customer_id=$data->CustomerId")',
+		'value'=> 'CHtml::link("View Subscriptions","customerSubscriptions/?customer_id=$data->CustomerId")',
 		),
 	'FirstName',
 	'MiddleName',

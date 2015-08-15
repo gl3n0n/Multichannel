@@ -44,12 +44,12 @@ class Customers extends CActiveRecord
 			array('Gender', 'length', 'max'=>1),
 			array('ContactNumber, Address', 'length', 'max'=>255),
 			array('Email, FBId, TwitterHandle', 'length', 'max'=>30),
-			array('Birthdate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
+			array('BirthDate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
 			array('Status', 'length', 'max'=>8),
 			array('DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('CustomerId, FirstName, MiddleName, LastName, Gender, ContactNumber, Address, Email, FBId, TwitterHandle, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('BirthDate,CustomerId, FirstName, MiddleName, LastName, Gender, ContactNumber, Address, Email, FBId, TwitterHandle, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -78,7 +78,7 @@ class Customers extends CActiveRecord
 			'ContactNumber' => 'Contact Number',
 			'Address' => 'Address',
 			'Email' => 'Email',
-			'Birthdate' => 'Birthdate',
+			'BirthDate' => 'BirthDate',
 			'FBId' => 'Fbid',
 			'TwitterHandle' => 'Twitter Handle',
 			'Status' => 'Status',
@@ -115,7 +115,7 @@ class Customers extends CActiveRecord
 		$criteria->compare('ContactNumber',$this->ContactNumber,true);
 		$criteria->compare('Address',$this->Address,true);
 		$criteria->compare('Email',$this->Email,true);
-		$criteria->compare('Birthdate',$this->Birthdate,true);
+		$criteria->compare('BirthDate',$this->BirthDate,true);
 		$criteria->compare('FBId',$this->FBId,true);
 		$criteria->compare('TwitterHandle',$this->TwitterHandle,true);
 		$criteria->compare('Status',$this->Status,true);

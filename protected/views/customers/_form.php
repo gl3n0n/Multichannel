@@ -61,9 +61,9 @@
 		<?php echo $form->error($model,'Email'); ?>
 	</div>
 	<div class="row">
-		<?php echo $form->labelEx($model,'Birthdate'); ?>
-		<?php echo $form->textField($model,'Birthdate',array('size'=>30,'maxlength'=>10)); ?>
-		<?php echo $form->error($model,'Birthdate'); ?>
+		<?php echo $form->labelEx($model,'BirthDate'); ?>
+		<?php echo $form->textField($model,'BirthDate',array('size'=>30,'maxlength'=>10)); ?>
+		<?php echo $form->error($model,'BirthDate'); ?>
 	</div>
 
 	<div class="row">
