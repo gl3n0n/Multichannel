@@ -101,6 +101,7 @@ return array(
 		'uploadImageDir'=>'/var/www/html/multichannel/images/',
 		'baseUploadUrl' => 'http://104.156.53.150/multichannel/images/',
 		'updatePoints'  => 'http://104.156.53.150/multichannel-api/points/update.php',
+		'jQueryInclude' => '<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>',
 		'reportPfx'     => 'Cust-Rpt',
 		'reportCsv'     => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
 				     ('C:\wamp\www\Multichannel\protected\downloads'):
