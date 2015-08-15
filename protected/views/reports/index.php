@@ -54,11 +54,15 @@ $( document ).ready(function() {
 )); ?>
 	<fieldset class='filterSrch'>
 		<legend>Search Customer Name / Email</legend>
-		<input type="text" id='byCustomerName' name="byCustomerName" id="list-search" placeholder="CustomerName" title="Search Customer Name/Email">
+		<input type="text" id='byCustomerName' 
+		 style="width:200px;"
+		 name="byCustomerName" id="list-search" placeholder="CustomerName" title="Search Customer Name/Email">
+		<!--
 		<button type="submit" id='btnByCustomerName'>Search</button>
+		//-->
 		<br/>
 	</fieldset>
-	
+<!--//	
 <?php $this->endWidget(); ?>
 </div>
 <div>
@@ -66,13 +70,18 @@ $( document ).ready(function() {
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
+//-->
 	<fieldset class='filterSrch'>
 		<legend>Search Brand Name</legend>
-		<input type="text" id='byBrand' name="byBrand" id="list-search" placeholder="BrandName" title="Search Brand Name">
+		<input type="text" id='byBrand' 
+		 style="width:200px;"
+		 name="byBrand" id="list-search" placeholder="BrandName" title="Search Brand Name">
+		<!--
 		<button type="submit" id='btnByBrandName'>Search</button>
+		//-->
 		<br/>
 	</fieldset>
-	
+<!--//	
 <?php $this->endWidget(); ?>
 </div>
 <div>
@@ -80,13 +89,19 @@ $( document ).ready(function() {
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
+//-->
 	<fieldset class='filterSrch'>
 		<legend>Search Campaign Name</legend>
-		<input type="text" id='byCampaign' name="byCampaign" id="list-search" placeholder="CampaignName" title="Search Campaign Name">
+		<input type="text" id='byCampaign' 
+		 style="width:200px;"
+		 name="byCampaign" id="list-search" placeholder="CampaignName" title="Search Campaign Name">
+		<!--
 		<button type="submit" id='btnByCampaignName'>Search</button>
+		//-->
 		<br/>
 	</fieldset>
-	
+
+<!--//	
 <?php $this->endWidget(); ?>
 </div>
 <div>
@@ -94,12 +109,25 @@ $( document ).ready(function() {
 	'action'=>Yii::app()->createUrl("reports/index"),
 	'method'=>'get',
 )); ?>
+//-->
 	<fieldset class='filterSrch'>
 		<legend>Search Channel Name</legend>
-		<input type="text" id='byChannel' name="byChannel" id="list-search" placeholder="ChannelName" title="Search Channel Name">
+		<input type="text" id='byChannel' 
+		 style="width:200px;"
+		 name="byChannel" id="list-search" placeholder="ChannelName" title="Search Channel Name">
+		<!--
 		<button type="submit" id='btnByChannel'>Search</button>
+		//-->
 		<br/>
 	</fieldset>
+	<fieldset class='filterSrch'>
+		<br/>
+		<button type="submit" id='btnByChannel' style="width:200px;">
+		Search
+		</button>
+		<br/>
+		<br/>
+	</fieldset>	
 	
 <?php $this->endWidget(); ?>
 </div>

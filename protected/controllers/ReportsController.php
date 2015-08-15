@@ -79,6 +79,11 @@ class ReportsController extends Controller
 			$filterSrch++;
 			$criteria->with = array(
 				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
+				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
+
 			);
 			$criteria->addCondition(" pointlogChannels.ChannelName LIKE '%".addslashes($byChannel)."%' ");
 		}
@@ -88,7 +93,11 @@ class ReportsController extends Controller
 		{
 			$filterSrch++;
 			$criteria->with = array(
+				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
 				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
 			);
 			$criteria->addCondition(" pointlogCampaigns.CampaignName LIKE '%".addslashes($byCampaign)."%' ");
 		}
@@ -98,7 +107,12 @@ class ReportsController extends Controller
 		{
 			$filterSrch++;
 			$criteria->with = array(
-				'pointlogBrands' => array('joinType'=>'LEFT JOIN'),
+				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
+				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
+
 			);
 			$criteria->addCondition(" pointlogBrands.BrandName LIKE '%".addslashes($byBrand)."%' ");
 		}
@@ -108,7 +122,12 @@ class ReportsController extends Controller
 		{
 			$filterSrch++;
 			$criteria->with = array(
-				'pointlogCustomers' => array('joinType'=>'LEFT JOIN'),
+				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
+				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
+
 			);
 			$criteria->addCondition(" (
 						 pointlogCustomers.Email     LIKE '%".addslashes($byCustomerName)."%' OR
