@@ -60,6 +60,11 @@
 		<?php echo $form->textField($model,'Email',array('size'=>30,'maxlength'=>30)); ?>
 		<?php echo $form->error($model,'Email'); ?>
 	</div>
+	<div class="row">
+		<?php echo $form->labelEx($model,'Birthdate'); ?>
+		<?php echo $form->textField($model,'Birthdate',array('size'=>30,'maxlength'=>10)); ?>
+		<?php echo $form->error($model,'Birthdate'); ?>
+	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'FBId'); ?>
@@ -74,11 +79,9 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'Status'); ?>
-		<?php echo $form->textField($model,'Status',array('size'=>8,'maxlength'=>8)); ?>
-		<?php echo $form->error($model,'Status'); ?>
+		<?php echo $form->hiddenField($model,'Status',array('value'=>'ACTIVE')); ?>
 	</div>
-
+	<!--//
 	<div class="row">
 		<?php echo $form->labelEx($model,'DateCreated'); ?>
 		<?php echo $form->textField($model,'DateCreated'); ?>
@@ -102,7 +105,7 @@
 		<?php echo $form->textField($model,'UpdatedBy'); ?>
 		<?php echo $form->error($model,'UpdatedBy'); ?>
 	</div>
-
+	//-->
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
 	</div>

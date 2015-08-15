@@ -38,6 +38,7 @@
 			'items'=>array(
 				array('label'=>'User Management', 'url'=>array('/users'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
 				array('label'=>'Clients', 'url'=>array('/clients'), 'visible'=>!Yii::app()->user->isGuest),
+				array('label'=>'Customers', 'url'=>array('/customers'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Brands', 'url'=>array('/brands'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Campaigns', 'url'=>array('/campaigns'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Channels', 'url'=>array('/channels'), 'visible'=>!Yii::app()->user->isGuest),

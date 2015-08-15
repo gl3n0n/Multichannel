@@ -28,9 +28,13 @@ $this->menu=array(
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	'columns'=>array(
-	'CustomerId',
 	array(
 		'name' => 'CustomerId',
+		'type' => 'raw',
+		'value' => 'CHtml::link($data->CustomerId,Yii::app()->createUrl("customers/update",array("id"=>$data->primaryKey)))',
+	),	
+	array(
+		'name' => 'Subscriptions',
 		'type' => 'raw',
 		'value'=> 'CHtml::link("View Subscriptions","../customerSubscriptions/?customer_id=$data->CustomerId")',
 		),

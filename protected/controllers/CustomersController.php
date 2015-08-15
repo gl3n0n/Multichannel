@@ -73,6 +73,11 @@ class CustomersController extends Controller
 		if(isset($_POST['Customers']))
 		{
 			$model->attributes=$_POST['Customers'];
+			
+			if(Yii::app()->user->AccessType !== "SUPERADMIN" ) {
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			}
+			
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->CustomerId));
 		}

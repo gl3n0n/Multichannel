@@ -39,10 +39,12 @@ class Customers extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
+			array('FirstName, MiddleName, LastName, Email', 'required'),
 			array('FirstName, MiddleName, LastName', 'length', 'max'=>50),
 			array('Gender', 'length', 'max'=>1),
 			array('ContactNumber, Address', 'length', 'max'=>255),
 			array('Email, FBId, TwitterHandle', 'length', 'max'=>30),
+			array('Birthdate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
 			array('Status', 'length', 'max'=>8),
 			array('DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
@@ -76,6 +78,7 @@ class Customers extends CActiveRecord
 			'ContactNumber' => 'Contact Number',
 			'Address' => 'Address',
 			'Email' => 'Email',
+			'Birthdate' => 'Birthdate',
 			'FBId' => 'Fbid',
 			'TwitterHandle' => 'Twitter Handle',
 			'Status' => 'Status',
@@ -112,6 +115,7 @@ class Customers extends CActiveRecord
 		$criteria->compare('ContactNumber',$this->ContactNumber,true);
 		$criteria->compare('Address',$this->Address,true);
 		$criteria->compare('Email',$this->Email,true);
+		$criteria->compare('Birthdate',$this->Birthdate,true);
 		$criteria->compare('FBId',$this->FBId,true);
 		$criteria->compare('TwitterHandle',$this->TwitterHandle,true);
 		$criteria->compare('Status',$this->Status,true);
@@ -119,6 +123,7 @@ class Customers extends CActiveRecord
 		$criteria->compare('CreatedBy',$this->CreatedBy);
 		$criteria->compare('DateUpdated',$this->DateUpdated,true);
 		$criteria->compare('UpdatedBy',$this->UpdatedBy);
+		$criteria->compare('ClientId',$this->ClientId,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
