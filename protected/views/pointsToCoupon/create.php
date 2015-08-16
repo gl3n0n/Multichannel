@@ -12,7 +12,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Create Scheduled Post</h1>
+<h1>Create Coupon on Points</h1>
 
 <?php 
 $this->renderPartial('_form', array(
