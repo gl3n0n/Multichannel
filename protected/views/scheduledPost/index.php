@@ -35,6 +35,7 @@ $this->menu=array(
 	),
 	'Title',
 	'Description',
+	'EventDate',
 	'Status',
 	array(
 	'name' => 'BrandId',

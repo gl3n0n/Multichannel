@@ -39,13 +39,13 @@ class ScheduledPost extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('BrandId, CampaignId, ChannelId, ClientId, Title, Description', 'required'),
+			array('BrandId, CampaignId, ChannelId, ClientId, Title, Description,EventDate', 'required'),
 			array('ClientId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
 			array('Status', 'length', 'max'=>8),
-			
+			array('EventDate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('SchedId,ClientId,BrandId,CampaignId,ChannelId,Title,Description,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('SchedId,ClientId,BrandId,CampaignId,ChannelId,Title,Description,EventDate,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -91,6 +91,7 @@ class ScheduledPost extends CActiveRecord
 			'CampaignId'  => 'Campaign Name',
 			'ChannelId'   => 'Channel Name',
 			'Description' => 'Description',
+			'EventDate'   => 'Event Date',
 			'Status'      => 'Status',
 			'DateCreated' => 'Date Created',
 			'CreatedBy'   => 'Created By',
@@ -124,11 +125,14 @@ class ScheduledPost extends CActiveRecord
 		$criteria->compare('ChannelId',  $this->ChannelId,true);
 		$criteria->compare('Title',      $this->Title,true);
 		$criteria->compare('Description',$this->Description,true);
+		
 		$criteria->compare('Status',     $this->Status,true);
 		$criteria->compare('DateCreated',$this->DateCreated,true);
 		$criteria->compare('CreatedBy',  $this->CreatedBy);
 		$criteria->compare('DateUpdated',$this->DateUpdated,true);
 		$criteria->compare('UpdatedBy',  $this->UpdatedBy);
+		$criteria->compare('EventDate',  $this->EventDate);
+		
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

@@ -11,6 +11,11 @@ $this->menu=array(
 	array('label'=>'List Scheduled Post',   'url'=>array('index')),
 	array('label'=>'Create Scheduled Post', 'url'=>array('create')),
 	array('label'=>'Update Scheduled Post', 'url'=>array('update', 'id'=>$model->SchedId)),
+	array('label'=>'Delete Scheduled Post', 'url'=>'#', 
+	'linkOptions'=>array('submit'=>array('delete','id'=>$model->SchedId),
+	'confirm'=>'Are you sure you want to delete this item?')),	
+
+	
 );
 ?>
 
@@ -22,6 +27,7 @@ $this->menu=array(
 		'SchedId',
 		'Title',
 		'Description',
+		'EventDate',
 		array(
 		'name' => 'BrandId',
 		'value' => $model->schedBrands->BrandName,

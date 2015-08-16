@@ -36,7 +36,7 @@ class ScheduledPostController extends Controller
 			// 	'users'=>array('*'),
 			// ),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','list'),
+				'actions'=>array('index','view','create','update','list','delete'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -177,11 +177,12 @@ class ScheduledPostController extends Controller
 	 */
 	public function actionDelete($id)
 	{
-		$this->loadModel($id)->delete();
-
+		$model    = $this->loadModel($id);
+		$rowCount = $model->findByPk($id)->delete();
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 		if(!isset($_GET['ajax']))
-			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
+		
 	}
 
 	/**

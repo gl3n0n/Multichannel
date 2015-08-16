@@ -2,12 +2,15 @@
 /* @var $this BrandsController */
 /* @var $model Brands */
 /* @var $form CActiveForm */
-echo Yii::app()->params['jQueryInclude'];
+if($model->scenario === 'insert')
+{
+   echo Yii::app()->params['jQueryInclude'];
+}
 ?>
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'brands-form',
+	'id'=>'my-form',
 	// Please note: When you enable ajax validation, make sure the corresponding
 	// controller action is handling ajax validation correctly.
 	// There is a call to performAjaxValidation() commented in generated controller code.
@@ -86,6 +89,27 @@ echo Yii::app()->params['jQueryInclude'];
 		));
 		?>
 		<?php echo $form->error($model,'Description'); ?>
+	</div>
+	<div class="row">
+		<?php echo $form->labelEx($model,'EventDate'); ?>
+		<?php
+	    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+           'name'  => 'EventDate',
+           'value' => substr($model->EventDate,0,10),
+	   'model'=>$model,
+	   'attribute'=>'EventDate',
+           // additional javascript options for the date picker plugin
+           'options' => array(
+               'showAnim' => "slideDown",
+               'changeMonth' => true,
+               'numberOfMonths' => 1,
+               'showOn' => "button",
+               'buttonImageOnly' => false,
+               'dateFormat' => "yy-mm-dd",
+               'showButtonPanel' => true,
+           )
+       ));	?>
+		<?php echo $form->error($model,'EventDate'); ?>
 	</div>
 
 	<div class="row buttons">
