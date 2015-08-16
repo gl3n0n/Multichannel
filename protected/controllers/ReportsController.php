@@ -648,4 +648,91 @@ class ReportsController extends Controller
 		));
 	}
 	 
+	public function actionCustomeractivity()
+	{
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		//all-pending
+		
+		if(empty($uid))
+			$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
+		
+		
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$xtra   = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+		{
+			$xtra   = " AND a.ClientId = '$clid'  ";
+		}
+		$filter = '';
+		if(strlen($search)) 
+		    $filter = " AND  '%".addslashes($search)."%' ";
+		
+		if(1){
+		$rawSql   = "
+				select 
+				      a.CustomerId, 
+				      a.SubscriptionId, 
+				      a.ClientId, 
+				      a.BrandId, 
+				      a.CampaignId, 
+				      a.ChannelId, 
+				      a.status SubsriptionStatus,
+				      b.Balance, 
+				      b.Used, 
+				      b.Total,
+				      c.PointsId, 
+				      d.Value Points
+				from  customer_subscriptions a, customer_points b, points_log c, points d  
+				where a.SubscriptionId = b.SubscriptionId
+				and   a.SubscriptionId = c.SubscriptionId
+				and   a.CustomerId     = c.CustomerId
+				and   c.PointsId       = d.PointsId
+				union all
+				select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, a.status SubsriptionStatus,
+				       b.Balance, b.Used, b.Total,
+				       ifnull(c.PointsId,0), c.Points Points
+				from  customer_subscriptions a, customer_points b, points_log c
+				where a.SubscriptionId = b.SubscriptionId
+				and   a.SubscriptionId = c.SubscriptionId
+				and   a.CustomerId     = c.CustomerId
+				and   (c.PointsId      = 0 or c.PointsId is null)
+				$xtra
+		";
+		$rawData  = Yii::app()->db->createCommand($rawSql); 
+		$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dataProvider    = new CSqlDataProvider($rawData, array(
+					    'keyField' => 'SubscriptionId',
+					    'totalItemCount' => $rawCount,
+					    )
+			);
+		
+		}
+    		if(0){
+    		
+    		//echo '<hr><hr>'.@var_export($criteria,true);
+    		//echo '<hr><hr>'.@var_export($dataProvider,true);
+    		foreach($dataProvider->getData() as $row)
+    		{
+    			echo '<hr><hr>'.@var_export($row,true);
+    		}
+    		
+    		echo '<hr><hr>'.@var_export($brands,true);
+    		echo '<hr><hr>'.@var_export($campaigns,true);
+    		echo '<hr><hr>'.@var_export($clients,true);
+    		echo '<hr><hr>'.@var_export($channels,true);
+    		exit;
+    		}
+    		
+    		
+		$mapping =  $this->getMoreLists();
+		
+		$this->render('customeractivity',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+			
+			
+		));
+	}
+	
 }

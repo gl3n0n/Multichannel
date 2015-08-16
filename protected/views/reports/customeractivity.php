@@ -18,7 +18,7 @@ if(1)
 	);
 }
 ?>
-<h1>Redeemed Coupons</h1>
+<h1>Customer Activity</h1>
 <div>
 <?php 
 if($this->statusMsg != null)
@@ -26,14 +26,16 @@ if($this->statusMsg != null)
     echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
 }
 $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("reports/redeemcoupons"),
+	'action'=>Yii::app()->createUrl("reports/customeractivity"),
 	'method'=>'get',
 )); ?>
+<!--//
 	<fieldset>
 		<legend>Search By Code</legend>
 		<input type="text" id='search' name="search" id="list-search" placeholder="Code" title="Search Code">
 		<button type="submit">Search</button>
 	</fieldset>
+//-->	
 <?php $this->endWidget(); ?>
 <script>
 
@@ -65,44 +67,39 @@ $this->widget('CGridViewEtc', array(
 	'etc' => $mapping,
 	'columns'=>array(
 		array(
-			'name' => 'Redeemed By',
+			'name' => 'CustomerId',
 			'type' => 'raw',
-			'value'=> '$data["Email"]',
+			'value'=> '$data["CustomerId"]',
 		), 
 		array(
-			'name' => 'Coupon Id',
+			'name' => 'SubscriptionId',
 			'type' => 'raw',
-			'value'=> '$data["CouponId"]',
+			'value'=> '$data["SubscriptionId"]',
 		), 
 		array(
-			'name' => 'Code',
+			'name' => 'SubsriptionStatus',
 			'type' => 'raw',
-			'value'=> '$data["Code"]',
+			'value'=> '$data["SubsriptionStatus"]',
 		), 
 		array(
-		    'name'  => 'Brand Name',
+		    'name'  => 'Balance',
 		    'type'  => 'raw',
-		    'value'=> '$data["BrandName"]',
+		    'value'=> '$data["Balance"]',
 		),
 		array(
-		    'name'  => 'Brand Name',
+		    'name'  => 'Used',
 		    'type'  => 'raw',
-		    'value'=> '$data["BrandName"]',
+		    'value'=> '$data["Used"]',
 		),
 		array(
-		    'name'  => 'Campaign Name',
+		    'name'  => 'Total',
 		    'type'  => 'raw',
-		    'value'=> '$data["CampaignName"]',
+		    'value'=> '$data["Total"]',
 		),
 		array(
-		    'name'  => 'Channel Name',
+		    'name'  => 'Points',
 		    'type'  => 'raw',
-		    'value'=> '$data["ChannelName"]',
-		),
-		array(
-		    'name'  => 'Date Redeemed',
-		    'type'  => 'raw',
-		    'value'=> '$data["DateRedeemed"]',
+		    'value'=> '$data["Points"]',
 		),
 	),
 )); 

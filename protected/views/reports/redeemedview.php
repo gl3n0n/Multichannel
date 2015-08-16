@@ -17,6 +17,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 		array('label'=>'Create Coupon',    'url'=>array('create')),
 		array('label'=>'Pending Coupons',  'url'=>array('pending')),
 		array('label'=>'Redeemed Coupons', 'url'=>array('redeemedview')),
+		
 	);
 }
 ?>
