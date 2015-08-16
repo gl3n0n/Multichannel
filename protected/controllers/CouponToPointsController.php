@@ -1,6 +1,6 @@
 <?php
 
-class PointsToCouponController extends Controller
+class CouponToPointsController extends Controller
 {
 	public $extraJS;
 	public $mainDivClass;
@@ -67,17 +67,17 @@ class PointsToCouponController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new PointsToCoupon;
+		$model=new CouponToPoints;
 
 
-		if(isset($_POST['PointsToCoupon']))
+		if(isset($_POST['CouponToPoints']))
 		{
-			$model->attributes=$_POST['PointsToCoupon'];
+			$model->attributes=$_POST['CouponToPoints'];
+			$model->setAttribute("Status", 'ACTIVE');
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			$model->setAttribute("Status", 'ACTIVE');
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->PtcId));
 		}
@@ -122,9 +122,9 @@ class PointsToCouponController extends Controller
 	{
 		$model=$this->loadModel($id);
 
-		if(isset($_POST['PointsToCoupon']))
+		if(isset($_POST['CouponToPoints']))
 		{
-			$model->attributes=$_POST['PointsToCoupon'];
+			$model->attributes=$_POST['CouponToPoints'];
 			$model->setAttribute("Status", 'ACTIVE');
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
@@ -166,7 +166,7 @@ class PointsToCouponController extends Controller
 			 	t.Title     LIKE '%".addslashes($search)."%' 
 			 ) ");
 		}
-		$dataProvider = new CActiveDataProvider('PointsToCoupon', array(
+		$dataProvider = new CActiveDataProvider('CouponToPoints', array(
 			'criteria'=>$criteria ,
 		));
 
@@ -180,10 +180,10 @@ class PointsToCouponController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new PointsToCoupon('search');
+		$model=new CouponToPoints('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['PointsToCoupon']))
-			$model->attributes=$_GET['PointsToCoupon'];
+		if(isset($_GET['CouponToPoints']))
+			$model->attributes=$_GET['CouponToPoints'];
 
 		$this->render('admin',array(
 			'model'=>$model,
@@ -195,12 +195,12 @@ class PointsToCouponController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer $id the ID of the model to be loaded
-	 * @return PointsToCoupon the loaded model
+	 * @return CouponToPoints the loaded model
 	 * @throws CHttpException
 	 */
 	public function loadModel($id)
 	{
-		$model=PointsToCoupon::model()->findByPk($id);
+		$model=CouponToPoints::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -208,7 +208,7 @@ class PointsToCouponController extends Controller
 
 	/**
 	 * Performs the AJAX validation.
-	 * @param PointsToCoupon $model the model to be validated
+	 * @param CouponToPoints $model the model to be validated
 	 */
 	protected function performAjaxValidation($model)
 	{
