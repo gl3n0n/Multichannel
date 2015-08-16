@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 
 $this->menu=array(
 	array('label'=>'List Customers', 'url'=>array('index')),
-	array('label'=>'Create Customers', 'url'=>array('create')),
+	//array('label'=>'Create Customers', 'url'=>array('create')),
 	array('label'=>'View Customers', 'url'=>array('view', 'id'=>$model->CustomerId)),
 	array('label'=>'Manage Customers', 'url'=>array('admin')),
 );
