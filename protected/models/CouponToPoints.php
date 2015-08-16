@@ -45,7 +45,7 @@ class CouponToPoints extends CActiveRecord
 			
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('PtcId,CouponId,CouponRequired,PointsValue,Title,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('CtpId,CouponId,CouponRequired,PointsValue,Title,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -83,7 +83,7 @@ class CouponToPoints extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'PtcId'       => 'Seq #',
+			'CtpId'       => 'Seq #',
 			'CouponId'    => 'Coupon Id',
 			'CouponRequired' => 'Coupon Required',
 			'PointsValue'    => 'Points Value',
@@ -114,7 +114,7 @@ class CouponToPoints extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('PtcId',      $this->PtcId,true);
+		$criteria->compare('CtpId',      $this->CtpId,true);
 		$criteria->compare('CouponId',   $this->CouponId,true);
 		$criteria->compare('CouponRequired',    $this->CouponRequired,true);
 		$criteria->compare('PointsValue', $this->PointsValue,true);

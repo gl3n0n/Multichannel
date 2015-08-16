@@ -22,15 +22,21 @@ $this->menu=array(
 		<input type="text" id='search' name="search" id="list-search" placeholder="Title" title="Search Title">
 		<button type="submit">Search</button>
 	</fieldset>
-<?php $this->endWidget(); ?>
+<?php $this->endWidget(); 
+if(0)
+{
+	echo "<h>".@var_export($dataProvider->getData(),true);
+	exit;
+}
+?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=> $dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
 	array(
-		'name'  => 'PtcId',
-		'value' => 'CHtml::link($data->PtcId,Yii::app()->createUrl("couponToPoints/update",array("id"=>$data->primaryKey)))',
+		'name'  => 'CtpId',
+		'value' => 'CHtml::link($data->CtpId,Yii::app()->createUrl("couponToPoints/update",array("id"=>$data->primaryKey)))',
 		'type'  => 'raw',
 	),
 	'Title',
@@ -41,12 +47,12 @@ $this->menu=array(
 	'DateCreated',
 	array(
 		'name' => 'CreatedBy',
-		'value'=> '$data->p2couponCreateUsers->Username',
+		'value'=> '$data->p2couponCreateUsers!=null ? $data->p2couponCreateUsers->Username : ""',
 	),
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
-		'value'=> '$data->p2couponUpdateUsers->Username',
+		'value'=> '$data->p2couponUpdateUsers!=null ? $data->p2couponUpdateUsers->Username : ""',
 	),
 	),
 )); 

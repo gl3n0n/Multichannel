@@ -4,24 +4,24 @@
 
 $this->breadcrumbs=array(
 	'Coupon To Points' =>array('index'),
-	$model->PtcId,
+	$model->CtpId,
 );
 
 $this->menu=array(
 	array('label'=>'List Coupon To Points',   'url'=>array('index')),
 	array('label'=>'Create Coupon To Points', 'url'=>array('create')),
-	array('label'=>'Update Coupon To Points', 'url'=>array('update', 'id'=>$model->PtcId)),
+	array('label'=>'Update Coupon To Points', 'url'=>array('update', 'id'=>$model->CtpId)),
 );
 ?>
 
-<h1>View Coupon To Points #<?php echo $model->PtcId; ?></h1>
+<h1>View Coupon To Points #<?php echo $model->CtpId; ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
 	array(
-		'name'  => 'PtcId',
-		'value' => CHtml::link($model->PtcId,Yii::app()->createUrl("couponToPoints/update",array("id"=>$model->primaryKey))),
+		'name'  => 'CtpId',
+		'value' => CHtml::link($model->CtpId,Yii::app()->createUrl("couponToPoints/update",array("id"=>$model->primaryKey))),
 		'type'  => 'raw',
 	),
 	'Title',
@@ -32,12 +32,12 @@ $this->menu=array(
 	'DateCreated',
 	array(
 		'name' => 'CreatedBy',
-		'value'=> $model->p2couponCreateUsers->Username,
+		'value'=> $model->p2couponCreateUsers!=null?$model->p2couponCreateUsers->Username:"",
 	),
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
-		'value'=> $model->p2couponUpdateUsers->Username,
+		'value'=> $model->p2couponUpdateUsers!=null?$model->p2couponUpdateUsers->Username:"",
 	),
      ),
 )); ?>

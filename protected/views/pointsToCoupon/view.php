@@ -32,12 +32,12 @@ $this->menu=array(
 	'DateCreated',
 	array(
 		'name' => 'CreatedBy',
-		'value'=> $model->p2couponCreateUsers->Username,
+		'value'=> $model->p2couponCreateUsers!=null?$model->p2couponCreateUsers->Username:"",
 	),
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
-		'value'=> $model->p2couponUpdateUsers->Username,
+		'value'=> $model->p2couponUpdateUsers !=null?$model->p2couponUpdateUsers->Username:"",
 	),
      ),
 )); ?>

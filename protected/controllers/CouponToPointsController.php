@@ -79,7 +79,7 @@ class CouponToPointsController extends Controller
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->PtcId));
+				$this->redirect(array('view','id'=>$model->CtpId));
 		}
 
 		$this->render('create',array(
@@ -130,7 +130,7 @@ class CouponToPointsController extends Controller
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->PtcId));
+				$this->redirect(array('view','id'=>$model->CtpId));
 		}
 
 		$this->render('update',array(
