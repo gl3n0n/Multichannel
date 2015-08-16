@@ -235,9 +235,10 @@ if(Yii::app()->user->AccessType === 'SUPERADMIN' && $model->scenario === 'insert
     <?php echo $form->labelEx($model,'From'); ?>
     <?php
       $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-           'name' => 'From',
+           'name' => 'Points[From]',
            'id' => 'Points_From',
-       'model'=>$model,
+     //  'model'=>$model,
+	   'value'=>substr($model->From,0,10),
       'attribute'=>'From',
            // additional javascript options for the date picker plugin
            'options' => array(
@@ -258,9 +259,10 @@ if(Yii::app()->user->AccessType === 'SUPERADMIN' && $model->scenario === 'insert
     <?php echo $form->labelEx($model,'To'); ?>
     <?php
        $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-           'name' => 'To',
+           'name' => 'Points[To]',
            'id'=>'Points_To',
-       'model'=>$model,
+ //      'model'=>$model,
+           'value'=>substr($model->To,0,10),
       'attribute'=>'To',
            // additional javascript options for the date picker plugin
            'options' => array(
