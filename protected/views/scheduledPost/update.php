@@ -4,7 +4,7 @@
 
 $this->breadcrumbs=array(
 	'Scheduled Post'=>array('index'),
-	$model->SchedId=>array('view','id'=>$model->BrandId),
+	$model->SchedId=>array('view','id'=>$model->SchedId),
 	'Update',
 );
 

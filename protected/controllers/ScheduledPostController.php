@@ -120,11 +120,13 @@ class ScheduledPostController extends Controller
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->SchedId));
 		}
+		
+		$brand_list = (Yii::app()->user->AccessType !== "SUPERADMIN") ? $this->getBrands(Yii::app()->user->ClientId) : (array());
 
 		$this->render('create',array(
-			'model'      =>$model,
-			'client_list'=>$clients,
-			'brand_list' =>array(),
+			'model'      => $model,
+			'client_list'=> $clients,
+			'brand_list' => $brand_list,
 		));
 	}
 
