@@ -49,7 +49,7 @@
 				array('label'=>'Raffle', 'url'=>array('/raffle'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Customers Subscriptions', 'url'=>array('/customerSubscriptions'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="ADMIN"),
 				array('label'=>'Customer Report', 'url'=>array('/reports'), 'visible'=>!Yii::app()->user->isGuest),
-				
+				array('label'=>'Scheduled Post', 'url'=>array('/scheduledPost'), 'visible'=>!Yii::app()->user->isGuest),
 				
 				array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
 				array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
