@@ -35,6 +35,12 @@ $this->menu=array(
 		'ContactNumber',
 		'Address',
 		'Email',
-		'FBId'
+		'FBId',
+		array(
+		'name' => 'Total Points',
+		'type'=>'raw',
+		'value'=> CHtml::link("$total (View Logs)", '../reports/customeractivity/?customer_id=' . $model->CustomerId),
+		),
+
 	),
 )); ?>

@@ -39,6 +39,10 @@ if(0)
 		'value' => 'CHtml::link($data->CtpId,Yii::app()->createUrl("couponToPoints/update",array("id"=>$data->primaryKey)))',
 		'type'  => 'raw',
 	),
+	array(
+	'name' => 'ClientId',
+	'value'=> '$data->p2couponClients!=null?$data->p2couponClients->CompanyName:""',
+	),
 	'Title',
 	'CouponRequired',
 	'CouponId',

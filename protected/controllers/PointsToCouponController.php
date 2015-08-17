@@ -77,6 +77,7 @@ class PointsToCouponController extends Controller
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+			$model->setAttribute("ClientId",  Yii::app()->user->ClientId);
 			$model->setAttribute("Status", 'ACTIVE');
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->PtcId));
@@ -125,6 +126,7 @@ class PointsToCouponController extends Controller
 		if(isset($_POST['PointsToCoupon']))
 		{
 			$model->attributes=$_POST['PointsToCoupon'];
+			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			$model->setAttribute("Status", 'ACTIVE');
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);

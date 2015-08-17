@@ -29,6 +29,10 @@ $this->menu=array(
 		'Description',
 		'EventDate',
 		array(
+		'name' => 'ClientId',
+		'value' => $model->schedClients->CompanyName,
+		),		
+		array(
 		'name' => 'BrandId',
 		'value' => $model->schedBrands->BrandName,
 		),

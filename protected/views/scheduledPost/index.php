@@ -38,6 +38,10 @@ $this->menu=array(
 	'EventDate',
 	'Status',
 	array(
+	'name' => 'ClientId',
+	'value'=> '$data->schedClients->CompanyName',
+	),
+	array(
 	'name' => 'BrandId',
 	'value'=> '$data->schedBrands->BrandName',
 	),

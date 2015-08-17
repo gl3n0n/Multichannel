@@ -45,7 +45,7 @@ class Raffle extends CActiveRecord
 			array('CouponId', 'default', 'setOnEmpty' => true, 'value' => NULL),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('RaffleId, Source, NoOfWinners, BackUp, FdaNo, DrawDate, DateCreated, CreatedBy, DateUpdated, UpdatedBy, Status, CouponId', 'safe', 'on'=>'search'),
+			array('RaffleId, ClientId,Source, NoOfWinners, BackUp, FdaNo, DrawDate, DateCreated, CreatedBy, DateUpdated, UpdatedBy, Status, CouponId', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -57,6 +57,7 @@ class Raffle extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'raffleClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
 			'raffleCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
 			'raffleUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
 		);
@@ -70,6 +71,7 @@ class Raffle extends CActiveRecord
 		return array(
 			'RaffleId' => 'Raffle',
 			'Source' => 'Source',
+			'ClientId' => 'Client Name',
 			'NoOfWinners' => 'No Of Winners',
 			'BackUp' => 'BackUp',
 			'FdaNo' => 'Promo Permit No',
@@ -113,6 +115,7 @@ class Raffle extends CActiveRecord
 		$criteria->compare('UpdatedBy',$this->UpdatedBy,true);
 		$criteria->compare('Status',$this->Status,true);
 		$criteria->compare('CouponId',$this->CouponId,true);
+		$criteria->compare('ClientId',$this->ClientId,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

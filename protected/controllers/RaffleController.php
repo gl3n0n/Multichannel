@@ -88,8 +88,9 @@ class RaffleController extends Controller
 			$model->attributes=$_POST['Raffle'];
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
-			$model->setAttribute("DateUpdatted", new CDbExpression('NOW()'));
+			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->RaffleId));
 		}
@@ -124,7 +125,9 @@ class RaffleController extends Controller
 		if(isset($_POST['Raffle']))
 		{
 			$model->attributes=$_POST['Raffle'];
-			
+			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->RaffleId));
 		}

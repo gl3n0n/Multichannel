@@ -18,7 +18,7 @@ if(1)
 	);
 }
 ?>
-<h1>Customer Activity</h1>
+<h1>Customer Points Logs</h1>
 <div>
 <?php 
 if($this->statusMsg != null)
@@ -26,12 +26,12 @@ if($this->statusMsg != null)
     echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
 }
 $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("reports/customeractivity"),
+	'action'=>Yii::app()->createUrl("reports/subcriptionsum"),
 	'method'=>'get',
 )); ?>
 	<fieldset>
-		<legend>Search By Customer</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Customer" title="Search Customer">
+		<legend>Search By Channel Name</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Customer" title="Search Channel Name">
 		<button type="submit">Search</button>
 	</fieldset>
 <?php $this->endWidget(); ?>
@@ -59,21 +59,26 @@ if(0)
 }
 
 $this->widget('CGridViewEtc', array(
-	'id' => 'gen-approve-view',
+	'id' => 'gen-subscription-view',
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'etc' => $mapping,
 	'columns'=>array(
 		array(
-			'name' => 'Subscription',
+			'name' => 'Point Log Id',
 			'type' =>'raw',
-			'value'=> 'CHtml::link($data["SubscriptionId"], "../reports/subcriptionsum/?subscribid=".$data["SubscriptionId"])',
+			'value'=> 'CHtml::link($data["PointLogId"],"#")',
 			),
 		array(
-			'name' => 'Customer',
+			'name' => 'Customer Name',
 			'type' => 'raw',
-			'value'=> '$data["FirstName"]',
-		), 
+			'value'=> '$data["CompanyName"]',
+		), 		
+		array(
+			'name' => 'Subscription',
+			'type' => 'raw',
+			'value'=> '$data["SubscriptionId"]',
+		), 		
 		array(
 			'name' => 'Client',
 			'type' => 'raw',
@@ -95,19 +100,14 @@ $this->widget('CGridViewEtc', array(
 			'value'=> '$data["ChannelName"]',
 		), 				
 		array(
-		    'name'  => 'Balance',
+		    'name'  => 'PointsId',
 		    'type'  => 'raw',
-		    'value'=> '$data["Balance"]',
+		    'value'=> '$data["PointsId"]',
 		),
 		array(
-		    'name'  => 'Used',
+		    'name'  => 'Points',
 		    'type'  => 'raw',
-		    'value'=> '$data["Used"]',
-		),
-		array(
-		    'name'  => 'Total',
-		    'type'  => 'raw',
-		    'value'=> '$data["Total"]',
+		    'value'=> '$data["Points"]',
 		),
 		/**
 		array(

@@ -45,7 +45,7 @@ class CouponToPoints extends CActiveRecord
 			
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('CtpId,CouponId,CouponRequired,PointsValue,Title,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('CtpId,ClientId,CouponId,CouponRequired,PointsValue,Title,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -58,6 +58,7 @@ class CouponToPoints extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'p2couponCoupon'     =>array(self::BELONGS_TO, 'Coupon', 'CouponId'),
+			'p2couponClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
 			'p2couponMap'        =>array(self::HAS_MANY,   'CouponMapping','CouponId'),
 			'p2couponCreateUsers'=>array(self::BELONGS_TO, 'Users',  'CreatedBy'),
 			'p2couponUpdateUsers'=>array(self::BELONGS_TO, 'Users',  'UpdatedBy'),
@@ -84,6 +85,7 @@ class CouponToPoints extends CActiveRecord
 	{
 		return array(
 			'CtpId'       => 'Seq #',
+			'ClientId'    => 'Client Name',
 			'CouponId'    => 'Coupon Id',
 			'CouponRequired' => 'Coupon Required',
 			'PointsValue'    => 'Points Value',

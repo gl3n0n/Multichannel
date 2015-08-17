@@ -54,9 +54,48 @@ class CustomersController extends Controller
 	 */
 	public function actionView($id)
 	{
+		$model = $this->loadModel($id);
+		$total = $this->getSummaryPts(($model != null?$model->CustomerId:0));
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=> $model,
+			'total'=> @intval($total),
 		));
+	}
+	
+	protected function getSummaryPts($custId=0)
+	{
+		$rawCount = 0;
+		if(1){
+		$rawSql   = "
+			select sum(Points) from (
+			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, a.status SubsriptionStatus,
+			       b.Balance, b.Used, b.Total,
+			       c.PointsId, d.Value Points
+			from  customer_subscriptions a, customer_points b, points_log c, points d  
+			where a.CustomerId = '$custId'
+			and   a.SubscriptionId = b.SubscriptionId
+			and   a.SubscriptionId = c.SubscriptionId
+			and   a.CustomerId = c.CustomerId
+			and   c.PointsId = d.PointsId
+			union all
+			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, a.status SubsriptionStatus,
+			       b.Balance, b.Used, b.Total,
+			       ifnull(c.PointsId,0), c.Points Points
+			from  customer_subscriptions a, customer_points b, points_log c
+			where a.CustomerId = '$custId'
+			and   a.SubscriptionId = b.SubscriptionId
+			and   a.SubscriptionId = c.SubscriptionId
+			and   a.CustomerId = c.CustomerId
+			and   (c.PointsId = 0 or c.PointsId is null)
+			) as count_alias
+		";
+		$rawCount = Yii::app()->db->createCommand(" $rawSql ")->queryScalar(); //the count
+		
+		}
+
+		//give it back
+		return $rawCount;
+	
 	}
 
 	/**

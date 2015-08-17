@@ -88,13 +88,13 @@ class ScheduledPostController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		$clientsID = Users::model()->findByPk(Yii::app()->user->id)->ClientId;
-		
 		if(Yii::app()->user->AccessType === "SUPERADMIN" && $model->scenario === 'insert') {
 			$_clients = Clients::model()->active()->findAll();
 		} else {
 			$_clients = Clients::model()->findAll(array(
 				'select'=>'ClientId, CompanyName', 'condition'=>'ClientId='.$clientsID.''));
 		}
+
 		
 		$clients = array();
 		foreach($_clients as $row) {
@@ -102,27 +102,44 @@ class ScheduledPostController extends Controller
 
 		}
 
+		
 		if(isset($_POST['ScheduledPost']))
 		{
 			$model->attributes=$_POST['ScheduledPost'];
 			if(Yii::app()->user->AccessType !== "SUPERADMIN" && $model->scenario === 'insert') {
 				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			}
+
+
 			
 			//reset the campaignId
 			$chans = @preg_split("/[\-]/", trim($_POST['ScheduledPost']['ChannelId']));
+			if(@count($chans)>=2)
 			$model->setAttribute("ChannelId", $chans[1]);
 			$model->setAttribute("Status", 'ACTIVE');
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+			
+
+			//echo "<hr>yy===model:<hr>".@var_export($model->attributes,true);
+			//exit;	
 			if($model->save())
+			{
 				$this->redirect(array('view','id'=>$model->SchedId));
+			}
+			else
+			{
+				Yii::app()->user->setFlash('error', 'An unexpected error occured.');
+			}
+			
+		
 		}
 		
 		$brand_list = (Yii::app()->user->AccessType !== "SUPERADMIN") ? $this->getBrands(Yii::app()->user->ClientId) : (array());
 
+		
 		$this->render('create',array(
 			'model'      => $model,
 			'client_list'=> $clients,

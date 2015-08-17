@@ -648,7 +648,7 @@ class ReportsController extends Controller
 		));
 	}
 	 
-	public function actionCustomeractivity()
+	public function actionCustomeractivity($customer_id=0)
 	{
 		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
@@ -664,41 +664,118 @@ class ReportsController extends Controller
 		{
 			$xtra   = " AND a.ClientId = '$clid'  ";
 		}
+		
+		$vcust  = trim(Yii::app()->request->getParam('customer_id'));
+		if($vcust>0) $customer_id = $vcust;
+		
+		$vlid   = addslashes($customer_id);
+		$vxtra  = '';
+		if($customer_id > 0)
+		{
+			$vxtra   = " AND a.CustomerId = '$vlid'  ";
+		}
 		$filter = '';
-		if(strlen($search)) 
-		    $filter = " AND  '%".addslashes($search)."%' ";
+		if(strlen($search) > 0) 
+		{
+			$srch   = addslashes($search);
+			$filter = " AND  (
+						e.Email     LIKE '%$srch%'  OR 
+						e.FirstName LIKE '%$srch%'  OR 
+						e.LastName  LIKE '%$srch%'   
+			                 ) ";
+		}
+		    
 		
 		if(1){
-		$rawSql   = "
-				select 
+		$rawSql   = " /**
+				select
 				      a.CustomerId, 
+				      e.Email,
+				      e.FirstName,
+				      e.LastName,
 				      a.SubscriptionId, 
-				      a.ClientId, 
-				      a.BrandId, 
-				      a.CampaignId, 
-				      a.ChannelId, 
+				      a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, 
+				      f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName, 
 				      a.status SubsriptionStatus,
 				      b.Balance, 
 				      b.Used, 
 				      b.Total,
 				      c.PointsId, 
 				      d.Value Points
-				from  customer_subscriptions a, customer_points b, points_log c, points d  
+				from  customer_subscriptions a, 
+				      customer_points b, 
+				      points_log c, 
+				      points d,
+				      customers e, 
+				      clients f,
+				      brands g,
+				      campaigns h,
+				      channels i
 				where a.SubscriptionId = b.SubscriptionId
 				and   a.SubscriptionId = c.SubscriptionId
 				and   a.CustomerId     = c.CustomerId
-				and   c.PointsId       = d.PointsId
+				and   a.CustomerId     = e.CustomerId
+				and   a.ClientId       = f.ClientId
+				and   a.BrandId        = g.ClientId
+				and   a.CampaignId     = h.CampaignId
+				and   a.ChannelId      = i.ChannelId
+				and   c.PointsId       = d.PointsId $xtra $vxtra $filter
 				union all
-				select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, a.status SubsriptionStatus,
-				       b.Balance, b.Used, b.Total,
+				select  a.CustomerId, 
+				        e.Email,
+				        e.FirstName,
+				        e.LastName,
+					a.SubscriptionId, 
+					a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, 
+					f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName, 
+					a.status SubsriptionStatus,
+				        b.Balance, b.Used, b.Total,
 				       ifnull(c.PointsId,0), c.Points Points
-				from  customer_subscriptions a, customer_points b, points_log c
+				from  customer_subscriptions a, 
+				      customer_points b, 
+				      points_log c, 
+				      customers e,clients f,brands g,campaigns h,channels i
 				where a.SubscriptionId = b.SubscriptionId
 				and   a.SubscriptionId = c.SubscriptionId
 				and   a.CustomerId     = c.CustomerId
-				and   (c.PointsId      = 0 or c.PointsId is null)
+				and   a.CustomerId     = e.CustomerId
+				and   a.ClientId       = f.ClientId
+				and   a.BrandId        = g.ClientId
+				and   a.CampaignId     = h.CampaignId
+				and   a.ChannelId      = i.ChannelId
+				and   (c.PointsId      = 0 or c.PointsId is null)**/";
+				
+			$rawSql = "
+				select a.CustomerId, 
+				       a.SubscriptionId, 
+				       a.ClientId, 
+				       a.BrandId, 
+				       a.CampaignId, 
+				       a.ChannelId, 
+				       a.status SubsriptionStatus,
+				       b.Balance, 
+				       b.Used, 
+				       b.Total,
+				       e.Email,
+				       e.FirstName,
+				       e.LastName,
+				       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
+				from  customer_subscriptions a, 
+				      customer_points b,
+				      customers e,clients f,brands g,campaigns h,channels i
+				where 1=1
+				and   a.SubscriptionId = b.SubscriptionId			
+				and   a.CustomerId     = e.CustomerId
+				and   a.ClientId       = f.ClientId
+				and   a.BrandId        = g.ClientId
+				and   a.CampaignId     = h.CampaignId
+				and   a.ChannelId      = i.ChannelId
 				$xtra
-		";
+				$vxtra
+				$filter
+				";
+		
+		
 		$rawData  = Yii::app()->db->createCommand($rawSql); 
 		$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
 		$dataProvider    = new CSqlDataProvider($rawData, array(
@@ -708,7 +785,7 @@ class ReportsController extends Controller
 			);
 		
 		}
-    		if(0){
+		if(0){
     		
     		//echo '<hr><hr>'.@var_export($criteria,true);
     		//echo '<hr><hr>'.@var_export($dataProvider,true);
@@ -734,5 +811,116 @@ class ReportsController extends Controller
 			
 		));
 	}
-	
+
+
+	public function actionSubcriptionsum($subscribid=0)
+	{
+		$search   = trim(Yii::app()->request->getParam('search'));
+		$criteria = new CDbCriteria;
+		//all-pending
+		
+		if(empty($uid))
+			$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
+		
+		
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$xtra   = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+		{
+			$xtra   = " AND a.ClientId = '$clid'  ";
+		}
+		
+		$subs  = trim(Yii::app()->request->getParam('subscribid'));
+		if($subs>0) $subscribid = $subs;
+		
+		$vlid   = addslashes($subscribid);
+		$vxtra  = " AND a.SubscriptionId = '$vlid'  ";
+		$filter = '';
+		if(strlen($search) > 0) 
+		{
+			$srch   = addslashes($search);
+			$filter = " AND  (
+						i.ChannelName  LIKE '%$srch%'   
+			                 ) ";
+		}
+		    
+		
+		if(1){
+			$rawSql = "
+				select a.PointLogId,
+				       a.CustomerId, 
+				       a.SubscriptionId, 
+				       a.ClientId, 
+				       a.BrandId, 
+				       a.CampaignId, 
+				       a.ChannelId, 
+				       a.PointsId, 
+				       b.Value Points,
+				       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
+				from  points_log a, 
+				      points b,
+				      customers e,clients f,brands g,campaigns h,channels i
+				where   a.PointsId = b.PointsId
+					and   a.CustomerId     = e.CustomerId
+					and   a.ClientId       = f.ClientId
+					and   a.BrandId        = g.ClientId
+					and   a.CampaignId     = h.CampaignId
+					and   a.ChannelId      = i.ChannelId $xtra $vxtra $filter
+				union all
+					select a.PointLogId,
+					       a.CustomerId, 
+					       a.SubscriptionId, 
+					       a.ClientId, 
+					       a.BrandId, 
+					       a.CampaignId, 
+					       a.ChannelId, 
+					       ifnull(a.PointsId,0), a.Points Points,
+					       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
+					from  points_log a,
+					      customers e,clients f,brands g,campaigns h,channels i
+					where ( a.PointsId = 0 or a.PointsId is null )
+					and   a.CustomerId     = e.CustomerId
+					and   a.ClientId       = f.ClientId
+					and   a.BrandId        = g.ClientId
+					and   a.CampaignId     = h.CampaignId
+					and   a.ChannelId      = i.ChannelId
+					$xtra $vxtra $filter
+				";
+		
+		
+		$rawData  = Yii::app()->db->createCommand($rawSql); 
+		$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dataProvider    = new CSqlDataProvider($rawData, array(
+					    'keyField' => 'SubscriptionId',
+					    'totalItemCount' => $rawCount,
+					    )
+			);
+		
+		}
+		if(0){
+    		
+    		//echo '<hr><hr>'.@var_export($criteria,true);
+    		//echo '<hr><hr>'.@var_export($dataProvider,true);
+    		foreach($dataProvider->getData() as $row)
+    		{
+    			echo '<hr><hr>'.@var_export($row,true);
+    		}
+    		
+    		echo '<hr><hr>'.@var_export($brands,true);
+    		echo '<hr><hr>'.@var_export($campaigns,true);
+    		echo '<hr><hr>'.@var_export($clients,true);
+    		echo '<hr><hr>'.@var_export($channels,true);
+    		exit;
+    		}
+    		
+    		
+		$mapping =  $this->getMoreLists();
+		
+		$this->render('subcriptionsum',array(
+			'dataProvider' => $dataProvider,
+			'mapping'      => $mapping,
+			
+			
+		));
+	}	
 }

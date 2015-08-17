@@ -131,12 +131,18 @@ class CustomerSubscriptionsController extends Controller
 		if ($customer_id != '')
 		{
 			$criteria = new CDbCriteria;
-			$criteria->addCondition('CustomerId = :customer_id');
-			$criteria->addCondition('ClientId   = :clientId');
-			$criteria->params = array(':customer_id' => $customer_id, ':clientId' => Yii::app()->user->ClientId);
+			$criteria->addCondition(' t.CustomerId = :customer_id');
+			$criteria->params = array(':customer_id' => $customer_id);
+				
+			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+			{
+				$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+			}
+			
 			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
 					'criteria'=> $criteria,
 				));
+				
 		}
 		else
 		{
@@ -149,11 +155,18 @@ class CustomerSubscriptionsController extends Controller
 				$criteria->addCondition(" subsChannels.ChannelName LIKE '%".addslashes($search)."%' ");
 			}
 
+			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+			{
+				$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+			}
+
 			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
 				'criteria'=> $criteria,
 			));
 		}
 		
+		//echo "HAHA<hr>".@var_export($dataProvider->criteria,true);
+		//exit;
 			
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,

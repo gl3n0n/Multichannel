@@ -24,6 +24,10 @@ $this->menu=array(
 		'value' => CHtml::link($model->CtpId,Yii::app()->createUrl("couponToPoints/update",array("id"=>$model->primaryKey))),
 		'type'  => 'raw',
 	),
+	array(
+	'name' => 'ClientId',
+	'value'=> $model->p2couponClients!=null?$model->p2couponClients->CompanyName:"",
+	),
 	'Title',
 	'CouponRequired',
 	'CouponId',

@@ -52,6 +52,10 @@ $form=$this->beginWidget('CActiveForm', array(
 		'NoOfWinners',
 		'BackUp',
 		'FdaNo',
+		array(
+		'name' => 'ClientId',
+		'value'=> '$data->raffleClients!=null?$data->raffleClients->CompanyName:""',
+		),		
 		'DrawDate',
 		'DateCreated',
 		array(

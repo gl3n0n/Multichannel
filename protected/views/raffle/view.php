@@ -26,6 +26,10 @@ $this->menu=array(
 		'NoOfWinners',
 		'BackUp',
 		'FdaNo',
+		array(
+		'name' => 'ClientId',
+		'value'=> $model->raffleClients!=null?$model->raffleClients->CompanyName:"",
+		),
 		'DrawDate',
 		'DateCreated',
 		array(

@@ -6,6 +6,8 @@ if($model->scenario === 'insert')
 {
    echo Yii::app()->params['jQueryInclude'];
 }
+
+
 ?>
 <div class="form">
 

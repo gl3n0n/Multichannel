@@ -33,6 +33,10 @@ $this->menu=array(
 		'value' => 'CHtml::link($data->PtcId,Yii::app()->createUrl("pointsToCoupon/update",array("id"=>$data->primaryKey)))',
 		'type'  => 'raw',
 	),
+	array(
+	'name' => 'ClientId',
+	'value'=> '$data->p2couponClients!=null?$data->p2couponClients->CompanyName:""',
+	),
 	'Title',
 	'PointsRequired',
 	'CouponId',
