@@ -168,6 +168,14 @@ class PointsToCouponController extends Controller
 			 	t.Title     LIKE '%".addslashes($search)."%' 
 			 ) ");
 		}
+		
+
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+		}
+
+		
 		$dataProvider = new CActiveDataProvider('PointsToCoupon', array(
 			'criteria'=>$criteria ,
 		));

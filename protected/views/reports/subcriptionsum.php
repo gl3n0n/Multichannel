@@ -67,7 +67,7 @@ $this->widget('CGridViewEtc', array(
 		array(
 			'name' => 'Point Log Id',
 			'type' =>'raw',
-			'value'=> 'CHtml::link($data["PointLogId"],"#")',
+			'value'=> '$data["PointLogId"]',
 			),
 		array(
 			'name' => 'Customer Name',

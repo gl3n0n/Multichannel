@@ -67,7 +67,8 @@ $this->widget('CGridViewEtc', array(
 		array(
 			'name' => 'Subscription',
 			'type' =>'raw',
-			'value'=> 'CHtml::link($data["SubscriptionId"], "../reports/subcriptionsum/?subscribid=".$data["SubscriptionId"])',
+			//'value'=> 'CHtml::link($data["SubscriptionId"], "../reports/subcriptionsum/?subscribid=".$data["SubscriptionId"])',
+			'value' => 'CHtml::link($data["SubscriptionId"],Yii::app()->createUrl("reports/subcriptionsum",array("subscribid"=>$data["SubscriptionId"])))'
 			),
 		array(
 			'name' => 'Customer',

@@ -161,6 +161,13 @@ class RaffleController extends Controller
 		$criteria = new CDbCriteria;
 		if($search) $criteria->compare('Source', $search, true);
 
+
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+		}
+
+
 		$dataProvider = new CActiveDataProvider('Raffle', array(
 		'criteria'=>$criteria ,
 		));
