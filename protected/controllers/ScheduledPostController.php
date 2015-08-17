@@ -170,6 +170,7 @@ class ScheduledPostController extends Controller
 			$model->attributes=$_POST['ScheduledPost'];
 			
 			$chans = @preg_split("/[\-]/", trim($_POST['ScheduledPost']['ChannelId']));
+			if(@count($chans)>=2)
 			$model->setAttribute("ChannelId", $chans[1]);
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
