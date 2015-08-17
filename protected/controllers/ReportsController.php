@@ -1030,30 +1030,29 @@ class ReportsController extends Controller
 			
 			if(1){
 				$rawSql = "
-
 					SELECT b.CustomerId, 
 					      b.BrandId, 
 					      b.CampaignId, 
 					      f.CampaignName, 
 					      g.CompanyName, 
 					      d.BrandName,
-					      e.ChannelName,
-					      '' as Description,
+					      f.Description,
+					      '' as ChannelName,
 					      b.Status
 					FROM customer_subscriptions b
 					join brands d on b.BrandId       = d.BrandId
 					join channels e on b.ChannelId   = e.ChannelId
 					join campaigns f on b.CampaignId = f.CampaignId
 					join clients g on b.ClientId     = g.ClientId
-					WHERE 1=1 AND b.status='ACTIVE' $xtra  $filter
+					WHERE 1=1 AND b.status='ACTIVE' $xtra
 					group by b.CustomerId, 
 					      b.BrandId, 
 					      b.CampaignId, 
 					      b.Status, 
 					      f.CampaignName, 
 					      g.CompanyName, 
-					      d.BrandName					
-					
+					      d.BrandName,
+      					      f.Description
 					";
 			
 			
