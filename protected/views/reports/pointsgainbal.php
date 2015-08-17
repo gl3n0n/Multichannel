@@ -64,6 +64,10 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'value' => '$data["ChannelName"]',
 			),
 		array(
+			'name' => 'Customer',
+			'value' => '$data["Email"]',
+			),			
+		array(
 		'name'  => 'Points',
 		'value' => '$data["Total"]',
 		),			

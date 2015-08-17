@@ -464,14 +464,16 @@ class ReportsController extends Controller
 			       f.CampaignName, 
 			       g.CompanyName, 
 			       d.BrandName, 
-			       e.ChannelName
+			       e.ChannelName,
+			       h.Email
 			FROM customer_points a
 				join customer_subscriptions b on a.SubscriptionId = b.SubscriptionId 
 				join brands d on b.BrandId       = d.BrandId
 				join channels e on b.ChannelId   = e.ChannelId
 				join campaigns f on b.CampaignId = f.CampaignId
 				join clients g on b.ClientId     = g.ClientId
-			WHERE b.Status = 'ACTIVE'
+				join customers h on b.CustomerId = h.CustomerId
+			WHERE 1=1
 			$xfilter
 			$yfilter
 			";
@@ -1030,29 +1032,28 @@ class ReportsController extends Controller
 			
 			if(1){
 				$rawSql = "
-					SELECT b.CustomerId, 
-					      b.BrandId, 
-					      b.CampaignId, 
-					      f.CampaignName, 
-					      g.CompanyName, 
-					      d.BrandName,
-					      f.Description,
-					      '' as ChannelName,
-					      b.Status
+      					      
+					SELECT b.CustomerId, h.Email, 
+						b.BrandId, b.CampaignId, 
+						f.CampaignName, g.CompanyName, 
+						d.BrandName, f.Description, '' as ChannelName,
+						b.Status
 					FROM customer_subscriptions b
-					join brands d on b.BrandId       = d.BrandId
-					join channels e on b.ChannelId   = e.ChannelId
-					join campaigns f on b.CampaignId = f.CampaignId
-					join clients g on b.ClientId     = g.ClientId
-					WHERE 1=1 AND b.status='ACTIVE' $xtra
-					group by b.CustomerId, 
-					      b.BrandId, 
-					      b.CampaignId, 
-					      b.Status, 
-					      f.CampaignName, 
-					      g.CompanyName, 
-					      d.BrandName,
-      					      f.Description
+						join brands d on b.BrandId = d.BrandId
+						join channels e on b.ChannelId = e.ChannelId
+						join campaigns f on b.CampaignId = f.CampaignId
+						join clients g on b.ClientId = g.ClientId
+						join customers h on b.CustomerId = h.CustomerId
+					WHERE 1=1 $xtra
+						group by b.CustomerId, 
+						b.BrandId, 
+						b.CampaignId, 
+						b.Status, 
+						f.CampaignName, 
+						g.CompanyName, 
+						d.BrandName	,
+						f.Description,
+						h.Email      					      
 					";
 			
 			

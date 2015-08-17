@@ -48,11 +48,10 @@ if(1)
 			'name' => 'CampaignId',
 			'value' => '$data["CampaignName"]',
 			),
-		/**
 		array(
-			'name' => 'ChannelId',
-			'value' => '$data["ChannelName"]',
-			),**/
+			'name' => 'Customer',
+			'value' => '$data["Email"]',
+			),
 		array(
 		'name' => 'Description',
 		'value' => '$data["Description"]',
