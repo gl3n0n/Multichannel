@@ -1060,7 +1060,7 @@ class ReportsController extends Controller
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
 			$dataProvider    = new CSqlDataProvider($rawData, array(
-						    'keyField' => 'RedeemedId',
+						    'keyField' => 'CustomerId',
 						    'totalItemCount' => $rawCount,
 						    )
 				);
