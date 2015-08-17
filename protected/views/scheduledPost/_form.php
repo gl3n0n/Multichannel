@@ -31,7 +31,9 @@ if($model->scenario === 'insert')
         	array(
         	    'style'     => 'width:200px;',
         	    'onChange'  => 'getBrands()',
-        	)); 
+        	    'prompt'    => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
         	?>
         <?php echo $form->error($model,'ClientId'); ?>
     </div>
@@ -45,7 +47,9 @@ if($model->scenario === 'insert')
         	    'style'   => 'width:200px;',
         	    'onChange'=> 'getCampaigns()',
         	    'options' => array("$model->BrandId" => array('selected'=>true)),
-        	)); 
+        	    'prompt'    => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
         	?>
 		<?php echo $form->error($model,'BrandId'); ?>
 	</div>
@@ -57,7 +61,9 @@ if($model->scenario === 'insert')
         	    'style'   => 'width:200px;',
         	    'onChange'=> 'getChannels()',
         	    'options' => array("$model->CampaignId" => array('selected'=>true)),
-        	));
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --'));
         	?>
 		<?php echo $form->error($model,'CampaignId'); ?>
 	</div>
@@ -67,7 +73,9 @@ if($model->scenario === 'insert')
 		array(
         	    'style'   => 'width:200px;',
         	    'options' => array("$model->CampaignId-$model->ChannelId" => array('selected'=>true)),
-        	)); 
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
         	?>
         	
 		<?php echo $form->error($model,'ChannelId'); ?>
