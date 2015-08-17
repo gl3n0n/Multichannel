@@ -174,6 +174,12 @@ class CustomersController extends Controller
 		if($search) 
 			$criteria->compare('FirstName', $search, true);
 
+
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+		}
+
 		$dataProvider = new CActiveDataProvider('Customers', array(
 			'criteria'=>$criteria ,
 			));
