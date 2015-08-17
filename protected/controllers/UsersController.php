@@ -155,8 +155,8 @@ class UsersController extends Controller
 						$UserValidated = 0;
 					}
 				}
-				//echo "<hr> validate: $UserValidated<hr>" . @var_export($UsersModel,true);
-				//exit;
+				// echo "<hr> validate: $UserValidated<hr>" . @var_export($UsersModel,true);
+				// exit;
 				// Encryption is done in the model, beforeSave()
         		        //$UsersModel->Password = md5($_POST['Users']['Password']);
 
