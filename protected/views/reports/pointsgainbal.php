@@ -40,7 +40,7 @@ $sumall = 0;
 $dataProvider->setPagination(false);
 foreach($dataProvider->getData() as $kk )
 {
-	$sumall += @intval($kk["Balance"]);
+	$sumall += @intval($kk["Total"]);
 }
 echo "<h2>Current Total Points: $sumall</h3>";
 $this->widget('zii.widgets.grid.CGridView', array(
@@ -65,7 +65,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			),
 		array(
 		'name'  => 'Points',
-		'value' => '$data["Balance"]',
+		'value' => '$data["Total"]',
 		),			
 	),	
 )); ?>
