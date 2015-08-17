@@ -451,31 +451,29 @@ class ReportsController extends Controller
 
 			if(1){
 			$rawSql   = "
-			SELECT a.CustomerPointId, 
-			       b.SubscriptionId, 
-			       a.Balance, 
-			       a.Used, 
-			       a.Total, 
-			       b.CustomerId, 
-			       b.BrandId, 
-			       b.CampaignId, 
-			       b.ChannelId, 
-			       b.Status, 
-			       f.CampaignName, 
-			       g.CompanyName, 
-			       d.BrandName, 
-			       e.ChannelName,
-			       h.Email
+			SELECT a.CustomerPointId,
+			      h.Email, 
+			      b.SubscriptionId, 
+			      a.Balance, 
+			      a.Used, 
+			      a.Total, 
+			      b.CustomerId, 
+			      b.BrandId, 
+			      b.CampaignId, 
+			      b.ChannelId, 
+			      b.Status, 
+			      f.CampaignName, 
+			      g.CompanyName, 
+			      d.BrandName, 
+			      e.ChannelName
 			FROM customer_points a
-				join customer_subscriptions b on a.SubscriptionId = b.SubscriptionId 
-				join brands d on b.BrandId       = d.BrandId
-				join channels e on b.ChannelId   = e.ChannelId
-				join campaigns f on b.CampaignId = f.CampaignId
-				join clients g on b.ClientId     = g.ClientId
-				join customers h on b.CustomerId = h.CustomerId
-			WHERE 1=1
-			$xfilter
-			$yfilter
+			join customer_subscriptions b on a.SubscriptionId = b.SubscriptionId 
+			join brands d on b.BrandId       = d.BrandId
+			join channels e on b.ChannelId   = e.ChannelId
+			join campaigns f on b.CampaignId = f.CampaignId
+			join clients g on b.ClientId     = g.ClientId
+			join customers h on b.CustomerId = h.CustomerId
+			WHERE b.Status = 'ACTIVE' $xfilter $yfilter
 			";
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
@@ -1007,6 +1005,7 @@ class ReportsController extends Controller
 	{
 			$search   = trim(Yii::app()->request->getParam('search'));
 			$criteria = new CDbCriteria;
+			
 			//all-pending
 			
 			if(empty($uid))
@@ -1025,7 +1024,7 @@ class ReportsController extends Controller
 			{
 				$srch   = addslashes($search);
 				$filter = " AND  (
-							e.ChannelName  LIKE '%$srch%'   
+							f.CampaignName  LIKE '%$srch%'   
 				                 ) ";
 			}
 			    
@@ -1044,7 +1043,7 @@ class ReportsController extends Controller
 						join campaigns f on b.CampaignId = f.CampaignId
 						join clients g on b.ClientId = g.ClientId
 						join customers h on b.CustomerId = h.CustomerId
-					WHERE 1=1 $xtra
+					WHERE 1=1 $xtra $filter 
 						group by b.CustomerId, 
 						b.BrandId, 
 						b.CampaignId, 
@@ -1055,7 +1054,6 @@ class ReportsController extends Controller
 						f.Description,
 						h.Email      					      
 					";
-			
 			
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count

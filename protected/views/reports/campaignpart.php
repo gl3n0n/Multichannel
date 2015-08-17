@@ -26,8 +26,8 @@ if(1)
 	'method'=>'get',
 )); ?>
 	<fieldset>
-		<legend>Search Channel Name</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="ChannelName" title="Search Channel Name">
+		<legend>Search Campaign Name</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Campaign" title="Search Campaign Name">
 		<button type="submit">Search</button>
 	</fieldset>
 <?php $this->endWidget(); ?>
