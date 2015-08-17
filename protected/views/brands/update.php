@@ -16,6 +16,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Brands <?php echo $model->BrandId; ?></h1>
+<h1>Update <?php echo $model->BrandName; ?></h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model, 'client_list'=>$client_list)); ?>

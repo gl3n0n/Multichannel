@@ -16,6 +16,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Channels <?php echo $model->ChannelId; ?></h1>
+<h1>Update <?php echo $model->ChannelName; ?></h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model, 'brand_id'=>$brand_id, 'campaign_id'=>$campaign_id)); ?>

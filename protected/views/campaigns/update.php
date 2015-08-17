@@ -16,6 +16,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Campaigns <?php echo $model->CampaignId; ?></h1>
+<h1>Update <?php echo $model->CampaignName; ?></h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model, 'brand_list'=>$brand_list)); ?>

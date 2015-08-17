@@ -1,3 +1,4 @@
+
 <div>
 	<div>
 		<h3 id="view-user-header">User details - <?php echo $data['Username']; ?></h3>
@@ -13,6 +14,10 @@
 	<?php endif; ?>
 	<div>
 		<dl>
+		
+		<dt>Client</dt>
+		<dd><i><?php echo $data['ClientId'] ? $data['ClientId'] : '&nbsp;'; ?></i></dd>
+		
                         <dt>Username</dt>
                         <dd><i><?php echo $data['Username'] ? $data['Username'] : '&nbsp;'; ?></i></dd>
 

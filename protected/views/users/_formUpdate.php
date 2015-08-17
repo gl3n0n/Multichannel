@@ -28,6 +28,11 @@
         </div>
         <?php endif; ?>
 	<?php echo $form->errorSummary($model); ?>
+	
+	<div class="row">
+		<?php echo $form->labelEx($model,'ClientID'); ?>
+		<?php echo $model->clientInfo->CompanyName; ?>
+	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'Username'); ?>
