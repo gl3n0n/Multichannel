@@ -371,7 +371,7 @@ class ReportsController extends Controller
 		));
 	}
 
-	public function actionCampaignPart()
+	public function actionCampaignPartXXXX()
 	{
 		$search      = trim(Yii::app()->request->getParam('search'));
 		$customer_id = trim(Yii::app()->user->id);
@@ -403,7 +403,7 @@ class ReportsController extends Controller
 
 	}
 	
-	public function actionRedeemrewards()
+	public function actionRedeemrewardsXXXX()
 	{
 		$search      = trim(Yii::app()->request->getParam('search'));
 		$customer_id = trim(Yii::app()->user->id);
@@ -699,7 +699,7 @@ class ReportsController extends Controller
 				and   a.CustomerId     = c.CustomerId
 				and   a.CustomerId     = e.CustomerId
 				and   a.ClientId       = f.ClientId
-				and   a.BrandId        = g.BrandId
+				and   a.BrandId        = g.ClientId
 				and   a.CampaignId     = h.CampaignId
 				and   a.ChannelId      = i.ChannelId
 				and   c.PointsId       = d.PointsId $xtra $vxtra $filter
@@ -750,7 +750,7 @@ class ReportsController extends Controller
 				and   a.SubscriptionId = b.SubscriptionId			
 				and   a.CustomerId     = e.CustomerId
 				and   a.ClientId       = f.ClientId
-				and   a.BrandId        = g.BrandId
+				and   a.BrandId        = g.ClientId
 				and   a.CampaignId     = h.CampaignId
 				and   a.ChannelId      = i.ChannelId
 				$xtra
@@ -846,7 +846,7 @@ class ReportsController extends Controller
 				where   a.PointsId = b.PointsId
 					and   a.CustomerId     = e.CustomerId
 					and   a.ClientId       = f.ClientId
-					and   a.BrandId        = g.BrandId
+					and   a.BrandId        = g.ClientId
 					and   a.CampaignId     = h.CampaignId
 					and   a.ChannelId      = i.ChannelId $xtra $vxtra $filter
 				union all
@@ -906,4 +906,189 @@ class ReportsController extends Controller
 			
 		));
 	}	
+	
+	
+	public function actionRedeemrewards()
+	{
+			$search   = trim(Yii::app()->request->getParam('search'));
+			$criteria = new CDbCriteria;
+			//all-pending
+			
+			if(empty($uid))
+				$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
+			
+			
+			$clid   = addslashes(Yii::app()->user->ClientId);
+			$xtra   = '';
+			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+			{
+				$xtra   = " AND a.ClientId = '$clid'  ";
+			}
+			
+			$filter = '';
+			if(strlen($search) > 0) 
+			{
+				$srch   = addslashes($search);
+				$filter = " AND  (
+							f.ChannelName  LIKE '%$srch%'   
+				                 ) ";
+			}
+			    
+			
+			if(1){
+				$rawSql = "
+					select a.RedeemedId, 
+					       a.RewardId,    
+					       b.Title,    
+					       b.Description,    
+					       b.Value,    
+					       a.UserId,      
+					       a.Source,      
+					       a.Action,      
+					       a.ClientId,    
+					       a.BrandId,     
+					       a.CampaignId,  
+					       a.ChannelId,   
+					       a.DateRedeemed, 
+					       c.CompanyName,
+					       d.BrandName, 
+					       e.CampaignName,
+					       f.ChannelName
+					from redeemed_reward a
+					join rewards_list b on b.RewardId = a.RewardId
+					join clients c on c.ClientId     = a.ClientId
+					join brands d on d.BrandId       = a.BrandId
+					join campaigns e on e.CampaignId = a.CampaignId
+					join channels f on f.ChannelId   = a.ChannelId
+					WHERE 1=1
+					$xtra  $filter
+					";
+			
+			
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+						    'keyField' => 'RedeemedId',
+						    'totalItemCount' => $rawCount,
+						    )
+				);
+			
+			}
+			if(0){
+	    		
+	    		//echo '<hr><hr>'.@var_export($criteria,true);
+	    		//echo '<hr><hr>'.@var_export($dataProvider,true);
+	    		foreach($dataProvider->getData() as $row)
+	    		{
+	    			echo '<hr><hr>'.@var_export($row,true);
+	    		}
+	    		
+	    		echo '<hr><hr>'.@var_export($brands,true);
+	    		echo '<hr><hr>'.@var_export($campaigns,true);
+	    		echo '<hr><hr>'.@var_export($clients,true);
+	    		echo '<hr><hr>'.@var_export($channels,true);
+	    		exit;
+	    		}
+	    		
+	    		
+			$mapping =  $this->getMoreLists();
+			
+			$this->render('redeemrewards',array(
+				'dataProvider' => $dataProvider,
+				'mapping'      => $mapping,
+				
+				
+			));
+	}	
+	
+	public function actionCampaignPart()
+	{
+			$search   = trim(Yii::app()->request->getParam('search'));
+			$criteria = new CDbCriteria;
+			//all-pending
+			
+			if(empty($uid))
+				$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
+			
+			
+			$clid   = addslashes(Yii::app()->user->ClientId);
+			$xtra   = '';
+			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+			{
+				$xtra   = " AND g.ClientId = '$clid'  ";
+			}
+			
+			$filter = '';
+			if(strlen($search) > 0) 
+			{
+				$srch   = addslashes($search);
+				$filter = " AND  (
+							e.ChannelName  LIKE '%$srch%'   
+				                 ) ";
+			}
+			    
+			
+			if(1){
+				$rawSql = "
+
+					SELECT b.CustomerId, 
+					      b.BrandId, 
+					      b.CampaignId, 
+					      f.CampaignName, 
+					      g.CompanyName, 
+					      d.BrandName,
+					      e.ChannelName,
+					      b.Status
+					FROM customer_subscriptions b
+					join brands d on b.BrandId       = d.BrandId
+					join channels e on b.ChannelId   = e.ChannelId
+					join campaigns f on b.CampaignId = f.CampaignId
+					join clients g on b.ClientId     = g.ClientId
+					WHERE 1=1 AND b.status='ACTIVE' $xtra  $filter
+					group by b.CustomerId, 
+					      b.BrandId, 
+					      b.CampaignId, 
+					      b.Status, 
+					      f.CampaignName, 
+					      g.CompanyName, 
+					      d.BrandName					
+					
+					";
+			
+			
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+						    'keyField' => 'RedeemedId',
+						    'totalItemCount' => $rawCount,
+						    )
+				);
+			
+			}
+			if(0){
+	    		
+	    		//echo '<hr><hr>'.@var_export($criteria,true);
+	    		//echo '<hr><hr>'.@var_export($dataProvider,true);
+	    		foreach($dataProvider->getData() as $row)
+	    		{
+	    			echo '<hr><hr>'.@var_export($row,true);
+	    		}
+	    		
+	    		echo '<hr><hr>'.@var_export($brands,true);
+	    		echo '<hr><hr>'.@var_export($campaigns,true);
+	    		echo '<hr><hr>'.@var_export($clients,true);
+	    		echo '<hr><hr>'.@var_export($channels,true);
+	    		exit;
+	    		}
+	    		
+	    		
+			$mapping =  $this->getMoreLists();
+			
+			$this->render('campaignpart',array(
+				'dataProvider' => $dataProvider,
+				'mapping'      => $mapping,
+				
+				
+			));
+	}		
 }

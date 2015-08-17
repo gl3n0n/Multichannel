@@ -39,29 +39,31 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	'columns'=>array(
 		array(
 		'name' => 'RewardId',
-		'value' => '$data->rewardIds->Title',
+		'value' => '$data["Title"]',
 		),
 		array(
 			'name' => 'ClientId',
-			'value' => '$data->rewardClients->CompanyName',
+			'value' => '$data["CompanyName"]',
 			),
 		array(
 			'name' => 'BrandId',
-			'value' => '$data->rewardBrands->BrandName',
+			'value' => '$data["BrandName"]',
 			),
 		array(
 			'name' => 'Description',
-			'value' => '$data->rewardCampaigns->Description',
+			'value' => '$data["Description"]',
 			),
 		array(
 			'name' => 'ChannelId',
-			'value' => '$data->rewardChannels->ChannelName',
+			'value' => '$data["ChannelName"]',
 			),
 		array(
 		'name' => 'Points',
-		'value' => '($data->rewardDetails != null ) ? ($data->rewardDetails->Value) : ("")',
+		'value' => '$data["Value"]',
 		),			
-		
-		'DateRedeemed',
+		array(
+			'name' => 'DateRedeemed',
+			'value' => '$data["DateRedeemed"]',
+		),			
 	),	
 )); ?>

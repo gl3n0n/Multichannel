@@ -38,24 +38,28 @@ if(1)
 	'columns'=>array(
 		array(
 			'name' => 'ClientId',
-			'value' => '$data->subsClients->CompanyName',
+			'value' => '$data["CompanyName"]',
 			),
 		array(
 			'name' => 'BrandId',
-			'value' => '$data->subsBrands->BrandName',
+			'value' => '$data["BrandName"]',
 			),
 		array(
 			'name' => 'CampaignId',
-			'value' => '$data->subsCampaigns->CampaignName',
+			'value' => '$data["CampaignName"]',
 			),
 		array(
 			'name' => 'ChannelId',
-			'value' => '$data->subsChannels->ChannelName',
+			'value' => '$data["ChannelName"]',
 			),
 		array(
 		'name' => 'Description',
-		'value' => '$data->subsCampaigns->Description',
+		'value' => '$data["Description"]',
 		),
-		'Status',
+		array(
+		'name' => 'Status',
+		'value' => '$data["Status"]',
+		),
+
 	),	
 )); ?>
