@@ -376,9 +376,14 @@ class ReportsController extends Controller
 		$search      = trim(Yii::app()->request->getParam('search'));
 		$customer_id = trim(Yii::app()->user->id);
 		$criteria = new CDbCriteria;
-		$criteria->addCondition('t.CustomerId = :customer_id');
-		$criteria->addCondition("t.Status     = 'ACTIVE' ");
-		$criteria->params = array(':customer_id' => $customer_id);
+		
+		$criteria->addCondition(" t.Status     = 'ACTIVE' ");
+		
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+		{
+			$clid   = addslashes(Yii::app()->user->ClientId);
+			$criteria->addCondition(" t.ClientId = '$clid' ");
+		}
 		
 		if(strlen($search))
 		{
@@ -423,74 +428,52 @@ class ReportsController extends Controller
 
 	}
 
-	public function actionRedeemcouponsxxx()
-	{
-		$search      = trim(Yii::app()->request->getParam('search'));
-		$customer_id = trim(Yii::app()->user->id);
-		$criteria = new CDbCriteria;
-		$criteria->addCondition('CustomerId = :customer_id');
-		$criteria->params = array(':customer_id' => $customer_id);
-		if(strlen($search))
-		{
-			$criteria->with = array(
-				'rewardChannels' => array('joinType'=>'LEFT JOIN'),
-			);
-			$criteria->addCondition(" rewardChannels.ChannelName LIKE '%".addslashes($search)."%' ");
-		}
-		$dataProvider = new CActiveDataProvider('CouponsRedeem', array(
-			'criteria'=> $criteria,
-		));
-
-
-		$this->render('redeemcoupons',array(
-			'dataProvider'=>$dataProvider,
-		));
-
-	}
 	
 	public function actionPointsgainbal()
 	{
 			$search      = trim(Yii::app()->request->getParam('search'));
 			$customer_id = trim(Yii::app()->user->id);
 			$criteria    = new CDbCriteria;
-			$filter      = '';
+			$xfilter      = '';
+			$yfilter      = '';
 			if(strlen($search))
 			{
-			   $filter .=  " AND channels.ChannelName LIKE '%".addslashes($search)."%'  ";
+			   $srch    = addslashes($search);
+			   $xfilter =  " AND e.ChannelName LIKE '%$srch%'  ";
 			}
+			
 			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
 			{
-				if(strlen($customer_id))
-				{
-				   $filter .=  " AND CustomerId ='".addslashes($search)."' ";
-				}
+				$clid   = addslashes(Yii::app()->user->ClientId);
+				$yfilter= " AND g.ClientId = '$clid' ";
 			}
 
 
 			if(1){
 			$rawSql   = "
-			SELECT CustomerPointId, 
-			customer_subscriptions.SubscriptionId, 
-			Balance,Used,
-			Total,
-			CustomerId,
-			customer_subscriptions.BrandId as BrandId,
-			customer_subscriptions.CampaignId as CampaignId,
-			customer_subscriptions.ChannelId as ChannelId,
-			customer_subscriptions.Status as Status,
-			campaigns.CampaignName as CampaignName,
-			clients.CompanyName as CompanyName,
-			brands.BrandName as BrandName,
-			channels.ChannelName as ChannelName
-			FROM customer_points 
-			join customer_subscriptions on customer_points.SubscriptionId = customer_subscriptions.SubscriptionId 
-			join brands on customer_subscriptions.BrandId       = brands.BrandId
-			join channels on customer_subscriptions.ChannelId   = channels.ChannelId
-			join campaigns on customer_subscriptions.CampaignId = campaigns.CampaignId
-			join clients on customer_subscriptions.ClientId     = clients.ClientId
-			WHERE 1=1
-			AND customer_subscriptions.Status = 'ACTIVE'
-			$filter
+			SELECT a.CustomerPointId, 
+			       b.SubscriptionId, 
+			       a.Balance, 
+			       a.Used, 
+			       a.Total, 
+			       b.CustomerId, 
+			       b.BrandId, 
+			       b.CampaignId, 
+			       b.ChannelId, 
+			       b.Status, 
+			       f.CampaignName, 
+			       g.CompanyName, 
+			       d.BrandName, 
+			       e.ChannelName
+			FROM customer_points a
+				join customer_subscriptions b on a.SubscriptionId = b.SubscriptionId 
+				join brands d on b.BrandId       = d.BrandId
+				join channels e on b.ChannelId   = e.ChannelId
+				join campaigns f on b.CampaignId = f.CampaignId
+				join clients g on b.ClientId     = g.ClientId
+			WHERE b.Status = 'ACTIVE'
+			$xfilter
+			$yfilter
 			";
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
