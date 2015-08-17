@@ -1038,6 +1038,7 @@ class ReportsController extends Controller
 					      g.CompanyName, 
 					      d.BrandName,
 					      e.ChannelName,
+					      '' as Description,
 					      b.Status
 					FROM customer_subscriptions b
 					join brands d on b.BrandId       = d.BrandId
