@@ -421,7 +421,7 @@ class UsersController extends Controller
                 ));
 
             } else {
-                $model = Users::model()->findByPk($id, array('select'=>'UserId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated'));
+                $model = Users::model()->findByPk($id, array('select'=>'UserId, ClientId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated'));
 
                 if($model) {
                     $model->DateUpdated = date('F j, Y g:i A', strtotime($model->DateUpdated));
@@ -445,22 +445,24 @@ class UsersController extends Controller
         if($is_superadmin)
         {
             $model = Users::model()->findByPk($id, 
-            array('select'=>'UserId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated'));
+            array('select'=>'UserId, ClientId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated'));
         }
         else
         {
             $criteria = new CDbCriteria;
             //$criteria->addCondition('ClientId = :clientId AND UserId = :userId');
             //$criteria->params = array(':clientId' => Users::model()->findByPk(Yii::app()->user->id)->ClientId, ':userId' => $id);
-            $criteria->select = 'UserId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated';
+            $criteria->select = 'UserId, ClientId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated';
             $model = Users::model()->findByAttributes(
             		array('ClientId'=> Users::model()->findByPk(Yii::app()->user->id)->ClientId,
             		      'UserId'  => $id),$criteria);
         }
 
+
 		if($model) {
 			$data = array(
                                 'UserId'=>$model->UserId,
+				'ClientId'=>$model->ClientId,
 				'Username'=>$model->Username,
 				'FirstName'=>$model->FirstName,
                                 'MiddleName'=>$model->MiddleName,
@@ -549,7 +551,7 @@ class UsersController extends Controller
 
 		try {
 			$criteria = new CDbCriteria;
-			$criteria->select="UserId, Username, FirstName, LastName, AccessType, Status, DateCreated";
+			$criteria->select="UserId, ClientId, Username, FirstName, LastName, AccessType, Status, DateCreated";
 
 			if($search) $criteria->compare('Username', $search, true);
 
