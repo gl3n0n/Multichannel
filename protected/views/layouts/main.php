@@ -47,7 +47,7 @@
 				array('label'=>'Rewards List', 'url'=>array('/rewardsList'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Coupon', 'url'=>array('/coupon'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Raffle', 'url'=>array('/raffle'), 'visible'=>!Yii::app()->user->isGuest),
-				array('label'=>'Customers Subscriptions', 'url'=>array('/customerSubscriptions'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="ADMIN"),
+				array('label'=>'Customers', 'url'=>array('/customers'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="ADMIN"),
 				array('label'=>'Customer Report', 'url'=>array('/reports'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Scheduled Post', 'url'=>array('/scheduledPost'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Coupon on Points', 'url'=>array('/pointsToCoupon'), 'visible'=>!Yii::app()->user->isGuest),
