@@ -128,7 +128,7 @@ class UsersController extends Controller
 
 				$UserValidated = $UsersModel->validate();
 				
-				//chk-uniq-user
+				// chk-uniq-user
 				$userNameMod = $UsersModel->userNameExistsNew($UsersModel->Username);
 				if( $userNameMod )
 				{
