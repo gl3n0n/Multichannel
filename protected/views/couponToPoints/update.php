@@ -11,7 +11,7 @@ $this->breadcrumbs=array(
 $this->menu=array(
 	array('label'=>'List Coupon To Points',   'url'=>array('index')),
 	array('label'=>'Create Coupon To Points', 'url'=>array('create')),
-	array('label'=>'Update Coupon To Points', 'url'=>array('update', 'id'=>$model->CtpId)),
+	array('label'=>'View Coupon To Points', 'url'=>array('view', 'id'=>$model->CtpId)),
 );
 ?>
 
