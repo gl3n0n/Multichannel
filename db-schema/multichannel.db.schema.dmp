@@ -55,7 +55,7 @@ CREATE TABLE `brands` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`BrandId`),
   KEY `BrandName_idx` (`BrandName`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -81,7 +81,7 @@ CREATE TABLE `campaigns` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`CampaignId`),
   KEY `CampaignId_idx` (`CampaignId`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -133,7 +133,7 @@ CREATE TABLE `channels` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`ChannelId`),
   KEY `ChannelId_idx` (`ChannelId`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -156,7 +156,7 @@ CREATE TABLE `clients` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`ClientId`),
   KEY `CompanyName` (`CompanyName`)
-) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,9 +202,10 @@ CREATE TABLE `coupon` (
   `File` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ImagePath` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `edit_flag` enum('0','1') COLLATE utf8_unicode_ci DEFAULT '0',
+  `PointsValue` int(11) DEFAULT NULL,
   PRIMARY KEY (`CouponId`),
   KEY `Code_idx` (`Code`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -226,7 +227,31 @@ CREATE TABLE `coupon_mapping` (
   KEY `ClientId` (`ClientId`),
   KEY `BrandId` (`BrandId`),
   KEY `ChannelId` (`ChannelId`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `coupon_to_points`
+--
+
+DROP TABLE IF EXISTS `coupon_to_points`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `coupon_to_points` (
+  `CtpId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) DEFAULT NULL,
+  `CouponId` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CouponRequired` int(11) DEFAULT NULL,
+  `PointsValue` int(11) DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`CtpId`),
+  KEY `Title_idx` (`Title`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,7 +273,7 @@ CREATE TABLE `customer_points` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`CustomerPointId`),
   KEY `SubscriptionId_idx` (`SubscriptionId`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -272,7 +297,7 @@ CREATE TABLE `customer_subscriptions` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`SubscriptionId`),
   KEY `CustomerId_idx` (`CustomerId`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -298,9 +323,11 @@ CREATE TABLE `customers` (
   `CreatedBy` int(11) DEFAULT NULL,
   `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UpdatedBy` int(11) DEFAULT NULL,
+  `ClientId` int(11) unsigned NOT NULL,
+  `BirthDate` date DEFAULT NULL,
   PRIMARY KEY (`CustomerId`),
   KEY `Email_idx` (`Email`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -314,7 +341,7 @@ CREATE TABLE `generated_coupons` (
   `GeneratedCouponId` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `CouponId` int(11) unsigned NOT NULL,
   `CustomerId` int(11) DEFAULT NULL,
-  `Status` enum('REDEEMED','PENDING') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `Status` enum('REDEEMED','PENDING','REDEEMED_AND_CONVERTED') COLLATE utf8_unicode_ci DEFAULT NULL,
   `Code` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `DateCreated` datetime DEFAULT NULL,
   `CreatedBy` int(11) DEFAULT NULL,
@@ -323,7 +350,7 @@ CREATE TABLE `generated_coupons` (
   `DateRedeemed` datetime DEFAULT NULL,
   `CouponMappingId` int(11) unsigned NOT NULL,
   PRIMARY KEY (`GeneratedCouponId`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=123 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -379,7 +406,7 @@ CREATE TABLE `points` (
   KEY `BrandId` (`BrandId`),
   KEY `CampaignId` (`CampaignId`),
   KEY `ChannelId` (`ChannelId`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -400,9 +427,10 @@ CREATE TABLE `points_log` (
   `PointsId` int(11) unsigned DEFAULT NULL,
   `DateCreated` datetime DEFAULT NULL,
   `CreatedBy` int(11) DEFAULT NULL,
+  `Points` int(11) DEFAULT '0',
   PRIMARY KEY (`PointLogId`),
   KEY `CustomerId_idx` (`CustomerId`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -429,6 +457,30 @@ CREATE TABLE `points_multiplier` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `points_to_coupon`
+--
+
+DROP TABLE IF EXISTS `points_to_coupon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `points_to_coupon` (
+  `PtcId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) DEFAULT NULL,
+  `CouponId` int(11) DEFAULT NULL,
+  `Title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PointsRequired` int(11) DEFAULT NULL,
+  `CouponValue` int(11) DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`PtcId`),
+  KEY `Title_idx` (`Title`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `raffle`
 --
 
@@ -437,6 +489,7 @@ DROP TABLE IF EXISTS `raffle`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `raffle` (
   `RaffleId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) DEFAULT NULL,
   `Source` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `NoOfWinners` int(11) NOT NULL DEFAULT '0',
   `BackUp` int(11) NOT NULL DEFAULT '0',
@@ -450,7 +503,7 @@ CREATE TABLE `raffle` (
   `CouponId` int(11) unsigned NOT NULL,
   PRIMARY KEY (`RaffleId`),
   KEY `Source_idx` (`Source`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -524,7 +577,7 @@ CREATE TABLE `redeemed_reward` (
   `DateRedeemed` datetime DEFAULT NULL,
   PRIMARY KEY (`RedeemedId`),
   KEY `Source_idx` (`Source`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -556,7 +609,7 @@ CREATE TABLE `reward_details` (
   KEY `CampaignId` (`CampaignId`),
   KEY `ChannelId` (`ChannelId`),
   KEY `ClientId` (`ClientId`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -586,7 +639,33 @@ CREATE TABLE `rewards_list` (
   `Value` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`RewardId`),
   KEY `Title_idx` (`Title`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `scheduled_post`
+--
+
+DROP TABLE IF EXISTS `scheduled_post`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `scheduled_post` (
+  `SchedId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) NOT NULL,
+  `BrandId` int(11) NOT NULL,
+  `CampaignId` int(11) NOT NULL,
+  `ChannelId` int(11) NOT NULL,
+  `Title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `EventDate` date DEFAULT NULL,
+  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `DateCreated` datetime DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdatedBy` int(11) DEFAULT NULL,
+  PRIMARY KEY (`SchedId`),
+  KEY `Title_idx` (`Title`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -639,7 +718,7 @@ CREATE TABLE `users` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`UserId`),
   KEY `Username_idx` (`Username`)
-) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -707,4 +786,4 @@ CREATE TABLE `xcustomers` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-08-05 22:53:10
+-- Dump completed on 2015-08-18 11:58:27
