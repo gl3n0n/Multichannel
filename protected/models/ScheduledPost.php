@@ -45,7 +45,9 @@ class ScheduledPost extends CActiveRecord
 			array('EventDate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('SchedId,ClientId,BrandId,CampaignId,ChannelId,Title,Description,EventDate,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('SchedId,ClientId,BrandId,CampaignId,ChannelId,Title,
+			Description,EventDate,Status, DateCreated, 
+			CreatedBy, DateUpdated, UpdatedBy,EventType,RepeatType,AwardType,PointsId,CouponId,RewardId', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -92,6 +94,13 @@ class ScheduledPost extends CActiveRecord
 			'ChannelId'   => 'Channel Name',
 			'Description' => 'Description',
 			'EventDate'   => 'Event Date',
+			
+			'EventType'   => 'Event Type',
+			'RepeatType'   => 'Repeat Type',
+			'AwardType'   => 'Award Type',
+			'PointsId'   => 'Points',
+			'CouponId'   => 'Coupon',
+			'RewardId'   => 'Reward',
 			'Status'      => 'Status',
 			'DateCreated' => 'Date Created',
 			'CreatedBy'   => 'Created By',
@@ -133,6 +142,15 @@ class ScheduledPost extends CActiveRecord
 		$criteria->compare('UpdatedBy',  $this->UpdatedBy);
 		$criteria->compare('EventDate',  $this->EventDate);
 		
+		
+		$criteria->compare('EventType',  $this->EventType);
+		$criteria->compare('RepeatType', $this->RepeatType);
+		$criteria->compare('AwardType',  $this->AwardType);
+		$criteria->compare('PointsId',   $this->PointsId);
+		$criteria->compare('CouponId',   $this->CouponId);
+		$criteria->compare('RewardId',   $this->RewardId);
+
+		
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -149,4 +167,24 @@ class ScheduledPost extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	
+	public function getDropDownList()
+	{
+		return array(
+		'RepeatType'     => array(
+			'DAILY'  => 'DAILY'   ,  
+			'WEEKLY' => 'WEEKLY'  ,
+			'MONTHLY'=> 'MONTHLY' ,
+			'NONE'   => 'NONE'    ,
+			),
+		'AwardType'      => array(
+			'POINT'  => 'POINT' ,
+			'COUPON' => 'COUPON',
+			'REWARD' => 'REWARD',
+			'NONE'   => 'NONE'  ,
+			),
+		);
+
+	}
+	
 }

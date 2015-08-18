@@ -21,6 +21,9 @@ $this->renderPartial('_form', array(
 	'brand_list'    =>$brand_list,
 	'campaign_list' =>array(),
 	'channel_list'  =>array(),
+	'point_list'   =>array(),
+	'coupon_list'  =>array(),
+	'reward_list'  =>array(),
 )); 
 
 ?>

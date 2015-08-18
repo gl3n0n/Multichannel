@@ -122,6 +122,84 @@ if($model->scenario === 'insert')
 		<?php echo $form->error($model,'EventDate'); ?>
 	</div>
 
+	<div class="row">
+		<?php echo $form->labelEx($model,'EventType'); ?>
+		<?php echo $form->textField($model,'EventType',array(
+			'style' => 'width:200px;',
+			'maxlength'=>32
+		));
+		?>
+		<?php echo $form->error($model,'EventType'); ?>
+	</div>
+	<div class="row">
+		<?php 
+			$rlist  = $model->getDropDownList();
+			$rtype  = $rlist["RepeatType"]?$rlist["RepeatType"]:array();
+			$atype  = $rlist["AwardType"] ?$rlist["AwardType"] :array();
+		?>
+		<?php echo $form->labelEx($model,'RepeatType'); ?>
+		<?php echo $form->dropDownList($model,'RepeatType',$rtype,
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->RepeatType" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'RepeatType'); ?>
+	</div>
+	<div class="row">
+		<?php echo $form->labelEx($model,'AwardType'); ?>
+		<?php echo $form->dropDownList($model,'AwardType',$atype,
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->AwardType" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'AwardType'); ?>
+	</div>	
+	<div class="row">
+		<?php echo $form->labelEx($model,'PointsId'); ?>
+		<?php echo $form->dropDownList($model,'PointsId',$point_list?$point_list:array(),
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->PointsId" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'PointsId'); ?>
+	</div>
+	<div class="row">
+		<?php echo $form->labelEx($model,'CouponId'); ?>
+		<?php echo $form->dropDownList($model,'CouponId',$coupon_list?$coupon_list:array(),
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->CouponId" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'CouponId'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'RewardId'); ?>
+		<?php echo $form->dropDownList($model,'RewardId',$reward_list?$reward_list:array(),
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->RewardId" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'RewardId'); ?>
+	</div>
+
+
+
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
 	</div>
@@ -137,6 +215,50 @@ if($model->scenario === 'insert')
 $( document ).ready(function() {
 
 	
+	$("#ScheduledPost_AwardType").change(function(){
+	    
+	    var choice = $("#ScheduledPost_AwardType" ).val();
+	    var cmp    = $("#ScheduledPost_CampaignId" ).val();
+	    var brd    = $("#ScheduledPost_BrandId" ).val();
+	    var cnl    = $("#ScheduledPost_ChannelId" ).val();
+	    
+	    //chk	
+	    if(choice.match(/^(POINT|COUPON|REWARD)$/g))
+	    {
+		    var url    = '';
+		    var	$mde   = "BrandId="     + encodeURIComponent(brd) +
+		    		 "&CampaignId=" + encodeURIComponent(cmp) +
+		    		 "&ChannelId="  + encodeURIComponent(cnl) ;
+	    
+	    	    if(choice.match(/^(POINT)$/g))
+	    	    {
+	    	    	    url    = BaseUrl + "scheduledPost/getPointlist/?" + $mde;
+			    loadlist($('select#ScheduledPost_PointsId').get(0),
+				url,
+				''
+			     );
+		    }
+	    	    if(choice.match(/^(COUPON)$/g))
+	    	    {
+	    	    	    url    = BaseUrl + "scheduledPost/getCouponlist/?" + $mde;
+			    loadlist($('select#ScheduledPost_CouponId').get(0),
+				url,
+				''
+			     );
+		    }
+	    	    if(choice.match(/^(REWARD)$/g))
+	    	    {
+	    	    	    url    = BaseUrl + "scheduledPost/getRewardlist/?" + $mde;
+			    loadlist($('select#ScheduledPost_RewardId').get(0),
+				url,
+				''
+			     );
+		    }
+ 	    
+ 	    }
+	});
+
+	
 	$("#ScheduledPost_ClientId").change(function(){
 	    
 	    var url = BaseUrl + "channels/getbrands/?ClientId=" + $("#ScheduledPost_ClientId" ).val();;
@@ -149,7 +271,7 @@ $( document ).ready(function() {
 	});
 	$("#ScheduledPost_BrandId").change(function(){
 	    
-	    var url = BaseUrl + "channels/getcampaigns/?BrandId=" + $("#ScheduledPost_BrandId" ).val();;
+	    var url = BaseUrl + "channels/getcampaigns/?BrandId=" + $("#ScheduledPost_BrandId" ).val();
 	    
 	    loadlist($('select#ScheduledPost_CampaignId').get(0),
 	    		url,

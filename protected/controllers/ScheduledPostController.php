@@ -36,7 +36,8 @@ class ScheduledPostController extends Controller
 			// 	'users'=>array('*'),
 			// ),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','list','delete'),
+				'actions'=>array('index','view','create','update',
+				'list','delete','getrewardlist','getcouponlist','getpointlist'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -123,9 +124,45 @@ class ScheduledPostController extends Controller
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			
 
-			//echo "<hr>yy===model:<hr>".@var_export($model->attributes,true);
-			//exit;	
-			if($model->save())
+			$AwardType = trim($_POST['ScheduledPost']['AwardType']);
+			
+			$PointsId  = (int) trim($_POST['ScheduledPost']['PointsId']);
+			$CouponId  = (int) trim($_POST['ScheduledPost']['CouponId']);
+			$RewardId  = (int) trim($_POST['ScheduledPost']['RewardId']);
+			
+			$model->setAttribute("PointsId", $PointsId);
+			$model->setAttribute("CouponId", $CouponId);
+			$model->setAttribute("RewardId", $RewardId);
+			$try2Chk   = 0;
+			
+			if(@preg_match("/(POINT|COUPON|REWARD)/",$AwardType))
+			{
+				if('POINT' == $AwardType && $PointsId <=0 )
+				{
+				    $model->addError('error', 'Must select a valid Points');
+				    $try2Chk   = 1;
+				}
+				else if('COUPON' == $AwardType && $CouponId <=0 )
+				{
+				    $model->addError('error', 'Must select a valid Coupon');
+				    $try2Chk   = 1;
+				}
+				else if('REWARD' == $AwardType && $RewardId <=0 )
+				{
+				    $model->addError('error', 'Must select a valid Reward');
+				    $try2Chk   = 1;
+				}
+			}
+			else
+			{
+				$AwardType = 'NONE';
+			}
+			
+			$model->setAttribute("AwardType",$AwardType);
+			$model->setAttribute("EventType", trim($_POST['ScheduledPost']['EventType']));
+			$model->setAttribute("RepeatType",trim($_POST['ScheduledPost']['RepeatType']));
+			
+			if($try2Chk <=0 && $model->save())
 			{
 				$this->redirect(array('view','id'=>$model->SchedId));
 			}
@@ -144,6 +181,11 @@ class ScheduledPostController extends Controller
 			'model'      => $model,
 			'client_list'=> $clients,
 			'brand_list' => $brand_list,
+			'channel_list'  => array(),
+			'campaign_list' => array(),
+			'point_list'    => array(),
+			'coupon_list'   => array(),
+			'reward_list'   => array(),
 		));
 	}
 
@@ -175,7 +217,45 @@ class ScheduledPostController extends Controller
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			
-			if($model->save())
+			
+			$AwardType = trim($_POST['ScheduledPost']['AwardType']);
+			$PointsId  = (int) trim($_POST['ScheduledPost']['PointsId']);
+			$CouponId  = (int) trim($_POST['ScheduledPost']['CouponId']);
+			$RewardId  = (int) trim($_POST['ScheduledPost']['RewardId']);
+
+			$model->setAttribute("PointsId", $PointsId);
+			$model->setAttribute("CouponId", $CouponId);
+			$model->setAttribute("RewardId", $RewardId);
+			$try2Chk   = 0;
+
+			if(@preg_match("/(POINT|COUPON|REWARD)/",$AwardType))
+			{
+				if('POINT' == $AwardType && $PointsId <=0 )
+				{
+				    $model->addError('error', 'Must select a valid Points');
+				    $try2Chk   = 1;
+				}
+				else if('COUPON' == $AwardType && $CouponId <=0 )
+				{
+				    $model->addError('error', 'Must select a valid Coupon');
+				    $try2Chk   = 1;
+				}
+				else if('REWARD' == $AwardType && $RewardId <=0 )
+				{
+				    $model->addError('error', 'Must select a valid Reward');
+				    $try2Chk   = 1;
+				}
+			}
+			else
+			{
+				$AwardType = 'NONE';
+			}
+			$model->setAttribute("AwardType",$AwardType);
+			$model->setAttribute("EventType", trim($_POST['ScheduledPost']['EventType']));
+			$model->setAttribute("RepeatType",trim($_POST['ScheduledPost']['RepeatType']));
+
+			
+			if($try2Chk <=0 && $model->save())
 				$this->redirect(array('view','id'=>$model->SchedId));
 		}
 
@@ -185,6 +265,15 @@ class ScheduledPostController extends Controller
 			'brand_list'    => $this->getBrands($model->ClientId),
 			'campaign_list' => $this->getCampaigns($model->BrandId),
 			'channel_list'  => $this->getChannels($model->BrandId,$model->CampaignId),
+			'point_list'    => $this->actionGetpointlist2($model->BrandId,
+							$model->CampaignId,
+							$model->ChannelId),
+			'coupon_list'   => $this->actionGetcouponlist2($model->BrandId,
+							$model->CampaignId,
+							$model->ChannelId),
+			'reward_list'   => $this->actionGetRewardlist2($model->BrandId,
+							$model->CampaignId,
+							$model->ChannelId),
 		));
 	}
 
@@ -372,5 +461,426 @@ class ScheduledPostController extends Controller
 		
 		return $list;
     	}
+
+
+
+
+	public function actionGetRewardlist()
+	{
+
+		$criteria = new CDbCriteria;
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+
+		$BrandId    = trim(Yii::app()->request->getParam('BrandId') );
+		$CampaignId = trim(Yii::app()->request->getParam('CampaignId'));
+		$ChannelId  = trim(Yii::app()->request->getParam('ChannelId'));
+		
+		
+		$chans = @preg_split("/[\-]/", trim($ChannelId));
+		if(@count($chans)>=2)
+			$ChannelId = $chans[1];
+
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+		
+		//brand
+		$tid   = addslashes($BrandId);
+		$xtra2 = " AND t.BrandId = '$tid' ";
+		
+		//camp
+		$tid   = addslashes($CampaignId);
+		$xtra3 = " AND t.CampaignId = '$tid' ";
+
+		//chan
+		$tid   = addslashes($ChannelId);
+		$xtra4 = " AND t.ChannelId = '$tid' ";
+
+
+        	$list  = array();
+
+		if(1){
+		
+			$rawSql = "
+			SELECT  t.*
+			FROM rewards_list t
+			WHERE 1=1 
+				$xtra1 
+				$xtra2
+				$xtra3
+				$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'RewardId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		foreach($dataProvider->getData() as $row)
+		{
+			$list[$row["RewardId"]] = $row["Title"];
+		}
+		
+		//give
+		Yii::app()->utils->sendJSONResponse($list);
+	}
+
+
+	public function actionGetcouponlist()
+	{
+
+		$criteria = new CDbCriteria;
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+
+		$BrandId    = trim(Yii::app()->request->getParam('BrandId') );
+		$CampaignId = trim(Yii::app()->request->getParam('CampaignId'));
+		$ChannelId  = trim(Yii::app()->request->getParam('ChannelId'));
+		
+		
+		$chans = @preg_split("/[\-]/", trim($ChannelId));
+		if(@count($chans)>=2)
+			$ChannelId = $chans[1];
+
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+		
+		//brand
+		$tid   = addslashes($BrandId);
+		$xtra2 = " AND t.BrandId = '$tid' ";
+		
+		//camp
+		$tid   = addslashes($CampaignId);
+		$xtra3 = " AND t.CampaignId = '$tid' ";
+
+		//chan
+		$tid   = addslashes($ChannelId);
+		$xtra4 = " AND t.ChannelId = '$tid' ";
+
+
+        	$list  = array();
+
+		if(1){
+		
+			$rawSql = "
+			SELECT  a.*
+			FROM coupon a,
+			     coupon_mapping t
+			WHERE 1=1 
+			      AND a.CouponId = t.CouponId
+				$xtra1 
+				$xtra2
+				$xtra3
+				$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'CouponId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		foreach($dataProvider->getData() as $row)
+		{
+			$list[$row["CouponId"]] = sprintf("%s - %s - %s",$row["CouponId"],
+							$row["Source"],$row["TypeId"]);
+		}
+		
+		//give
+		Yii::app()->utils->sendJSONResponse($list);
+	}
+
+
+	public function actionGetpointlist()
+	{
+
+		$criteria = new CDbCriteria;
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+
+		$BrandId    = trim(Yii::app()->request->getParam('BrandId') );
+		$CampaignId = trim(Yii::app()->request->getParam('CampaignId'));
+		$ChannelId  = trim(Yii::app()->request->getParam('ChannelId'));
+		
+		
+		$chans = @preg_split("/[\-]/", trim($ChannelId));
+		if(@count($chans)>=2)
+			$ChannelId = $chans[1];
+
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+		
+		//brand
+		$tid   = addslashes($BrandId);
+		$xtra2 = " AND t.BrandId = '$tid' ";
+		
+		//camp
+		$tid   = addslashes($CampaignId);
+		$xtra3 = " AND t.CampaignId = '$tid' ";
+
+		//chan
+		$tid   = addslashes($ChannelId);
+		$xtra4 = " AND t.ChannelId = '$tid' ";
+
+
+        	$list  = array();
+
+		if(1){
+		
+			$rawSql = "
+				SELECT  t.*
+				FROM points t
+				WHERE 1=1 
+					$xtra1 
+					$xtra2
+					$xtra3
+					$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'PointsId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		foreach($dataProvider->getData() as $row)
+		{
+			$list[$row["PointsId"]] = sprintf("%s - %s",$row["PointsId"],
+							$row["PointAction"]);
+		}
+		//give
+		Yii::app()->utils->sendJSONResponse($list);
+	}
+
+
+
+
+	public function actionGetpointlist2($BrandId=0,$CampaignId=0,$ChannelId)
+	{
+
+		$criteria = new CDbCriteria;
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+		
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+		
+		//brand
+		$tid   = addslashes($BrandId);
+		$xtra2 = " AND t.BrandId = '$tid' ";
+		
+		//camp
+		$tid   = addslashes($CampaignId);
+		$xtra3 = " AND t.CampaignId = '$tid' ";
+
+		//chan
+		$tid   = addslashes($ChannelId);
+		$xtra4 = " AND t.ChannelId = '$tid' ";
+
+
+        	$list  = array();
+
+		if(1){
+		
+			$rawSql = "
+				SELECT  t.*
+				FROM points t
+				WHERE 1=1 
+					$xtra1 
+					$xtra2
+					$xtra3
+					$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'PointsId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		foreach($dataProvider->getData() as $row)
+		{
+			$list[$row["PointsId"]] = sprintf("%s - %s",$row["PointsId"],
+							$row["PointAction"]);
+		}
+		//give
+		return $list;
+	}
+
+	public function actionGetcouponlist2($BrandId=0,$CampaignId=0,$ChannelId)
+	{
+
+		$criteria = new CDbCriteria;
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+	
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+		
+		//brand
+		$tid   = addslashes($BrandId);
+		$xtra2 = " AND t.BrandId = '$tid' ";
+		
+		//camp
+		$tid   = addslashes($CampaignId);
+		$xtra3 = " AND t.CampaignId = '$tid' ";
+
+		//chan
+		$tid   = addslashes($ChannelId);
+		$xtra4 = " AND t.ChannelId = '$tid' ";
+
+
+        	$list  = array();
+
+		if(1){
+		
+			$rawSql = "
+			SELECT  a.*
+			FROM coupon a,
+			     coupon_mapping t
+			WHERE 1=1 
+			      AND a.CouponId = t.CouponId
+				$xtra1 
+				$xtra2
+				$xtra3
+				$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'CouponId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		foreach($dataProvider->getData() as $row)
+		{
+			$list[$row["CouponId"]] = sprintf("%s - %s - %s",$row["CouponId"],
+							$row["Source"],$row["TypeId"]);
+		}
+		
+		//give
+		return $list;
+	}
+
+	public function actionGetRewardlist2($BrandId=0,$CampaignId=0,$ChannelId)
+	{
+
+		$criteria = new CDbCriteria;
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+ 
+
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+		
+		//brand
+		$tid   = addslashes($BrandId);
+		$xtra2 = " AND t.BrandId = '$tid' ";
+		
+		//camp
+		$tid   = addslashes($CampaignId);
+		$xtra3 = " AND t.CampaignId = '$tid' ";
+
+		//chan
+		$tid   = addslashes($ChannelId);
+		$xtra4 = " AND t.ChannelId = '$tid' ";
+
+
+        	$list  = array();
+
+		if(1){
+		
+			$rawSql = "
+			SELECT  t.*
+			FROM rewards_list t
+			WHERE 1=1 
+				$xtra1 
+				$xtra2
+				$xtra3
+				$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'RewardId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		foreach($dataProvider->getData() as $row)
+		{
+			$list[$row["RewardId"]] = $row["Title"];
+		}
+		
+		//give
+		return $list;
+	}
+
 
 }

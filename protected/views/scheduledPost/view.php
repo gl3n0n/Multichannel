@@ -28,6 +28,12 @@ $this->menu=array(
 		'Title',
 		'Description',
 		'EventDate',
+		'EventType',
+		'RepeatType',
+		'AwardType',
+		'PointsId',
+		'CouponId',
+		'RewardId',
 		array(
 		'name' => 'ClientId',
 		'value' => $model->schedClients->CompanyName,

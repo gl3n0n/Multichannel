@@ -36,6 +36,10 @@ $this->menu=array(
 	'Title',
 	'Description',
 	'EventDate',
+	'EventDate',
+	'EventType',
+	'RepeatType',
+	'AwardType',
 	'Status',
 	array(
 	'name' => 'ClientId',
@@ -54,15 +58,16 @@ $this->menu=array(
 	'value'=> '$data->schedChannels->ChannelName',
 	),
 	'DateCreated',
+	
 	array(
 		'name' => 'CreatedBy',
 		'value'=> '$data->schedCreateUsers->Username',
-	),
+	),/**
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
 		'value'=> '$data->schedUpdateUsers->Username',
-	),
+	),**/
 	),
 )); 
 ?>
