@@ -17,7 +17,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Customers #<?php echo $model->CustomerId; ?></h1>
+<h1>View <?php echo $model->FirstName . ' ' . $model->LastName;  ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

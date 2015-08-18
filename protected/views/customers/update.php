@@ -16,6 +16,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Customers <?php echo $model->CustomerId; ?></h1>
+<h1>Update <?php echo $model->FirstName . ' ' . $model->LastName;  ?></h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model)); ?>

@@ -16,6 +16,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update RewardsList <?php echo $model->RewardId; ?></h1>
+<h1>Update <?php echo $model->Title; ?></h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model)); ?>
