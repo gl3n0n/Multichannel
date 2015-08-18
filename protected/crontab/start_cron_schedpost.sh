@@ -22,7 +22,7 @@ umask 002
 function _init()
 {
 	ROOTD="/var/www/html/multichannel/protected/crontab"
-	LOGF=${ROOTD}/log/cron_parse_csv.php-$(date '+%Y-%m-%d').log
+	LOGF=${ROOTD}/log/schedpost.php-$(date '+%Y-%m-%d').log
 }
 
 function timeStamp()
@@ -54,7 +54,7 @@ cd $ROOTD
 timeStamp "start"
 timeStamp "==================================="
 
-php -f ${ROOTD}/cron_parse_csv.php  "DAILY" >> $LOGF 2>/dev/null
+/usr/bin/php -f ${ROOTD}/schedpost.php  "DAILY" >> $LOGF 2>/dev/null
 
 timeStamp "ret:$?"
 

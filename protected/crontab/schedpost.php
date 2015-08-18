@@ -4,20 +4,20 @@
 include_once('init.php');
 
 
-debug("cron_parse_csv() : start!!!!");
+debug("sched_post() : start!!!!");
 
 //lock
 $gPORT_LOCKER = new PortLocker(17897);
 if(! $gPORT_LOCKER->lock())
 {
-	debug("cron_parse_csv() : an instance still running!");
+	debug("sched_post() : an instance still running!");
 	exit;
 }
 
 
-debug("cron_parse_csv() : an instance will run now!");
+debug("sched_post() : an instance will run now!".@var_export($argv,true));
 
-$mode  = trim($ARGV[1]);
+$mode  = trim($argv[1]);
 //get settings
 $pdata = get_sched_post($mode);
 
@@ -28,5 +28,5 @@ $gPORT_LOCKER->unlock();
 
 //free
 free_up();
-debug("cron_parse_csv() : done!!!!");
+debug("sched_post() : done!!!!");
 ?>
