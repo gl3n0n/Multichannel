@@ -14,9 +14,8 @@
 	<?php endif; ?>
 	<div>
 		<dl>
-		
-		<dt>Client</dt>
-		<dd><i><?php echo $data['ClientId'] ? $data['ClientId'] : '&nbsp;'; ?></i></dd>
+		<dt>Company Name</dt>
+		<dd><i><?php echo $data['CompanyName'] ? $data['CompanyName'] : '&nbsp;'; ?></i></dd>
 		
                         <dt>Username</dt>
                         <dd><i><?php echo $data['Username'] ? $data['Username'] : '&nbsp;'; ?></i></dd>

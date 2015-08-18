@@ -164,35 +164,42 @@ if(!empty($downloadCSV))
        'dataProvider'=>$dataProvider,
        'columns' => array(
 	array(
-		'name'  => 'CustomerId',
-		'value' => '$data->pointlogCustomers->Email',
+		'name'  => 'Customer Name',
+		'value'=> '($data->pointlogCustomers != null)?($data->pointlogCustomers->FirstName." ".
+		            $data->pointlogCustomers->LastName):("")',
+		'type'  => 'raw',
+		),	
+	array(
+		'name'  => 'Email',
+		'value' => 'CHtml::link(($data->pointlogCustomers != null)?($data->pointlogCustomers->Email):(""),
+			    Yii::app()->createUrl("customers/".$data->pointlogCustomers->CustomerId))',
 		'type'  => 'raw',
 		),	
 	'SubscriptionId',
 	array(
 	'name'  => 'ClientId',
-	'value' => '$data->pointlogClients->CompanyName',
+	'value'=> '($data->pointlogClients != null)?($data->pointlogClients->CompanyName):("")',
 	'type'  => 'raw',
 	),
 	array(
 	'name'  => 'BrandId',
-	'value' => '$data->pointlogBrands->BrandName',
+	'value'=> '($data->pointlogBrands != null)?($data->pointlogBrands->BrandName):("")',
 	'type'  => 'raw',
 	),
 	array(
 	'name'  => 'CampaignId',
-	'value' => '$data->pointlogCampaigns->CampaignName',
+	'value'=> '($data->pointlogCampaigns != null)?($data->pointlogCampaigns->CampaignName):("")',
 	'type'  => 'raw',
 	),
 	array(
 	'name'  => 'ChannelId',
-	'value' => '$data->pointlogChannels->ChannelName',
+	'value'=> '($data->pointlogChannels != null)?($data->pointlogChannels->ChannelName):("")',
 	'type'  => 'raw',
 	),
 	'PointsId',
 	array(
-		'name' => 'CreatedBy',
-		'value'=> '($data->pointlogCreateUsers != null)?($data->pointlogCreateUsers->Username):("")',
+		'name' => 'Points Earned',
+		'value'=> '($data->pointlogPoints != null)?($data->pointlogPoints->Value):(0)',
 	),
     ),
 )); ?>

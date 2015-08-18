@@ -76,7 +76,7 @@ class Reports extends CActiveRecord
 		return array(
 			'PointLogId' => 'Point Log ID',
 			'CustomerId' => 'Customer Name',
-			'Email'      => 'Customer Email',
+			'Email'      => 'Email',
 			'SubscriptionId' => 'Subscription',
 			'ClientId' => 'Client Name',
 			'BrandId' => 'Brand Name',

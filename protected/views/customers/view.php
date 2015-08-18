@@ -24,9 +24,9 @@ $this->menu=array(
 	'attributes'=>array(
 		'CustomerId',
 		array(
-			'name' => 'CustomerId',
+			'name' => 'Customer Name',
 			'type'=>'raw',
-			'value'=> CHtml::link('View Subscriptions', '../customerSubscriptions/?customer_id=' . $model->CustomerId),
+			'value'=> CHtml::link("View Subscriptions", Yii::app()->createUrl("customerSubscriptions/?customer_id=".$model->CustomerId)),
 			),
 		'FirstName',
 		'MiddleName',
@@ -39,7 +39,7 @@ $this->menu=array(
 		array(
 		'name' => 'Total Points',
 		'type'=>'raw',
-		'value'=> CHtml::link("$total (View Logs)", '../reports/customeractivity/?customer_id=' . $model->CustomerId),
+		'value'=> CHtml::link("$total (View Logs)", Yii::app()->createUrl("reports/customeractivity/?customer_id=".$model->CustomerId)),
 		),
 
 	),

@@ -380,7 +380,7 @@ class UsersController extends Controller
 		'client_list' => $cust), true);
 
 		$this->render('index', array('createForm'=>$createForm,
-					     ));
+					     'client_list' => $cust));
 	}
 
         public function actionEdit($id)
@@ -463,6 +463,7 @@ class UsersController extends Controller
 			$data = array(
                                 'UserId'=>$model->UserId,
 				'ClientId'=>$model->ClientId,
+				'CompanyName'=>($model->clientInfo? $model->clientInfo->CompanyName:""),
 				'Username'=>$model->Username,
 				'FirstName'=>$model->FirstName,
                                 'MiddleName'=>$model->MiddleName,
@@ -479,8 +480,10 @@ class UsersController extends Controller
 			// redirect to not found..
 			$data['error'] = 'I am unable to find that user.';
 			$data['Username'] = '';
+			$data['CompanyName'] = '';
 			$data['created']  = '';
 			$data['updated']  = '';
+			
 			$data['UserId'        ] = '';
 			$data['Username'      ] = '';
 			$data['FirstName'     ] = '';
