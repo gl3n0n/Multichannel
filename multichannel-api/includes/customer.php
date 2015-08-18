@@ -315,8 +315,10 @@ class Customer {
 
 			if (!empty($this->customer_id))
 				$query_keys[] = 'CustomerId = '. $this->conn->quote($this->customer_id, 'integer');
+			if (!empty($client_id))
+				$query_keys[] = 'ClientId = '. $this->conn->quote($client_id, 'integer');
 			
-			$query_keys[] = "Status = 'ACTIVE'";
+			//$query_keys[] = "Status = 'ACTIVE'";
 			
 			if (sizeof($query_keys) == 0)
 				$query_string = null;
@@ -397,6 +399,18 @@ class Customer {
 				array_push($types,'text');
 				array_push($table_fields,'TwitterHandle');
 			}
+			if (!empty($contact_number))
+			{
+				$fields_values['ContactNumber'] = $contact_number;
+				array_push($types,'text');
+				array_push($table_fields,'ContactNumber');
+			}
+            if (!empty($status))
+			{
+				$fields_values['Status'] = $fb_id;
+				array_push($types,'text');
+				array_push($table_fields,'Status');
+			}
 			
 			$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
 
@@ -410,7 +424,9 @@ class Customer {
                 return false;
             }
 
+            
 			$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+            
 			if (sizeof($row) == 0)
 			{
 				return array("NOTFOUND");

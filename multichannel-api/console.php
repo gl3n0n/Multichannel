@@ -23,13 +23,15 @@
 					<option value="/multichannel-api/reports/generate_report2.php">Generate Report</option>
 					<option value="/multichannel-api/customer/insert.php">Insert Customer</option>
 					<option value="/multichannel-api/customer/update.php">Update Customer Details</option>
-                    <option value="/multichannel-api/customer/retrieve.php">Retrieve Customer</option>
-                    <option value="/multichannel-api/customer/update.php">Update Customer</option>
+					<option value="/multichannel-api/coupon/redeem.php">Redeem Coupon (Set use_points to true, to claim via points)</option>
+					<option value="/multichannel-api/coupon/convert_to_points.php">Convert Coupon To Points</option>
+
+<!--                    <option value="/multichannel-api/customer/retrieve.php">Retrieve Customer</option>
 					<option value="/multichannel-api/customer/retrieve_subscriptions.php">Customer Subscriptions</option> 
                     <option value="/multichannel-api/reward/retrieve.php">View Reward</option>
                     <option value="/multichannel-api/reward/update.php">Update Reward</option>
                     <option value="/multichannel-api/reward/redeem.php">Redeem Reward</option>
-					<option value="/multichannel-api/coupon/generate.php">Generate Coupons</option> 
+					<option value="/multichannel-api/coupon/generate.php">Generate Coupons</option> -->
                 </select>
             </td>
         </tr>

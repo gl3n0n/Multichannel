@@ -1,4 +1,6 @@
 <?php
+require_once('../includes/points.php');
+
 class RedeemCoupon {
         public $coupon_id;
         public $conn;
@@ -10,36 +12,36 @@ class RedeemCoupon {
             $this->table_name = 'generated_coupons';
         }
 
-                public function isValidCoupon()
-                {
-                        $query_keys = array();
+               public function isValidCoupon()
+               {
+                       $query_keys = array();
 
-                        if (!empty($this->coupon_id))
-                                $query_keys[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
+                       if (!empty($this->coupon_id))
+                               $query_keys[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
 
-                        $query_keys[] = "Status = 'ACTIVE' AND Quantity > 0";
+                       $query_keys[] = "Status = 'ACTIVE' AND Quantity > 0";
 
-                        if (sizeof($query_keys) == 0)
-                                $query_string = null;
-                        else
-                                $query_string = implode(' AND ', $query_keys);
+                       if (sizeof($query_keys) == 0)
+                               $query_string = null;
+                       else
+                               $query_string = implode(' AND ', $query_keys);
 
-                        $query_string .= ' LIMIT 1';
-                        $res = $this->conn->extended->autoExecute('coupon', null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
+                       $query_string .= ' LIMIT 1';
+                       $res = $this->conn->extended->autoExecute('coupon', null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
 
-                        if (PEAR::isError($res)) {
-							return false;
-						}
+                       if (PEAR::isError($res)) {
+						return false;
+					}
 
-                        $row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+                       $row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
 
-                        if (null == $row || sizeof($row) == 0)
-                        {
-                                return false;
-                        }
+                       if (null == $row || sizeof($row) == 0)
+                       {
+                               return false;
+                       }
 
-                        return true;
-                }
+                       return true;
+               }
 
                 public function insert($client_id, $brand_id, $campaign_id, $channel_id, $customer_id, $date_redeemed)
                 {
@@ -164,7 +166,7 @@ class RedeemCoupon {
 				public function retrieve($customer_id, $client_id, $brand_id, $campaign_id, $channel_id, $generated_coupon_id)
 				{
 					//$query = "SELECT BrandName, redeemed_coupon.CouponId, Code, Type, TypeId, Source, ExpiryDate, coupon.Status, coupon.ClientId, coupon.BrandId, coupon.ChannelId, coupon.CampaignId, DateRedeemed FROM coupon join redeemed_coupon ON coupon.CouponId = redeemed_coupon.CouponId join brands on coupon.BrandId = brands.BrandId";
-					$query = "SELECT FirstName, MiddleName, LastName, Email,BrandName, generated_coupons.GeneratedCouponId, generated_coupons.CustomerId as CustomerId, generated_coupons.CouponId as CouponId, generated_coupons.Code as Code, coupon.Type, TypeId, Source, ExpiryDate, coupon.Status, coupon_mapping.ClientId, coupon_mapping.BrandId, coupon_mapping.ChannelId, coupon_mapping.CampaignId, campaigns.CampaignName as CampaignName, channels.ChannelName as ChannelName, DateRedeemed FROM coupon join generated_coupons ON coupon.CouponId = generated_coupons.CouponId join coupon_mapping on coupon_mapping.CouponMappingId = generated_coupons.CouponMappingId join brands on coupon_mapping.BrandId = brands.BrandId join customers on customers.CustomerId = generated_coupons.CustomerId join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId join channels on channels.ChannelId = coupon_mapping.ChannelId";
+					$query = "SELECT coupon_mapping.CouponMappingId as CouponMappingId, FirstName, MiddleName, LastName, Email,BrandName, generated_coupons.GeneratedCouponId, generated_coupons.CustomerId as CustomerId, generated_coupons.CouponId as CouponId, generated_coupons.Code as Code, coupon.Type, TypeId, Source, ExpiryDate, coupon.Status, coupon_mapping.ClientId, coupon_mapping.BrandId, coupon_mapping.ChannelId, coupon_mapping.CampaignId, campaigns.CampaignName as CampaignName, channels.ChannelName as ChannelName, DateRedeemed FROM coupon join generated_coupons ON coupon.CouponId = generated_coupons.CouponId join coupon_mapping on coupon_mapping.CouponMappingId = generated_coupons.CouponMappingId join brands on coupon_mapping.BrandId = brands.BrandId join customers on customers.CustomerId = generated_coupons.CustomerId join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId join channels on channels.ChannelId = coupon_mapping.ChannelId";
 											  
 					$query_keys = array();
 
@@ -277,6 +279,249 @@ class RedeemCoupon {
 						return false;
 					}
 
+					return $row;
+				}
+
+				public function redeemOnPoints($generated_coupon_id, $customer_id, $coupon_mapping_id)
+				{
+					$query2 = "SELECT Status FROM generated_coupons";
+					if (!empty($generated_coupon_id))
+						$query_keys2[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+					if (sizeof($query_keys2) == 0)
+						$query_string2 = null;
+					else
+						$query_string2 = implode(' AND ', $query_keys2);
+
+					$query2 .= " WHERE " . $query_string2;
+
+					$res2 = $this->conn->query($query2);
+					if (PEAR::isError($res2)) {
+						return false;
+					}
+					$row2 = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);
+					if ($row2['status'] == "REDEEMED")
+					{
+						return array("ALREADY_REDEEMED");
+					}
+
+					$query_keys = array();
+
+					if (!empty($generated_coupon_id))
+						$query_keys[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+					
+					if (sizeof($query_keys) == 0)
+						$query_string = null;
+					else
+						$query_string = implode(' AND ', $query_keys);
+
+					// Check if there are enough points to cater this request	
+					$query_details = "SELECT CouponId,ClientId,BrandId,CampaignId,ChannelId from coupon_mapping WHERE CouponMappingId = " . $this->conn->quote($coupon_mapping_id, 'integer');
+					$result_details = $this->conn->query($query_details);
+
+					if (PEAR::isError($result_details))
+					{
+						return false;
+					}
+					$details = $result_details->fetchRow(MDB2_FETCHMODE_ASSOC);					
+					
+					
+					$query_sub_id =  "SELECT customer_subscriptions.SubscriptionId,Balance from customer_points join customer_subscriptions on customer_subscriptions.SubscriptionId = customer_points.SubscriptionId WHERE ClientId = " . $details["clientid"] . " AND BrandId = " . $details["brandid"] . " AND CampaignId = " . $details["campaignid"] . " AND ChannelId = " . $details["channelid"] . " AND CustomerId = " . $this->conn->quote($customer_id, 'integer') . "";
+					$result_sub_id = $this->conn->query($query_sub_id);
+
+					if (PEAR::isError($result_sub_id))
+					{
+						return false;
+					}
+					$sub_id = $result_sub_id->fetchRow(MDB2_FETCHMODE_ASSOC);
+					// Checks if the customer is subscribed to a promo, if not return an error.
+					if (null == $sub_id || sizeof($sub_id) == 0)
+					{
+						return array("SUBSCRIPTION_NOT_FOUND");
+					}
+					
+					$query_coupon_value = "SELECT PointsRequired FROM points_to_coupon WHERE Status = 'ACTIVE' AND CouponId = " . $details["couponid"];
+					//echo $query_coupon_value;
+					$result_coupon_value = $this->conn->query($query_coupon_value);
+					if (PEAR::isError($result_coupon_value))
+					{
+						return false;
+					}
+					$coupon_value = $result_coupon_value->fetchRow(MDB2_FETCHMODE_ASSOC);
+					if (null == $coupon_value || sizeof($coupon_value) == 0)
+					{
+						return array("CONFIG_NOT_FOUND");
+					}
+					
+					// Check if Balance is > than coupon value.
+					if ($sub_id["balance"] >= $coupon_value["pointsrequired"])
+					{
+						$new_balance = ($sub_id["balance"] - $coupon_value["pointsrequired"]);
+						// proceed
+						$query_pts = "UPDATE customer_points set Balance = " . $new_balance . ", Total = Total - " . $new_balance;
+						if (!empty($sub_id["subscriptionid"]))
+							$query_keys_pts[] = 'SubscriptionId = '. $this->conn->quote($sub_id["subscriptionid"], 'integer');
+						
+						if (sizeof($query_keys_pts) == 0)
+							$query_string_pts = null;
+						else
+							$query_string_pts = implode(' AND ', $query_keys_pts);
+
+						
+						$query_pts .= " WHERE " . $query_string_pts;
+						
+						//echo $query_pts;
+						$res = $this->conn->query($query_pts);
+
+						if (PEAR::isError($res)) {
+							return false;
+						}
+					}
+					else
+					{
+						return array("INSUFICENT_BAL");
+					}
+						
+					// Prepare values
+					$fields_values = array();
+
+					$fields_values['CustomerId'] = $this->conn->quote($customer_id, 'integer');
+					$fields_values['CouponMappingId'] = $this->conn->quote($coupon_mapping_id, 'integer');
+					$fields_values['Status'] = "REDEEMED";
+					$fields_values['DateRedeemed'] = date('Y-m-d H:i:s');
+					$types = array('integer','integer','text','timestamp');
+
+					$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
+
+					//print_r($affectedRows);
+					if (PEAR::isError($affectedRows)) {
+						return false;
+					}
+
+					$res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer') . ' AND Status = "REDEEMED"', null, true, null);
+
+					if (PEAR::isError($res)) {
+						return false;
+					}
+
+					$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+					if (null == $row || sizeof($row) == 0)
+					{
+						return false;
+					}
+					
+					$row["balance"] = $new_balance;
+					return $row;
+				}
+				
+				public function couponToPoints($generated_coupon_id, $customer_id, $coupon_mapping_id)
+				{
+					$query2 = "SELECT Status FROM generated_coupons";
+					if (!empty($generated_coupon_id))
+						$query_keys2[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+					if (sizeof($query_keys2) == 0)
+						$query_string2 = null;
+					else
+						$query_string2 = implode(' AND ', $query_keys2);
+
+					$query2 .= " WHERE " . $query_string2;
+
+					$res2 = $this->conn->query($query2);
+					if (PEAR::isError($res2)) {
+						return false;
+					}
+
+					$row2 = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);
+					if ($row2['status'] == "REDEEMED_AND_CONVERTED")
+					{
+						return array("ALREADY_CONVERTED");
+					}
+					else if ($row2['status'] != "REDEEMED")
+					{
+						return array("NOT_REDEEMED");
+					}
+
+					$query_keys = array();
+
+					if (!empty($generated_coupon_id))
+						$query_keys[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+					
+					if (sizeof($query_keys) == 0)
+						$query_string = null;
+					else
+						$query_string = implode(' AND ', $query_keys);
+
+					// Check if there are enough points to cater this request	
+					$query_details = "SELECT CouponId,ClientId,BrandId,CampaignId,ChannelId from coupon_mapping WHERE CouponMappingId = " . $this->conn->quote($coupon_mapping_id, 'integer');
+					$result_details = $this->conn->query($query_details);
+
+					if (PEAR::isError($result_details))
+					{
+						return array("ERROR");
+					}
+					$details = $result_details->fetchRow(MDB2_FETCHMODE_ASSOC);
+					if (null == $details || sizeof($details) == 0)
+					{
+						return array("SUBSCRIPTION_NOT_FOUND");
+					}					
+
+					$query_sub_id =  "SELECT customer_subscriptions.SubscriptionId,Balance from customer_points join customer_subscriptions on customer_subscriptions.SubscriptionId = customer_points.SubscriptionId WHERE ClientId = " . $details["clientid"] . " AND BrandId = " . $details["brandid"] . " AND CampaignId = " . $details["campaignid"] . " AND ChannelId = " . $details["channelid"] . " AND CustomerId = " . $this->conn->quote($customer_id, 'integer') . "";
+					$result_sub_id = $this->conn->query($query_sub_id);
+
+					if (PEAR::isError($result_sub_id))
+					{
+						return array("ERROR");
+					}
+					$sub_id = $result_sub_id->fetchRow(MDB2_FETCHMODE_ASSOC);
+					// Checks if the customer is subscribed to a promo, if not return an error.
+					if (null == $sub_id || sizeof($sub_id) == 0)
+					{
+						return array("SUBSCRIPTION_NOT_FOUND");
+					}
+					
+					$query_coupon_value = "SELECT PointsValue FROM coupon_to_points WHERE Status = 'ACTIVE' AND CouponId = " . $details["couponid"];
+					//echo $query_coupon_value;
+					$result_coupon_value = $this->conn->query($query_coupon_value);
+					if (PEAR::isError($result_coupon_value))
+					{
+						return array("ERROR");
+					}
+					$coupon_value = $result_coupon_value->fetchRow(MDB2_FETCHMODE_ASSOC);
+					if (null == $coupon_value || sizeof($coupon_value) == 0)
+					{
+						return array("CONFIG_NOT_FOUND");
+					}
+					
+					// Add points
+					$new_balance = ($sub_id["balance"] + $coupon_value["pointsvalue"]);
+					// proceed
+					$query_pts = "UPDATE customer_points set Balance = " . $new_balance . ", Total = Total + " . $new_balance;
+					if (!empty($sub_id["subscriptionid"]))
+						$query_keys_pts[] = 'SubscriptionId = '. $this->conn->quote($sub_id["subscriptionid"], 'integer');
+					
+					if (sizeof($query_keys_pts) == 0)
+						$query_string_pts = null;
+					else
+						$query_string_pts = implode(' AND ', $query_keys_pts);
+
+					
+					$query_pts .= " WHERE " . $query_string_pts;
+					
+					//echo $query_pts;
+					$res = $this->conn->query($query_pts);
+
+					if (PEAR::isError($res)) {
+						return array("ERROR");
+					}
+					
+					$update_gen_coupons_query = "UPDATE generated_coupons SET status = 'REDEEMED_AND_CONVERTED' WHERE GeneratedCouponId = " . $this->conn->quote($generated_coupon_id, 'integer');
+					$result_gen_coupons = $this->conn->query($update_gen_coupons_query);
+					if (PEAR::isError($result_gen_coupons))
+					{
+						return array("ERROR");
+					}
+					
+					$row["balance"] = $new_balance;
 					return $row;
 				}
 }

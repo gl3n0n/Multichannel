@@ -204,5 +204,45 @@ $types = array('integer');
 
 			return $result_array;
 		}
+		
+		public function retrieveAvailable($customer_id, $client_id, $brand_id, $channel_id, $campaign_id) 
+		{
+			$query = "SELECT balance,rewardconfigid, rewards_list.rewardid, inventory, rewards_list.Title as Title, rewards_list.description, BrandName, customer_subscriptions.BrandId, CompanyName, CampaignName, customer_subscriptions.campaignid, ChannelName, customer_subscriptions.channelid, customer_subscriptions.ClientId as clientid, rewards_list.Description as Description, reward_details.value FROM customer_subscriptions JOIN reward_details on customer_subscriptions.clientid = reward_details.clientid AND customer_subscriptions.campaignid = reward_details.campaignid AND customer_subscriptions.brandid = reward_details.brandid AND customer_subscriptions.channelid = reward_details.channelid JOIN customer_points on customer_subscriptions.subscriptionid = customer_points.subscriptionid join rewards_list on rewards_list.rewardid = reward_details.rewardid join brands on customer_subscriptions.brandid = brands.brandid join clients on clients.clientid = customer_subscriptions.clientid join campaigns on campaigns.campaignid = customer_subscriptions.campaignid join channels on channels.channelid = customer_subscriptions.channelid WHERE DateFrom <= NOW() AND DateTo >= NOW() AND inventory >= 1 AND ";
+			
+			$query_keys = array();
+			if (!empty($client_id))
+                $query_keys[] = 'customer_subscriptions.ClientId = '. $this->conn->quote($client_id, 'integer');
+			if (!empty($customer_id))
+				$query_keys[] = 'customer_subscriptions.CustomerId = '. $this->conn->quote($customer_id, 'integer');
+			if (!empty($brand_id))
+				$query_keys[] = 'customer_subscriptions.BrandId = '. $this->conn->quote($brand_id, 'integer');
+			if (!empty($channel_id))
+				$query_keys[] = 'customer_subscriptions.ChannelId = '. $this->conn->quote($channel_id, 'integer');
+			if (!empty($campaign_id))
+				$query_keys[] = 'customer_subscriptions.CampaignId = '. $this->conn->quote($campaign_id, 'integer');
+			
+			if (sizeof($query_keys) == 0)
+				$query_string = null;
+			else
+				$query_string = implode(' AND ', $query_keys);
+
+			$query .= $query_string;
+			//echo $query;
+
+			$res = $this->conn->query($query);
+			
+			
+			if (PEAR::isError($res)) {
+                return false;
+            }
+
+			$result_array = array();
+			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
+            {
+				$result_array[] = $row;
+			}
+
+			return $result_array;
+		}
 }
 ?>

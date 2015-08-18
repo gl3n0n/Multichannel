@@ -254,7 +254,38 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['action'])
 		}
 	}
 
-		
+	if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['conv_coupon_to_points'])
+	{
+		$url = 'http://104.156.53.150/multichannel-api/coupon/convert_to_points.php';
+		$data = array('coupon_id' => $_POST['coupon_id'],
+					  'customer_id' => $_POST['customer_id'],
+					  'generated_coupon_id' => $_POST['generated_coupon_id'],
+					  'coupon_mapping_id' => $_POST['coupon_mapping_id'],
+					  );
+
+		$options = array(
+			'http' => array(
+				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+				'method'  => 'POST',
+				'content' => http_build_query($data),
+			),
+		);
+		$context  = stream_context_create($options);
+		$result = file_get_contents($url, false, $context);
+
+		$data = json_decode($result, true);
+
+		if ($data["result_code"] == 200)
+		{
+			//print_r($data);
+			echo 'Notice: <font color="green">Successfully converted coupons to points.<br></font>';
+		}
+		else
+		{
+			echo 'Notice: <font color="red">Error on updating coupon: ' . $data["error_txt"] . '<br></font>';
+		}
+	}
+	
 	/*if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['generate_coupon'])
 	{
 		$url = 'http://104.156.53.150/multichannel-api/coupon/insert';
@@ -365,8 +396,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['action'])
 		$data = array('coupon_id' => $_POST['thecouponid'],
 					  'generated_coupon_id' => $_POST['thegeneratedcouponid'],
 					  'coupon_mapping_id' => $_POST['the_rdm_option'],
+					  'use_points' => $_POST['use_the_points'],
 					  'customer_id' => $_POST['thecustid']);
 
+		//print_r($data);
 		$options = array(
 			'http' => array(
 				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -388,7 +421,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['action'])
 		}
 		else
 		{
-			echo 'Notice: <font color="red">Invalid Coupon.<br></font>';
+			echo 'Notice: <font color="red">' . $data["error_txt"] . '<br></font>';
 		}
 	}
 	
@@ -661,7 +694,7 @@ else if ($result_arr_add->{"result_code"} == 405)
 
 
 </br>
-<b>Rewards Available:</b>
+<b>Rewards Redeemable:</b>
 </br>
 <?php
 $url = 'http://104.156.53.150/multichannel-api/reward/retrieve_redeemable.php';
@@ -700,6 +733,53 @@ foreach ($arr_rdmble_rwrds as &$reward)
 }
 
 ?>
+
+</br>
+<b>Rewards Available:</b>
+</br>
+<?php
+$url = 'http://104.156.53.150/multichannel-api/reward/retrieve_available.php';
+$data = array('customer_id' => $_SESSION['login_id']);
+
+$options = array(
+	'http' => array(
+		'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+		'method'  => 'POST',
+		'content' => http_build_query($data),
+	),
+);
+$context  = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+$available_rewards = json_decode($result, true);
+
+if($available_rewards['results'])
+	{
+	?>
+		</br>
+		<table border=1>
+		<tr>
+		<th>Reward</th><th>Client</th><th>Brand</th><th>Description</th><th>Points Nedded</th>
+		</tr>
+		<?php
+		foreach ($available_rewards['results'] as &$rwrd)
+		{?>
+			<tr align="center">
+			<td><?php echo $rwrd["title"]; ?></td><td><?php echo $rwrd["companyname"]; ?><td><?php echo $rwrd["brandname"]; ?></td><td><?php echo $rwrd["description"]; ?></td><td><?php echo $rwrd["value"]; ?></td>
+			</tr>
+			
+		<?php
+		}
+		?>
+		</table>
+		<?php
+	}
+	else
+	{
+		echo "</br>No rewards available.</br></br>";
+	}
+?>
+
 <?php
 /*$rewards_available_counter = 0;
 
@@ -1108,6 +1188,10 @@ $data = json_decode($result, true);
 					<option value="<?php echo $redeem_option["couponmappingid"]; ?>"><?php echo $redeem_option["brandname"] . ", " . $redeem_option["campaignname"] . ", " . $redeem_option["channelname"]; ?></option>
 				<?php } ?>
 				</select>
+				<select name="use_the_points">
+					<option value="false">Don't Use Points (Default)</option>
+					<option value="true">Use Points</option>
+				</select>
 			</form>
 			</td>
 			<td><?php echo $coup["generatedcouponid"]; ?></td><td><?php echo $coup["couponid"]; ?></td><td><?php echo $coup["code"]; ?></td>
@@ -1176,13 +1260,14 @@ $data = json_decode($result, true);
 		
 		<table border=1>
 		<tr>
-		<th>Redeemed By</th><th>Coupon Id</th><th>Code</th><th>Brand Name</th><th>Campaign Name</th><th>Channel Name</th><th>Date Redeemed</th>
+		<th></th><th>Redeemed By</th><th>Coupon Id</th><th>Code</th><th>Brand Name</th><th>Campaign Name</th><th>Channel Name</th><th>Date Redeemed</th>
 		</tr>
 		<?php
 		foreach ($data['results'] as &$redeemed_coupon)
 		{?>
+			<form method="post">
 			<tr align="center">
-			<td><?php echo $redeemed_coupon["email"]; ?></td><td><?php echo $redeemed_coupon["couponid"]; ?></td><td><?php echo $redeemed_coupon["code"]; ?></td>
+			<td><input type="Submit" value="Convert To Points"/></td><td><?php echo $redeemed_coupon["email"]; ?></td><td><?php echo $redeemed_coupon["couponid"]; ?></td><td><?php echo $redeemed_coupon["code"]; ?></td>
 			<!--<td>
 			<?php 
 				/*$url2 = 'http://104.156.53.150/multichannel-api/coupon/retrieve_qr';
@@ -1208,6 +1293,13 @@ $data = json_decode($result, true);
 			<td><?php echo $redeemed_coupon["channelname"]; ?></td>
 			<td><?php echo $redeemed_coupon["dateredeemed"]; ?></td>
 			</tr>
+			
+				<input type="hidden" name="conv_coupon_to_points" value="true">
+				<input type="hidden" name="coupon_id" value="<?php echo $redeemed_coupon["couponid"]; ?>">
+				<input type="hidden" name="customer_id" value="<?php echo $redeemed_coupon["customerid"] ?>">
+				<input type="hidden" name="generated_coupon_id" value="<?php echo $redeemed_coupon["generatedcouponid"]; ?>">
+				<input type="hidden" name="coupon_mapping_id" value="<?php echo $redeemed_coupon["couponmappingid"]; ?>">
+			</form>
 			
 		<?php
 		}

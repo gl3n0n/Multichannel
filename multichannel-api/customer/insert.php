@@ -10,7 +10,7 @@
 	$contact_number = $_POST['contact_number'];
 	$address = $_POST['address'];
 	$email = $_POST['email'];
-	$status = $_POST['status'];
+	//$status = $_POST['status'];
 	$fb_id = $_POST['fb_id'];
 	$twitter_handle = $_POST['twitter_handle'];
 	$created_by = $_POST['created_by'];
@@ -39,7 +39,7 @@
     }
 
 	if (empty($first_name) || empty($middle_name) || empty($last_name) ||
-		empty($gender) || empty($contact_number) || empty($address) || empty($email) || empty($status))
+		empty($gender) || empty($contact_number) || empty($address) || empty($email))
 	{
 		$response['result_code'] = 405;
 		$response['error_txt'] = 'Missing Parameters';
@@ -55,18 +55,18 @@
 		return;
 	}
 
-	if ($status != "PENDING" && $status != "ACTIVE" && $status != "INACTIVE")
+	/*if ($status != "PENDING" && $status != "ACTIVE" && $status != "INACTIVE")
 	{
 		$response['result_code'] = 405;
 		$response['error_txt'] = 'Invalid Status';
 		echo json_encode($response);
 		return;
-	}
+	}*/
 
 	$customer = new Customer($dbconn, $customer_id);
 
 	$response = $customer->add($first_name, $middle_name, $last_name, $gender, $birthdate,
-							   $address, $status, $fb_id, $twitter_handle, $email, $contact_number, $client_id); 
+							   $address, 'ACTIVE', $fb_id, $twitter_handle, $email, $contact_number, $client_id); 
 
 	if ($response)
 	{

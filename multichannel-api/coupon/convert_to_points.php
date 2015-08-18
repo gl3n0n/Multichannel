@@ -7,7 +7,6 @@
 	$coupon_id = $_POST['coupon_id'];
 	$customer_id = $_POST['customer_id'];
 	$coupon_mapping_id = $_POST['coupon_mapping_id'];
-	$use_points = $_POST['use_points'];
 
     if ((empty($generated_coupon_id) || !preg_match(DIGIT_REGEX, $generated_coupon_id)) ||
                 (empty($coupon_id) || !preg_match(DIGIT_REGEX, $coupon_id)) ||
@@ -30,36 +29,25 @@
 			echo json_encode($response);
 			return;
 	}
-
-	if ($redeem_coupon->isOverTheLimit($coupon_id, $customer_id))
-	{
-		$response['result_code'] = 409;
-		$response['error_txt'] = 'Coupon Limit Reached';
-		echo json_encode($response);
-		return;
-	}
 	
-    if ("true" == $use_points)
-	{
-		$response = $redeem_coupon->redeemOnPoints($generated_coupon_id, $customer_id, $coupon_mapping_id);
-	}
-	else
-	{
-		$response = $redeem_coupon->redeem($generated_coupon_id, $customer_id, $coupon_mapping_id);
-	}
-	
-	
+	$response = $redeem_coupon->couponToPoints($generated_coupon_id, $customer_id, $coupon_mapping_id);
 	
 	if (!$response)
 	{
 		$response['result_code'] = 404;
         $response['error_txt'] = 'Coupon not found';
 	}
-	else if ($response[0] == "ALREADY_REDEEMED")
+	else if ($response[0] == "ALREADY_CONVERTED")
 	{
 		unset($response[0]);
-		$response['result_code'] = 409;
-        $response['error_txt'] = 'Coupon Already Redeemed';
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Coupon Already Converted To Points';
+	}
+	else if ($response[0] == "NOT_REDEEMED")
+	{
+		unset($response[0]);
+		$response['result_code'] = 403;
+        $response['error_txt'] = 'Coupon Not Redeemed';
 	}
 	else if ($response[0] == "SUBSCRIPTION_NOT_FOUND")
 	{
@@ -71,25 +59,17 @@
 	{
 		unset($response[0]);
 		$response['result_code'] = 404;
-        $response['error_txt'] = 'Coupon To Points Config Not Found';
+        $response['error_txt'] = 'Coupon To Points Configuration Not Found';
 	}
-	else if ($response[0] == "INSUFICENT_BAL")
+	else if ($response[0] == "ERROR")
 	{
 		unset($response[0]);
-		$response['result_code'] = 409;
-        $response['error_txt'] = 'Insufficent Balance';
+		$response['result_code'] = 500;
+        $response['error_txt'] = 'Internal Server Error';
 	}
     else
     {
-		//if ($redeem_coupon->deductQuantity($client_id, $brand_id, $campaign_id, $channel_id, $customer_id))
-		//{
 		$response['result_code'] = 200;
-		//}
-		//else
-		//{
-		//	$response['result_code'] = 500;
-		//	$response['error_txt'] = 'Error Occurred on Deduct Quantity';
-		//}
     }
 
     echo json_encode($response);

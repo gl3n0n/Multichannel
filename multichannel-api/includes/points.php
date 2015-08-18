@@ -404,7 +404,7 @@ class Points {
 			}
 		}
 		
-		public function subtractClaimPoints($points,$customer_id, $brand_id, $campaign_id, $channel_id, $client_id)
+		public function subtractClaimPoints($points, $customer_id, $brand_id, $campaign_id, $channel_id, $client_id)
 		{
 			$check_point = $this->inquire($customer_id, $brand_id, $campaign_id, $channel_id, $client_id);
 			if(!$check_point['balance'] || ($check_point['balance'] + $points) < 0)
