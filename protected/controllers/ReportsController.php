@@ -699,7 +699,7 @@ class ReportsController extends Controller
 				and   a.CustomerId     = c.CustomerId
 				and   a.CustomerId     = e.CustomerId
 				and   a.ClientId       = f.ClientId
-				and   a.BrandId        = g.ClientId
+				and   a.BrandId        = g.BrandId
 				and   a.CampaignId     = h.CampaignId
 				and   a.ChannelId      = i.ChannelId
 				and   c.PointsId       = d.PointsId $xtra $vxtra $filter
@@ -750,7 +750,7 @@ class ReportsController extends Controller
 				and   a.SubscriptionId = b.SubscriptionId			
 				and   a.CustomerId     = e.CustomerId
 				and   a.ClientId       = f.ClientId
-				and   a.BrandId        = g.ClientId
+				and   a.BrandId        = g.BrandId
 				and   a.CampaignId     = h.CampaignId
 				and   a.ChannelId      = i.ChannelId
 				$xtra
@@ -846,7 +846,7 @@ class ReportsController extends Controller
 				where   a.PointsId = b.PointsId
 					and   a.CustomerId     = e.CustomerId
 					and   a.ClientId       = f.ClientId
-					and   a.BrandId        = g.ClientId
+					and   a.BrandId        = g.BrandId
 					and   a.CampaignId     = h.CampaignId
 					and   a.ChannelId      = i.ChannelId $xtra $vxtra $filter
 				union all
