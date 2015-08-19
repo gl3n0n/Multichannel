@@ -954,14 +954,16 @@ class ReportsController extends Controller
 					       d.BrandName, 
 					       e.CampaignName,
 					       f.ChannelName,
+						   h.Value as Pts,
 					       CONCAT(g.FirstName, ' ' , g.LastName) as Email
 					from redeemed_reward a
 					join rewards_list b on b.RewardId = a.RewardId
+					join reward_details h on h.RewardId = a.RewardId
 					join clients c on c.ClientId     = a.ClientId
 					join brands d on d.BrandId       = a.BrandId
 					join campaigns e on e.CampaignId = a.CampaignId
 					join channels f on f.ChannelId   = a.ChannelId
-					join customers g on g.ClientId   = a.ClientId
+					join customers g on g.CustomerId   = a.UserId
 					WHERE 1=1
 					$xtra  $filter
 					";
