@@ -37,6 +37,10 @@ if(1)
 	//'itemView'=>'_view',
 	'columns'=>array(
 		array(
+			'name' => 'Customer',
+			'value' => '$data["Email"]',
+			),
+		array(
 			'name' => 'ClientId',
 			'value' => '$data["CompanyName"]',
 			),
@@ -47,10 +51,6 @@ if(1)
 		array(
 			'name' => 'CampaignId',
 			'value' => '$data["CampaignName"]',
-			),
-		array(
-			'name' => 'Customer',
-			'value' => '$data["Email"]',
 			),
 		array(
 		'name' => 'Description',

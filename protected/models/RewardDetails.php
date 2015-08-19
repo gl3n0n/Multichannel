@@ -39,14 +39,12 @@ class RewardDetails extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('RewardId, ChannelId, BrandId, CampaignId, Inventory, Limitations, Value, Availability', 'required'),
-			array('ChannelId, CreatedBy, UpdatedBy, ClientId, BrandId, CampaignId', 'numerical', 'integerOnly'=>true),
+			array('ChannelId, CreatedBy, UpdatedBy, ClientId, BrandId, CampaignId, Inventory, Value',  'numerical', 'integerOnly'=>true),
 			array('RewardId', 'length', 'max'=>11),
 			array('Limitations', 'length', 'max'=>255),
-			array('Value', 'length', 'max'=>50),
 			array('Status', 'length', 'max'=>8),
             array('Status', 'default', 'value'=>'PENDING', 'setOnEmpty'=>true),
 			array('Availability, DateCreated, DateUpdated', 'safe'),
-            array('Inventory', 'default', 'value'=>0, 'setOnEmpty'=>true),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('RewardConfigId, RewardId, ChannelId, Limitations, Value, Availability, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy, ClientId, BrandId, CampaignId', 'safe', 'on'=>'search'),
