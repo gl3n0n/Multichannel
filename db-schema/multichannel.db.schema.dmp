@@ -55,7 +55,7 @@ CREATE TABLE `brands` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`BrandId`),
   KEY `BrandName_idx` (`BrandName`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -81,7 +81,7 @@ CREATE TABLE `campaigns` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`CampaignId`),
   KEY `CampaignId_idx` (`CampaignId`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -133,7 +133,7 @@ CREATE TABLE `channels` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`ChannelId`),
   KEY `ChannelId_idx` (`ChannelId`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -156,7 +156,7 @@ CREATE TABLE `clients` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`ClientId`),
   KEY `CompanyName` (`CompanyName`)
-) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -205,7 +205,7 @@ CREATE TABLE `coupon` (
   `PointsValue` int(11) DEFAULT NULL,
   PRIMARY KEY (`CouponId`),
   KEY `Code_idx` (`Code`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -227,7 +227,7 @@ CREATE TABLE `coupon_mapping` (
   KEY `ClientId` (`ClientId`),
   KEY `BrandId` (`BrandId`),
   KEY `ChannelId` (`ChannelId`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -251,7 +251,7 @@ CREATE TABLE `coupon_to_points` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`CtpId`),
   KEY `Title_idx` (`Title`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -273,7 +273,7 @@ CREATE TABLE `customer_points` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`CustomerPointId`),
   KEY `SubscriptionId_idx` (`SubscriptionId`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -297,7 +297,7 @@ CREATE TABLE `customer_subscriptions` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`SubscriptionId`),
   KEY `CustomerId_idx` (`CustomerId`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -327,7 +327,7 @@ CREATE TABLE `customers` (
   `BirthDate` date DEFAULT NULL,
   PRIMARY KEY (`CustomerId`),
   KEY `Email_idx` (`Email`)
-) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -350,7 +350,7 @@ CREATE TABLE `generated_coupons` (
   `DateRedeemed` datetime DEFAULT NULL,
   `CouponMappingId` int(11) unsigned NOT NULL,
   PRIMARY KEY (`GeneratedCouponId`)
-) ENGINE=MyISAM AUTO_INCREMENT=123 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=110 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -406,7 +406,7 @@ CREATE TABLE `points` (
   KEY `BrandId` (`BrandId`),
   KEY `CampaignId` (`CampaignId`),
   KEY `ChannelId` (`ChannelId`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -430,7 +430,7 @@ CREATE TABLE `points_log` (
   `Points` int(11) DEFAULT '0',
   PRIMARY KEY (`PointLogId`),
   KEY `CustomerId_idx` (`CustomerId`)
-) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -477,7 +477,32 @@ CREATE TABLE `points_to_coupon` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`PtcId`),
   KEY `Title_idx` (`Title`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `push_log`
+--
+
+DROP TABLE IF EXISTS `push_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `push_log` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `tx_date` date NOT NULL,
+  `tx_time` date NOT NULL,
+  `SchedId` int(11) NOT NULL,
+  `ClientID` int(11) NOT NULL,
+  `CustomerId` int(11) NOT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT '0',
+  `email_address` varchar(100) NOT NULL,
+  `msg` text NOT NULL,
+  `dt_created` datetime NOT NULL,
+  `dt_sent` date DEFAULT NULL,
+  `tm_sent` time DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tx_date_idx` (`tx_date`,`SchedId`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -503,7 +528,7 @@ CREATE TABLE `raffle` (
   `CouponId` int(11) unsigned NOT NULL,
   PRIMARY KEY (`RaffleId`),
   KEY `Source_idx` (`Source`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -577,7 +602,7 @@ CREATE TABLE `redeemed_reward` (
   `DateRedeemed` datetime DEFAULT NULL,
   PRIMARY KEY (`RedeemedId`),
   KEY `Source_idx` (`Source`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -609,7 +634,7 @@ CREATE TABLE `reward_details` (
   KEY `CampaignId` (`CampaignId`),
   KEY `ChannelId` (`ChannelId`),
   KEY `ClientId` (`ClientId`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -631,7 +656,7 @@ CREATE TABLE `rewards_list` (
   `Description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Image` blob,
   `Availability` datetime DEFAULT NULL,
-  `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
+  `Status` enum('ACTIVE','PENDING','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'ACTIVE',
   `DateCreated` datetime DEFAULT NULL,
   `CreatedBy` int(11) DEFAULT NULL,
   `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -639,7 +664,7 @@ CREATE TABLE `rewards_list` (
   `Value` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`RewardId`),
   KEY `Title_idx` (`Title`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -655,18 +680,47 @@ CREATE TABLE `scheduled_post` (
   `BrandId` int(11) NOT NULL,
   `CampaignId` int(11) NOT NULL,
   `ChannelId` int(11) NOT NULL,
+  `CustomerId` int(11) DEFAULT NULL,
   `Title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `EventType` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
   `EventDate` date DEFAULT NULL,
+  `EventTime` time DEFAULT NULL,
+  `RepeatType` enum('DAILY','WEEKLY','MONTHLY','NONE') COLLATE utf8_unicode_ci DEFAULT 'NONE',
+  `AwardType` enum('POINT','COUPON','REWARD','NONE') COLLATE utf8_unicode_ci DEFAULT 'NONE',
+  `PointsId` int(11) DEFAULT NULL,
+  `CouponId` int(11) DEFAULT NULL,
+  `RewardId` int(11) DEFAULT NULL,
   `Status` enum('PENDING','ACTIVE','INACTIVE') COLLATE utf8_unicode_ci DEFAULT 'PENDING',
   `DateCreated` datetime DEFAULT NULL,
   `CreatedBy` int(11) DEFAULT NULL,
   `DateUpdated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UpdatedBy` int(11) DEFAULT NULL,
+  `schedDate` date DEFAULT NULL,
   PRIMARY KEY (`SchedId`),
   KEY `Title_idx` (`Title`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER trg_set_schedDate
+BEFORE INSERT ON scheduled_post
+FOR EACH ROW
+BEGIN
+   SET new.schedDate = new.EventDate;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `user_access`
@@ -718,7 +772,7 @@ CREATE TABLE `users` (
   `UpdatedBy` int(11) DEFAULT NULL,
   PRIMARY KEY (`UserId`),
   KEY `Username_idx` (`Username`)
-) ENGINE=MyISAM AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -776,6 +830,130 @@ CREATE TABLE `xcustomers` (
 --
 -- Dumping routines for database 'multichannel'
 --
+/*!50003 DROP PROCEDURE IF EXISTS `sp_generate_schedpost` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `sp_generate_schedpost`()
+begin
+   BEGIN
+      declare done_p int default 0;
+      declare vDescription, vMsg text;
+      declare vClientID, vBrandId, vCampaignId, vChannelId, vCustomerId, vCustomerPointId  int default 0;                       
+      declare vAwardType, vEventType, vTitle, vEmail, vRepeatType, vCreatedBy, vEventDate, vEventTime varchar(255);
+      declare vSchedId, vPointsId,  vCouponId, vRewardId, vSubscriptionId, vPoints int default 0;
+      declare c_pat cursor for select a.SchedId, a.CreatedBy, a.EventDate, a.EventTime, a.RepeatType, 
+                                      a.ClientID, a.BrandId, a.CampaignId, a.ChannelId, a.CustomerId, b.Email,
+                                      a.AwardType, a.PointsId, a.CouponId, a.RewardId, a.EventType, a.Title, a.Description
+                               from  scheduled_post a, customers b
+                               where a.status = 'ACTIVE'
+                               and a.CustomerId = b.CustomerId
+                               and a.schedDate = curdate()
+                               and a.EventTime between curtime() and addtime(curtime(), '00:05:00');
+      declare continue handler for sqlstate '02000' set done_p = 1;
+   
+      OPEN c_pat;
+      REPEAT
+         FETCH c_pat INTO vSchedId, vCreatedBy, vEventDate, vEventTime, vRepeatType, 
+                          vClientID, vBrandId, vCampaignId, vChannelId, vCustomerId, vEmail,                           
+                          vAwardType, vPointsId, vCouponId, vRewardId, vEventType, vTitle, vDescription;
+         if not done_p then
+            if vAwardType = 'POINTS' and vPointsId is not null then
+               select value into vPoints
+               from   points
+               where  PointsId = vPointsId;
+
+               select SubsriptionId into vSubscriptionId
+               from   customer_subscriptions
+               where  ClientID = vClientID
+               and    CustomerId = vCustomerId
+               and    BrandId = vBrandId
+               and    CampaignId = vCampaignId
+               and    ChannelId = vChannelId
+               limit 1;
+
+               if ifnull(vSubscriptionId,0) = 0 then
+                  insert into customer_subscriptions (CustomerId, ClientID, BrandId, CampaignId, ChannelId, Status, DateCreated, CreatedBy)
+                  values (CustomerId, ClientID, BrandId, CampaignId, ChannelId, 'ACTIVE', now(), vCreatedBy);
+                  select SubscriptionId into vSubscriptionId
+                  from   SubscriptionId
+                  where  ClientID = vClientID
+                  and    CustomerId = vCustomerId
+                  and    BrandId = vBrandId
+                  and    CampaignId = vCampaignId
+                  and    ChannelId = vChannelId
+                  limit 1;
+               end if;
+
+               select CustomerPointId into vCustomerPointId
+               from   customer_points
+               where  SubscriptionId = vSubscriptionId
+               limit 1;
+
+               if ifnull(CustomerPointId,0) = 0 then 
+                  insert into customer_points (SubscriptionId, Balance, Used, Total, DateCreated, CreatedBy)
+                  values (vSubscriptionId, 0, 0, vPoints, now(), vCreatedBy);
+               else 
+                  update customer_points
+                  set    Total = Total + vPoints
+                  where  CustomerPointId = vCustomerPointId;
+               end if;
+
+               
+               insert into points_log (CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, PointsId, DateCreated, CreatedBy)
+               values (vCustomerId, vSubscriptionId, vClientId, vBrandId, vCampaignId, vChannelId, vPointsId, now(), vCreatedBy);
+               
+            elseif vAwardType = 'COUPON' and vCouponId is not null then
+
+               select ifnull(PointsValue,0) into vPoints
+               from   coupon
+               where  CouponId = vCouponId;
+
+               
+               update generated_coupons
+               set    CustomerId = vCustomerId,
+                      Status = 'REDEEMED',
+                      DateRedeemed = now()
+               where  CouponId = vCouponId
+               and    Status = 'PENDING'
+               limit  1;
+
+            end if;
+            select curdate(), curtime(), vSchedId, vClientID, vCustomerId, 0, vEmail, vMsg;
+            Select concat(vTitle, '\n\n', vDescription) into vMsg;
+            select vTitle, vDescription;
+            insert into push_log (tx_date, tx_time, SchedId, ClientID, CustomerId, status, email_address, msg, dt_created)
+            values (curdate(), curtime(), vSchedId, vClientID, vCustomerId, 0, vEmail, vMsg, now());
+
+            if vRepeatType = 'DAILY' then
+               update scheduled_post 
+               set    schedDate = date_add(curdate(), interval 1 day)
+               where  SchedId = vSchedId;
+            elseif vRepeatType = 'WEEKLY' then
+               update scheduled_post 
+               set    schedDate = date_add(curdate(), interval 7 day)
+               where  SchedId = vSchedId;
+            elseif vRepeatType = 'MONTHLY' then
+               update scheduled_post 
+               set    schedDate = date_add(curdate(), interval 1 month)
+               where  SchedId = vSchedId;
+            end if;             
+         end if;
+      UNTIL done_p
+      END REPEAT;
+   END;
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -786,4 +964,4 @@ CREATE TABLE `xcustomers` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-08-18 11:58:27
+-- Dump completed on 2015-08-19 17:37:58
