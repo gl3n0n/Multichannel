@@ -38,6 +38,14 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 		array(
+		'name' => 'Customer',
+		'value' => '$data["Email"]',
+		),
+		array(
+		'name' => 'Points',
+		'value' => '$data["Value"]',
+		),		
+		array(
 		'name' => 'RewardId',
 		'value' => '$data["Title"]',
 		),
@@ -57,10 +65,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'name' => 'ChannelId',
 			'value' => '$data["ChannelName"]',
 			),
-		array(
-		'name' => 'Points',
-		'value' => '$data["Value"]',
-		),			
+				
 		array(
 			'name' => 'DateRedeemed',
 			'value' => '$data["DateRedeemed"]',

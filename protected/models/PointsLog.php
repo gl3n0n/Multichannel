@@ -42,7 +42,7 @@ class PointsLog extends CActiveRecord
 			// @todo Please remove those attributes that should not be searched.
 			array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
 			//array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
-			array('BrandId, CampaignId, ChannelId, DateCreated', 'safe', 'on'=>'searchi'),
+			array('BrandId, CampaignId, ChannelId, DateCreated,CustomerId', 'safe', 'on'=>'searchi'),
 			// array('BrandId, CampaignId, ChannelId, DateCreated', 'safe', 'on'=>'searchi'),
 		);
 	}

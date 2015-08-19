@@ -201,5 +201,6 @@ if(!empty($downloadCSV))
 		'name' => 'Points Earned',
 		'value'=> '($data->pointlogPoints != null)?($data->pointlogPoints->Value):(0)',
 	),
+	'DateCreated',
     ),
 )); ?>
