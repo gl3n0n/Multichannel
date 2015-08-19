@@ -43,7 +43,7 @@ function utils_mail_send($email_from='', $email_to='', $subject='', $msg='')
 	//fmt
 	$crlf       = "\r\n";
 	$token      = md5(uniqid(rand(), true));
-	$svr        = "foosti.com";
+	$svr        = "yiucon.com";
 	$email_to   = trim($email_to);
 	
 	// To send HTML mail, the Content-type header must be set

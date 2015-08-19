@@ -17,47 +17,51 @@
 
 
 
-
-//get data
-function get_sched_post($mode='DAILY')
+function doIt()
 {
 	//globals here
 	global $gSqlDb;
 
 	//fmt-params
-	$order    = addslashes(trim($pdata['order']));
-	$limit    = addslashes(trim($pdata['limit']));
-	$mode     = addslashes(trim($mode));
 
 	//select
-	$sql = " SELECT 
-			SQL_CALC_FOUND_ROWS 
-			* 
-		 FROM scheduled_post
-		 WHERE 1=1 AND mode = '$mode'
-		     $order
-		     $limit
-	 ";
-	$res   = $gSqlDb->query($sql, "get_sched_post() : ERROR : $sql");
+	$sql = " CALL sp_generate_schedpost ";
+	$res = $gSqlDb->query($sql, "doIt() : ERROR : $sql");
 
 	//total-rows
 	$is_ok = $gSqlDb->numRows($res);
+	
+	//get data
+	if($is_ok>0)
+	{
+		debug("doIt() : INFO : STORED-PROC[ $sql => $is_ok ]");
+	}
 	$data  = array();
 	$sdata = array('exists' => intval($is_ok));
+	
+
+	//select
+	$sql = " SELECT * FROM push_log WHERE status = 0 ";
+	$res = $gSqlDb->query($sql, "doIt() : ERROR : $sql");
+
+	//total-rows
+	$is_ok = $gSqlDb->numRows($res);
+
+	debug("doIt() : INFO : get-all[ $sql => $is_ok ]");
 	
 	//get data
 	if($is_ok>0)
 	{
 		while($strow = $gSqlDb->getAssoc($res))
 		{
-		    $data[] = $strow;
+
+			$vret =	update_stats($strow["id"],$strow["status"]+1);
+			$uret = processIt($strow);
+			$vret =	update_stats($strow["id"],$strow["status"]+2);
 		}
+
 	}
 	
-	//save
-	$sdata['data'] = $data;
-	
-	debug("get_sched_post() : INFO : [ $sql => $is_ok ]");
 	
 	//free-up
 	if($res) $gSqlDb->free($res);
@@ -67,68 +71,51 @@ function get_sched_post($mode='DAILY')
 	
 }
 
- 
-//upd8 it
-function set_csv_summary($pdata=null)
+
+//get data
+function processIt($pdata=array())
 {
 	//globals here
 	global $gSqlDb;
-	
 
 	//fmt-params
-	$id      = addslashes(trim($pdata['id']));
-	$status  = addslashes(@intval(trim($pdata['status'])));
-	$mesg    = addslashes(trim($pdata['desc']));
-
-
-	//exec
-	$sql = "UPDATE csv_upload 
-		SET 
-			cron_code = '$status',
-			cron_desc = '$mesg',
-			cron_date = Now()
-		WHERE 
-			id = '$id' 
-		LIMIT 1";
-		  
-		  
-	$res   = $gSqlDb->exec($sql, "set_csv_summary() : ERROR : $sql");
-	$is_ok = $gSqlDb->updRows($res);
-
-	debug("set_csv_summary() : INFO : [ $sql => $res => $is_ok ]");
-
-	//free-up
-	if($res) $gSqlDb->free($res);
-
+	debug("processIt() : INFO : dat> ".@var_export($pdata,1));
 	
+	if(1){
+		$ret = utils_mail_send(MULTI_REPLY,
+				$pdata["email_address"], 
+				MULTI_SUBJECT, 
+				$pdata["msg"]);
+
+		debug("processIt() : mail> $ret");
+	}
+
+
 	//give it back ;-)
-	return $is_ok;
+	return $ret;
 	
 }
 
-
+ 
 
 
 //upd8 it
-function update_stats($pdata=null)
+function update_stats($id=0,$st=9)
 {
 	//globals here
 	global $gSqlDb;
 	
 
 	//fmt-params
-	$id    = addslashes(trim($pdata['id']));
-	$tot   = addslashes(@intval(trim($pdata['tot'])));
-	$oks   = addslashes(@intval(trim($pdata['oks'])));
-	$err   = addslashes(@intval(trim($pdata['err'])));
+	$id    = addslashes(trim($id));
+	$st    = addslashes(trim($st));
 
 	//exec
-	$sql = "UPDATE csv_upload 
+	$sql = "UPDATE push_log
 		SET 
-			total_rows = '$tot',
-			total_oks  = '$oks',
-			total_err  = '$err',
-			cron_date  = Now()
+			status    = '$st',
+			dt_sent   = Curdate(),
+			tm_sent   = Now()
 		WHERE 
 			id = '$id' 
 		LIMIT 1";

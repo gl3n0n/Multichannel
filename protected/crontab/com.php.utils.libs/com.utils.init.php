@@ -30,8 +30,8 @@ include_once('com.utils.logger.php');
 
 //include_once('com.utils.http.client.php');
 
-//include_once('com.utils.mail.mime.send.php');
-//include_once('com.utils.mail.send.php');
+include_once('com.utils.mail.mime.send.php');
+include_once('com.utils.mail.send.php');
 //include_once('com.utils.msqldb.class.php');
 
 include_once('com.utils.mysqldbh2.class.php');

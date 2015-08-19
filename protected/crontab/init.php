@@ -15,10 +15,8 @@
 **/
 
 
-define('CSV_DIR','/home/chwens/public_html/unov2/gui/userfiles/csv-dst');
-define('LIB_DIR','/home/chwens/public_html/unov2/apps/helpers');
-define('LIB_CRN','/home/chwens/public_html/unov2/apps/crontab');
-define('LIB_PHP','/home/chwens/php');
+define('LIB_DIR','/var/www/html/multichannel/protected/crontab');
+define('LIB_PHP','/var/www/html/multichannel/protected/crontab');
 
 
 ini_set("include_path", LIB_PHP .':'. 
@@ -36,7 +34,6 @@ include_once('misc.php');
 include_once('com.utils.init.php');
 
 
-include_once LIB_DIR.'/PHPExcel/IOFactory.php';
 
 
 

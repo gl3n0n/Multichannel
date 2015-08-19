@@ -22,6 +22,8 @@ $gToday   = date("Y-m-d");
 $gAppName = "MULTI_CHANNEL_SCHEDPOST";
 $gDebug   = 0;
 $gLogDebug= 1;
+$gAdminMail = "multichannel@yiucon.com";
+
 
 /*
 |    1 = sandbox    or devel
@@ -59,5 +61,6 @@ else
 
 	
 }
-
+define('MULTI_REPLY' ,   $gAdminMail);	
+define('MULTI_SUBJECT' , sprintf("RE: Scheduled Post Rewards [ %s ]",@date('YmdHIS')));	
 ?>

@@ -51,10 +51,20 @@ _init
 #move 2 parent'shouse
 cd $ROOTD
 
+[[ ! -d "${ROOTD}/log" ]] && mkdir -p ${ROOTD}/log 2>/dev/null
 timeStamp "start"
 timeStamp "==================================="
 
-/usr/bin/php -f ${ROOTD}/schedpost.php  "DAILY" >> $LOGF 2>/dev/null
+
+if [[ "root" == "${LOGNAME}" ]]
+then
+	/usr/bin/php -f ${ROOTD}/schedpost.php  "DAILY" >> $LOGF 2>/dev/null
+	chown -R apache.apache $LOGF ${ROOTD}/log/* 2>/dev/null
+else
+	/usr/bin/php -f ${ROOTD}/schedpost.php  "DAILY" >> $LOGF 2>/dev/null
+fi
+
+
 
 timeStamp "ret:$?"
 
@@ -62,6 +72,3 @@ timeStamp "ret:$?"
 
 timeStamp "==================================="
 timeStamp "done  here"
-
-
-

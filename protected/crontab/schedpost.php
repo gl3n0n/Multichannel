@@ -18,9 +18,12 @@ if(! $gPORT_LOCKER->lock())
 debug("sched_post() : an instance will run now!".@var_export($argv,true));
 
 $mode  = trim($argv[1]);
-//get settings
-$pdata = get_sched_post($mode);
 
+
+//get settings
+$pdata = doIt($mode);
+
+debug("sched_post() : data> ".@var_export($pdata,true));
 
 //free
 $gPORT_LOCKER->unlock();
