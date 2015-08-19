@@ -39,15 +39,16 @@ class ScheduledPost extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('BrandId, CampaignId, ChannelId, ClientId, Title, Description,EventDate', 'required'),
-			array('ClientId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
+			array('BrandId, CampaignId, ChannelId, ClientId, Title, Description,EventDate,EventTime,CustomerId', 'required'),
+			array('ClientId, BrandId, CampaignId, ChannelId,CustomerId', 'length', 'max'=>11),
 			array('Status', 'length', 'max'=>8),
 			array('EventDate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
+			array('EventTime', 'match', 'pattern'=>'/^\d{2}:\d{2}:\d{2}$/'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('SchedId,ClientId,BrandId,CampaignId,ChannelId,Title,
-			Description,EventDate,Status, DateCreated, 
-			CreatedBy, DateUpdated, UpdatedBy,EventType,RepeatType,AwardType,PointsId,CouponId,RewardId', 'safe', 'on'=>'search'),
+			Description,EventDate,Status, DateCreated,CustomerId,
+			CreatedBy, DateUpdated, UpdatedBy,EventType,EventTime,RepeatType,AwardType,PointsId,CouponId,RewardId', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -62,6 +63,7 @@ class ScheduledPost extends CActiveRecord
 			'schedClients'    =>array(self::BELONGS_TO, 'Clients', 'ClientId'),
 			'schedBrands'     =>array(self::BELONGS_TO, 'Brands', 'BrandId'),
 			'schedCampaigns'  =>array(self::BELONGS_TO, 'Campaigns', 'CampaignId'),
+			'schedCustomers'  =>array(self::BELONGS_TO, 'Customers', 'CustomerId'),
 			'schedChannels'   =>array(self::BELONGS_TO, 'Channels', 'ChannelId'),
 			'schedCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
 			'schedUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
@@ -94,6 +96,7 @@ class ScheduledPost extends CActiveRecord
 			'ChannelId'   => 'Channel Name',
 			'Description' => 'Description',
 			'EventDate'   => 'Event Date',
+			'EventTime'   => 'Event Time',
 			
 			'EventType'   => 'Event Type',
 			'RepeatType'   => 'Repeat Type',
@@ -106,6 +109,7 @@ class ScheduledPost extends CActiveRecord
 			'CreatedBy'   => 'Created By',
 			'DateUpdated' => 'Date Updated',
 			'UpdatedBy'   => 'Updated By',
+			'CustomerId'   => 'Customer',
 		);
 	}
 
@@ -141,6 +145,7 @@ class ScheduledPost extends CActiveRecord
 		$criteria->compare('DateUpdated',$this->DateUpdated,true);
 		$criteria->compare('UpdatedBy',  $this->UpdatedBy);
 		$criteria->compare('EventDate',  $this->EventDate);
+		$criteria->compare('EventTime',  $this->EventTime);
 		
 		
 		$criteria->compare('EventType',  $this->EventType);
@@ -149,6 +154,7 @@ class ScheduledPost extends CActiveRecord
 		$criteria->compare('PointsId',   $this->PointsId);
 		$criteria->compare('CouponId',   $this->CouponId);
 		$criteria->compare('RewardId',   $this->RewardId);
+		$criteria->compare('CustomerId',   $this->CustomerId);
 
 		
 
@@ -187,4 +193,68 @@ class ScheduledPost extends CActiveRecord
 
 	}
 	
+	public function getTimeList()
+	{
+		$ts = array();
+		for($i=0; $i<24; $i++)
+		{
+			$k1 = sprintf("%02d:00:00",$i);
+			$k2 = sprintf("%02d:30:00",$i);
+			$v1 = sprintf("%02d:00",$i);
+			$v2 = sprintf("%02d:30",$i);
+			
+			$ts["$k1"] = "$v1";
+			$ts["$k2"] = "$v2";
+		}
+		return $ts;
+	}
+	public function getCustomerList()
+	{
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+		
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+		
+        	$list  = array();
+
+		if(1){
+		
+			$rawSql = "
+				SELECT  t.*
+				FROM customers t
+				WHERE 1=1 
+					$xtra1 
+					$xtra2
+					$xtra3
+					$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'CustomerId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		foreach($dataProvider->getData() as $row)
+		{
+			$list[$row["CustomerId"]] = sprintf("%s %s - %s",
+							$row["FirstName"],
+							$row["LastName"],
+							$row["Email"]);
+		}
+		//give
+		return $list;
+	}
 }

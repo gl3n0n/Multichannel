@@ -39,6 +39,21 @@ if($model->scenario === 'insert')
     </div>
     <?php endif; ?>
 
+	<div class="row">
+		<?php 
+			$tlist  = $model->getCustomerList();
+		?>
+		<?php echo $form->labelEx($model,'CustomerId'); ?>
+		<?php echo $form->dropDownList($model,'CustomerId',$tlist,
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->CustomerId" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'CustomerId'); ?>
+	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'BrandId'); ?>
@@ -120,6 +135,21 @@ if($model->scenario === 'insert')
            )
        ));	?>
 		<?php echo $form->error($model,'EventDate'); ?>
+	</div>
+	<div class="row">
+		<?php 
+			$tlist  = $model->getTimeList();
+		?>
+		<?php echo $form->labelEx($model,'EventTime'); ?>
+		<?php echo $form->dropDownList($model,'EventTime',$tlist,
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->EventTime" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'EventTime'); ?>
 	</div>
 
 	<div class="row">

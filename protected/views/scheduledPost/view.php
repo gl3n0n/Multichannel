@@ -28,6 +28,7 @@ $this->menu=array(
 		'Title',
 		'Description',
 		'EventDate',
+		'EventTime',
 		'EventType',
 		'RepeatType',
 		'AwardType',
@@ -38,6 +39,10 @@ $this->menu=array(
 		'name' => 'ClientId',
 		'value' => $model->schedClients->CompanyName,
 		),		
+		array(
+		'name' => 'CustomerId',
+		'value'=> $model->schedCustomers->Email,
+		),
 		array(
 		'name' => 'BrandId',
 		'value' => $model->schedBrands->BrandName,

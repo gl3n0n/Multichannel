@@ -30,17 +30,20 @@ $this->menu=array(
 	'columns'=>array(
 	array(
 		'name'  => 'SchedId',
-		'value' => 'CHtml::link($data->SchedId,Yii::app()->createUrl("scheduledPost/update",array("id"=>$data->primaryKey)))',
+		'value' => 'CHtml::link($data->SchedId,Yii::app()->createUrl("scheduledPost/view",array("id"=>$data->primaryKey)))',
 		'type'  => 'raw',
 	),
 	'Title',
 	'Description',
 	'EventDate',
-	'EventDate',
+	'EventTime',
 	'EventType',
 	'RepeatType',
 	'AwardType',
-	'Status',
+	array(
+	'name' => 'CustomerId',
+	'value'=> '$data->schedCustomers->Email',
+	),
 	array(
 	'name' => 'ClientId',
 	'value'=> '$data->schedClients->CompanyName',
@@ -57,8 +60,7 @@ $this->menu=array(
 	'name' => 'ChannelId',
 	'value'=> '$data->schedChannels->ChannelName',
 	),
-	'DateCreated',
-	
+	//'DateCreated',
 	array(
 		'name' => 'CreatedBy',
 		'value'=> '$data->schedCreateUsers->Username',
