@@ -20,8 +20,8 @@
     }*/
 
 	$coupon = new Coupon($dbconn, $coupon_id);
-
-    $response = $coupon->retrieve_generated();
+	$client_id = $_POST['client_id'];
+    $response = $coupon->retrieve_generated($client_id);
     if ($response)
     {		
 		$data = array();

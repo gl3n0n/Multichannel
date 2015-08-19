@@ -355,9 +355,10 @@ class RedeemCoupon {
 					// Check if Balance is > than coupon value.
 					if ($sub_id["balance"] >= $coupon_value["pointsrequired"])
 					{
-						$new_balance = ($sub_id["balance"] - $coupon_value["pointsrequired"]);
+						//$new_balance = ($sub_id["balance"] - $coupon_value["pointsrequired"]);
+						$the_balance = $coupon_value["pointsrequired"];
 						// proceed
-						$query_pts = "UPDATE customer_points set Balance = " . $new_balance . ", Total = Total - " . $new_balance;
+						$query_pts = "UPDATE customer_points set Balance = Balance - $the_balance, Total = Total - $the_balance";
 						if (!empty($sub_id["subscriptionid"]))
 							$query_keys_pts[] = 'SubscriptionId = '. $this->conn->quote($sub_id["subscriptionid"], 'integer');
 						
@@ -409,6 +410,37 @@ class RedeemCoupon {
 					{
 						return false;
 					}
+					
+					/*
+					$row4 = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+					if (null == $row4 || sizeof($row4) == 0)
+					{
+						return false;
+					}*/
+
+					// Insert to Points log
+					$types = array('integer','integer','integer','integer','integer','integer', 'integer','timestamp');
+
+					$curdate = date('Y-m-d H:i:s');
+
+					$fields_values = array(
+							'ClientId' => $details["clientid"],
+							'CustomerId' => $this->conn->quote($customer_id, 'integer'),
+							'BrandId' => $details["brandid"],
+							'CampaignId' => $details["campaignid"],
+							'ChannelId' => $details["channelid"],
+							'SubscriptionId' => $this->conn->quote($sub_id["subscriptionid"], 'integer'),
+							'Points' => ($the_balance * -1),
+							'DateCreated' => $curdate
+					);
+
+					$affectedRows = $this->conn->extended->autoExecute("points_log", $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
+					//var_dump($affectedRows);
+					if (PEAR::isError($affectedRows)) {
+							return false;
+					}
+				
 					
 					$row["balance"] = $new_balance;
 					return $row;
@@ -495,7 +527,7 @@ class RedeemCoupon {
 					// Add points
 					$new_balance = ($sub_id["balance"] + $coupon_value["pointsvalue"]);
 					// proceed
-					$query_pts = "UPDATE customer_points set Balance = " . $new_balance . ", Total = Total + " . $new_balance;
+					$query_pts = "UPDATE customer_points set Balance = Balance + " . $coupon_value["pointsvalue"] . ", Total = Total + " . $coupon_value["pointsvalue"];
 					if (!empty($sub_id["subscriptionid"]))
 						$query_keys_pts[] = 'SubscriptionId = '. $this->conn->quote($sub_id["subscriptionid"], 'integer');
 					
@@ -521,7 +553,50 @@ class RedeemCoupon {
 						return array("ERROR");
 					}
 					
-					$row["balance"] = $new_balance;
+					// Insert to Points log
+					$types = array('integer','integer','integer','integer','integer','integer', 'integer','timestamp');
+
+					$curdate = date('Y-m-d H:i:s');
+
+					$fields_values = array(
+							'ClientId' => $details["clientid"],
+							'CustomerId' => $this->conn->quote($customer_id, 'integer'),
+							'BrandId' => $details["brandid"],
+							'CampaignId' => $details["campaignid"],
+							'ChannelId' => $details["channelid"],
+							'SubscriptionId' => $this->conn->quote($sub_id["subscriptionid"], 'integer'),
+							'Points' => $coupon_value["pointsvalue"],
+							'DateCreated' => $curdate
+					);
+
+					$affectedRows = $this->conn->extended->autoExecute("points_log", $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
+					//var_dump($affectedRows);
+					if (PEAR::isError($affectedRows)) {
+							return false;
+					}
+
+					/*$res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'RedeemedCouponId = '. $this->conn->quote($this->conn->lastInsertId($this->table_name, 'RedeemedCouponId'), 'integer'), null, true, null);
+
+					if (PEAR::isError($res)) {
+						return false;
+					}*/
+					
+					
+					$query_sub_id =  "SELECT Balance from customer_points join customer_subscriptions on customer_subscriptions.SubscriptionId = customer_points.SubscriptionId WHERE ClientId = " . $details["clientid"] . " AND BrandId = " . $details["brandid"] . " AND CampaignId = " . $details["campaignid"] . " AND ChannelId = " . $details["channelid"] . " AND CustomerId = " . $this->conn->quote($customer_id, 'integer') . "";
+					$result_sub_id = $this->conn->query($query_sub_id);
+
+					if (PEAR::isError($result_sub_id))
+					{
+						return array("ERROR");
+					}
+					$sub_id = $result_sub_id->fetchRow(MDB2_FETCHMODE_ASSOC);
+					// Checks if the customer is subscribed to a promo, if not return an error.
+					if (null == $sub_id || sizeof($sub_id) == 0)
+					{
+						return array("SUBSCRIPTION_NOT_FOUND");
+					}
+
+					$row["balance"] = $sub_id["balance"];
 					return $row;
 				}
 }

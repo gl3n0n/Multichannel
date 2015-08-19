@@ -412,7 +412,9 @@ class Points {
 				return array("MIN");
 			}
 
-			$query = "UPDATE customer_points set Balance = Balance $points, Total = Total - $points";
+			$points =  intval(-1 * $points);
+			
+			$query = "UPDATE customer_points set Balance = Balance - $points, Used = Used + $points, Total = Balance + Used";
 			if (!empty($this->subscription_id))
 				$query_keys[] = 'SubscriptionId = '. $this->conn->quote($this->subscription_id, 'integer');
 			
@@ -445,7 +447,7 @@ class Points {
 				return array("MIN");
 			}
 
-			$query = "UPDATE customer_points set Balance = Balance - $points, Total = Total - $points";
+			$query = "UPDATE customer_points set Balance = Balance - $points, Total = Total - $points, Used = Used + $points";
 			
 			$query_keys = array();
 

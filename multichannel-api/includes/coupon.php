@@ -13,12 +13,14 @@ class Coupon {
 
 		public function retrieve($client_id, $brand_id, $campaign_id, $channel_id, $status)
         {
+			//$the_query = "SELECT * FROM coupon join c";
+		
 			$query_keys = array();
 
 			if (!empty($this->coupon_id))
 				$query_keys[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
-			if (!empty($client_id))
-				$query_keys[] = 'ClientId = '. $this->conn->quote($client_id, 'integer');
+//			if (!empty($client_id))
+//				$query_keys[] = 'ClientId = '. $this->conn->quote($client_id, 'integer');
 			if (!empty($brand_id))
 				$query_keys[] = 'BrandId = '. $this->conn->quote($brand_id, 'integer');
 			if (!empty($campaign_id))
@@ -60,7 +62,7 @@ class Coupon {
 			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
             {				
 				// get details
-				$query2 = "SELECT coupon_mapping.ClientId as ClientId,brands.BrandId as BrandId, campaigns.CampaignId as CampaignId, channels.ChannelId as ChannelId,BrandName,ChannelName,CampaignName from coupon join coupon_mapping on coupon.CouponId = coupon_mapping.CouponId join brands on brands.BrandId = coupon_mapping.BrandId join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId join channels on channels.ChannelId = coupon_mapping.ChannelId WHERE coupon.CouponId = " . $row["couponid"];
+				$query2 = "SELECT coupon_mapping.ClientId as cid,brands.BrandId as BrandId, campaigns.CampaignId as CampaignId, channels.ChannelId as ChannelId,BrandName,ChannelName,CampaignName from coupon join coupon_mapping on coupon.CouponId = coupon_mapping.CouponId join brands on brands.BrandId = coupon_mapping.BrandId join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId join channels on channels.ChannelId = coupon_mapping.ChannelId WHERE coupon.CouponId = " . $row["couponid"];
 				$res2 = $this->conn->query($query2);
 				
 				if (PEAR::isError($res2))
@@ -70,11 +72,17 @@ class Coupon {
 				$tmp_brands = array();
 				$tmp_channels = array();
 				$tmp_campaigns = array();
+
+				$flag = 0;
 				while ($row2 = $res2->fetchRow(MDB2_FETCHMODE_ASSOC))
 				{
-					$tmp_brands[] = $row2["brandname"];
-					$tmp_channels[] = $row2["channelname"];
-					$tmp_campaigns[] = $row2["campaignname"];
+					if (($row2['cid'] == $client_id) || (empty($client_id)))
+					{
+$flag = 1;
+						$tmp_brands[] = $row2["brandname"];
+						$tmp_channels[] = $row2["channelname"];
+						$tmp_campaigns[] = $row2["campaignname"];
+					}
 				}
 				// get unique
 				$tmp_brands = array_unique($tmp_brands);
@@ -83,7 +91,7 @@ class Coupon {
 				$tmp_brands_str = "";
 				$tmp_channels_str = "";
 				$tmp_campaigns_str = "";
-				
+
 				foreach ($tmp_brands as &$tmp_brand) {
 					$tmp_brands_str = $tmp_brands_str . $tmp_brand . ", ";
 				}
@@ -104,7 +112,10 @@ class Coupon {
 				$row["brandnames"] = $tmp_brands_str;
 				$row["channelnames"] = $tmp_channels_str;
 				$row["campaignnames"] = $tmp_campaigns_str;
-				$result_array[] = $row;
+				if ($flag == 1)
+				{
+					$result_array[] = $row;
+				}
 				$counter++;
 			}
 
@@ -245,7 +256,7 @@ class Coupon {
 			return $result_array;
 		}
 
-		public function retrieve_generated()
+		public function retrieve_generated($client_id=null)
         {
 			$query_keys = array();
 
@@ -262,7 +273,7 @@ class Coupon {
 			$query_string = $query_string . " ORDER BY GeneratedCouponId ASC";
 
 			$res = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
-			
+			//var_dump($res);
 			if (PEAR::isError($res)) {
                 return false;
             }
@@ -272,22 +283,28 @@ class Coupon {
 			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
             {				
 				// query options on claiming
-				$query2 = "SELECT coupon_mapping.CouponMappingId,coupon_mapping.ClientId as ClientId,brands.BrandId as BrandId, campaigns.CampaignId as CampaignId, channels.ChannelId as ChannelId,BrandName,ChannelName,CampaignName from generated_coupons join coupon_mapping on generated_coupons.CouponId = coupon_mapping.CouponId join brands on brands.BrandId = coupon_mapping.BrandId join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId join channels on channels.ChannelId = coupon_mapping.ChannelId WHERE GeneratedCouponId = " . $row["generatedcouponid"];
+				$query2 = "SELECT coupon_mapping.CouponMappingId,coupon_mapping.ClientId as cid, brands.BrandId as BrandId, campaigns.CampaignId as CampaignId, channels.ChannelId as ChannelId,BrandName,ChannelName,CampaignName from generated_coupons join coupon_mapping on generated_coupons.CouponId = coupon_mapping.CouponId join brands on brands.BrandId = coupon_mapping.BrandId join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId join channels on channels.ChannelId = coupon_mapping.ChannelId WHERE GeneratedCouponId = " . $row["generatedcouponid"];
 				$res2 = $this->conn->query($query2);
-				
+
 				if (PEAR::isError($res2))
 				{
 					return false;
 				}
 
 				$options = array();
+				$flag = 0;
 				while ($row2 = $res2->fetchRow(MDB2_FETCHMODE_ASSOC))
 				{
-					$options[] = $row2;
+				
+					if ((empty($client_id)) || ($client_id == $row2['cid'])) {
+						$options[] = $row2;
+						$flag = 1;
+					}
 				}
 			
 				$row["redeem_options"] = $options;
-				$result_array[] = $row;
+				if ($flag ==1 )
+					$result_array[] = $row;
 				$counter++;
 			}
 
@@ -595,7 +612,8 @@ class Coupon {
 				$fields_values = array(
 					'CouponId' => $coupon_details['couponid'],
 					'Code' => $the_codes[$i-1],
-					'DateCreated' => $curdate
+					'DateCreated' => $curdate,
+					'Status' => 'PENDING'
 				);
 				
 				$affectedRows = $this->conn->extended->autoExecute($generated_coupons_tbl_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
@@ -620,7 +638,7 @@ class Coupon {
 
 			$result_arr = array();
 			if ($this->update($client_id, $brand_id, $campaign_id, $channel_id, null,
-						  null, null, null, null, null, null, null, 'ACTIVE'))
+						  null, null, null, null, $the_quantity, null, null, 'ACTIVE', $the_quantity))
 			{
 				$result_arr["generated_count"] = sizeof($the_codes);
 				return $result_arr;
@@ -765,7 +783,8 @@ class Coupon {
 				$fields_values = array(
 					'CouponId' => $coupon_details['couponid'],
 					'Code' => $diff1[$i-1],
-					'DateCreated' => $curdate
+					'DateCreated' => $curdate,
+					'Status' => 'PENDING'
 				);
 				
 				$affectedRows = $this->conn->extended->autoExecute($generated_coupons_tbl_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
@@ -791,7 +810,7 @@ class Coupon {
 
 			$result_arr = array();
 			if ($this->update($client_id, $brand_id, $campaign_id, $channel_id, null,
-						  null, null, null, null, null, null, null, 'ACTIVE', '0'))
+						  null, null, null, null, $the_quantity, null, null, 'ACTIVE', '0'))
 			{
 				// $result_arr["generated_count"] = sizeof($diffs);
 				$result_arr["generated_count"] = $totalAdd;

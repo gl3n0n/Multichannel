@@ -21,7 +21,7 @@
 
 	$redeem_reward = new RedeemReward($dbconn, $reward_id);
 
-    $response = $redeem_reward->retrieve($user_id,$client_id, $brand_id, $campaign_id, $channel_id);
+    $response = $redeem_reward->retrieveRedeemed($user_id,$client_id, $brand_id, $campaign_id, $channel_id);
     if ($response)
     {		
 		$data = array();

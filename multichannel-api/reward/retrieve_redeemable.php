@@ -39,8 +39,8 @@
     }
     else
     {
-        $response['result_code'] = 500;
-        $response['error_txt'] = 'Error occurred';
+        $response['result_code'] = 404;
+        $response['error_txt'] = 'Not Found';
     }
 
     echo json_encode($response);

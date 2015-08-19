@@ -38,6 +38,15 @@
 			session_register("username");
 			$_SESSION['login_user']=$row["firstname"] . " " . $row["lastname"];
 			$_SESSION['login_id']=$row["customerid"];
+			$_SESSION['client_id']=$row["clientid"]; 
+
+			/*$q = "SELECT CompanyName FROM clients WHERE client_id = " . $_SESSION['client_id'];
+			$res2 = $dbconn->query($q);
+			if (PEAR::isError($res2)) {
+				return false;
+			}
+			$cn = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);
+			$_SESSION['company_name'] = $cn["companyname"];
 
 			if ($_SESSION['login_id'] == 1 )
 			{
@@ -56,7 +65,7 @@
 			if (PEAR::isError($res2)) {
 				return false;
 			}
-			$row = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);
+			$row = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);*/
 			//if($row)
 			//{
 				//echo "test";

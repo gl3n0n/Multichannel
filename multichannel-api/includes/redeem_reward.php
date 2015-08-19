@@ -65,31 +65,87 @@ class RedeemReward {
                                 'Action' => $action,
                                 'DateRedeemed' => $date_redeemed,
                         );
+			
+			// subtract inventory
+			$affected = $this->subtract_inventory($reward_config_id, $new_inventory);
+			//if ($affected)
+			{
+				$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
 
-                        $affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
+				if (PEAR::isError($affectedRows)) {
+					return false;
+				}
 
-                        if (PEAR::isError($affectedRows)) {
-                                return false;
-                        }
+				$res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'RedeemedId = '. $this->conn->quote($this->conn->lastInsertId($this->table_name, 'RedeemedId'), 'integer'), null, true, null);
 
-                        $res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'RedeemedId = '. $this->conn->quote($this->conn->lastInsertId($this->table_name, 'RedeemedId'), 'integer'), null, true, null);
+				if (PEAR::isError($res)) {
+								return false;
+							}
 
-                        if (PEAR::isError($res)) {
-							return false;
-						}
+				$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
 
-                        $row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
-
-                        if (null == $row || sizeof($row) == 0)
-                        {
-                                return array("NOTINSERTED");
-                        }
-						
-						// subtract inventory
-						$this->subtract_inventory($reward_config_id, $new_inventory);
-
+				if (null == $row || sizeof($row) == 0)
+				{
+					return array("NOTINSERTED");
+				}
+							
+			}
                         return $row;
                 }
+
+				public function retrieveRedeemed($user_id,$client_id, $brand_id, $campaign_id, $channel_id)
+				{
+					//$query = "SELECT RedeemedId,RewardId,UserId,Source,Action,clients.ClientId,brands.brandid,campaigns.campaignid,channels.channelid, dateredeemed, companyname,brandname, campaignname,channelname FROM redeemed_reward join brands on brands.brandid = redeemed_reward.brandid join clients on redeemed_reward.clientid = clients.clientid join campaigns on redeemed_reward.campaignid = campaigns.campaignid join channels on redeemed_reward.channelid = channels.channelid";
+					$query = "SELECT reward_details.value,rewards_list.title,rewards_list.description as description,RedeemedId,redeemed_reward.RewardId,UserId,Source,Action,clients.ClientId,brands.brandid,campaigns.campaignid,channels.channelid, dateredeemed, companyname,brandname, campaignname,channelname FROM redeemed_reward join brands on brands.brandid = redeemed_reward.brandid join clients on redeemed_reward.clientid = clients.clientid join campaigns on redeemed_reward.campaignid = campaigns.campaignid join channels on redeemed_reward.channelid = channels.channelid join rewards_list on redeemed_reward.RewardId = rewards_list.rewardid join reward_details on redeemed_reward.rewardid = reward_details.rewardid";
+					$query = "SELECT reward_details.value,rewards_list.title,rewards_list.description as description,RedeemedId,redeemed_reward.RewardId,UserId,Source,Action,clients.ClientId,brands.brandid,campaigns.campaignid,channels.channelid, dateredeemed, companyname,brandname, campaignname,channelname FROM redeemed_reward join brands on brands.brandid = redeemed_reward.brandid join clients on redeemed_reward.clientid = clients.clientid join campaigns on redeemed_reward.campaignid = campaigns.campaignid join channels on redeemed_reward.channelid = channels.channelid join rewards_list on redeemed_reward.RewardId = rewards_list.rewardid join reward_details on (redeemed_reward.rewardid = reward_details.rewardid AND reward_details.clientid = redeemed_reward.clientid AND reward_details.brandid = redeemed_reward.brandid AND reward_details.campaignid = redeemed_reward.campaignid AND reward_details.channelid = redeemed_reward.channelid)";
+											  
+					$query_keys = array();
+
+					if (!empty($this->reward_id))
+						$query_keys[] = 'redeemed_reward.RewardId = '. $this->conn->quote($this->reward_id, 'integer');
+					if (!empty($user_id))
+						$query_keys[] = 'redeemed_reward.UserId = '. $this->conn->quote($user_id, 'integer');
+					if (!empty($client_id))
+						$query_keys[] = 'redeemed_reward.ClientId = '. $this->conn->quote($client_id, 'integer');
+					if (!empty($brand_id))
+						$query_keys[] = 'redeemed_reward.BrandId = '. $this->conn->quote($brand_id, 'integer');
+					if (!empty($campaign_id))
+						$query_keys[] = 'redeemed_rewardCampaignId = '. $this->conn->quote($campaign_id, 'integer');
+					if (!empty($channel_id))
+						$query_keys[] = 'redeemed_rewardChannelId = '. $this->conn->quote($channel_id, 'integer');
+					
+					//$query_keys[] = "redeemed_rewards.Status = 'ACTIVE'";
+					
+					if (sizeof($query_keys) == 0)
+						$query_string = null;
+					else
+						$query_string = implode(' AND ', $query_keys);
+
+					$query .= " WHERE " . $query_string  . " ORDER by DateRedeemed ASC";
+
+					//echo $query;
+					$res = $this->conn->query($query);
+			
+					if (PEAR::isError($res)) {
+						return false;
+					}
+
+					$result_array = array();
+					$counter = 0;
+					while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
+					{				
+						$result_array[] = $row;
+						$counter++;
+					}
+					
+					/*$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);*/
+					if ($counter == 0)
+					{
+						return false;
+					}
+
+					return $result_array;
+				}
 
 				public function retrieve($user_id,$client_id, $brand_id, $campaign_id, $channel_id)
 				{
@@ -121,7 +177,7 @@ class RedeemReward {
 
 					$query .= " WHERE " . $query_string  . " ORDER by DateRedeemed ASC";
 
-					//echo $query;
+					echo $query;
 					$res = $this->conn->query($query);
 			
 					if (PEAR::isError($res)) {
@@ -160,10 +216,19 @@ class RedeemReward {
 					$fields_values['Inventory'] = $new_inventory;
 					$types = array('integer');
 					
-					$affectedRows = $this->conn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
+					//$affectedRows = $this->conn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
+
+					$query = "UPDATE $table_name SET Inventory = GREATEST(0, Inventory - 1) WHERE ".$query_string;
+					$affected =& $this->conn->exec($query);
+
 					if (PEAR::isError($affectedRows)) {
 						return false;
 					}
+
+					if ($affected == 0)
+						return false;
+
+					return true;
 				}
 				
 		public function getSubscriptionId($customer_id, $client_id, $brand_id, $campaign_id, $channel_id)
