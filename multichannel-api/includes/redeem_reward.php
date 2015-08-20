@@ -174,7 +174,7 @@ class RedeemReward {
 					else
 						$query_string = implode(' AND ', $query_keys);
 
-					$query .= " WHERE 1=1 " . $query_string  . " AND Inventory > 0 ORDER by DateRedeemed ASC";
+					$query .= " WHERE " . $query_string  . " ORDER by DateRedeemed ASC";
 
 					echo $query;
 					$res = $this->conn->query($query);
@@ -217,7 +217,7 @@ class RedeemReward {
 					
 					//$affectedRows = $this->conn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
 
-					$query = "UPDATE $table_name SET Inventory = GREATEST(0, Inventory - 1) WHERE ".$query_string;
+					$query = "UPDATE $table_name SET Inventory = GREATEST(0, Inventory - 1) WHERE Inventory > 0 ".$query_string;
 					$affectedRows = $this->conn->exec($query);
 
 					if (PEAR::isError($affectedRows)) {
