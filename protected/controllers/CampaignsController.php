@@ -139,7 +139,8 @@ class CampaignsController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-		$_brands = Brands::model()->findAll(array(
+		//$_brands = Brands::model()->findAll(array(
+		$_brands = Brands::model()->thisClient()->findAll(array(			
 			'select'=>'BrandId, BrandName', 'condition'=>'status=\'ACTIVE\''));
 		$brands = array();
 		foreach($_brands as $row) {
