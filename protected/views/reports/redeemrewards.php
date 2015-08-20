@@ -43,7 +43,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		),
 		array(
 		'name' => 'Points',
-		'value' => '$data["Value"]',
+		'value' => '$data["Pts"]',
 		),		
 		array(
 		'name' => 'RewardId',

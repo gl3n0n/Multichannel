@@ -51,6 +51,7 @@
                 'options' => array(
                     'showAnim' => "slideDown",
                     'changeMonth' => true,
+		    'changeYear' => true,
                     'numberOfMonths' => 1,
                     'showOn' => "button",
                     'buttonImageOnly' => false,
@@ -72,6 +73,7 @@
                 'options' => array(
                     'showAnim' => "slideDown",
                     'changeMonth' => true,
+		    'changeYear' => true,
                     'numberOfMonths' => 1,
                     'showOn' => "button",
                     'buttonImageOnly' => false,
