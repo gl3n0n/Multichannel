@@ -46,51 +46,50 @@ class RedeemReward {
                 public function insert($client_id, $brand_id, $campaign_id, $channel_id, $user_id,
                                                                  $source, $action, $date_redeemed, $reward_config_id, $new_inventory)
                 {
-                        $types = array('integer','integer','integer','integer','integer','integer','text','text','timestamp');
+					$types = array('integer','integer','integer','integer','integer','integer','text','text','timestamp');
 
 
-                        if (empty($date_redeemed) || !preg_match(DATETIME_REGEX, $date_redeemed))
-                        {
-                                $date_redeemed = date('Y-m-d H:i:s');
-                        }
+					if (empty($date_redeemed) || !preg_match(DATETIME_REGEX, $date_redeemed))
+					{
+							$date_redeemed = date('Y-m-d H:i:s');
+					}
 
-                        $fields_values = array(
-                                'ClientId' => $client_id,
-                                'RewardId' => $this->reward_id,
-                                'UserId' => $user_id,
-                                'BrandId' => $brand_id,
-                                'CampaignId' => $campaign_id,
-                                'ChannelId' => $channel_id,
-                                'Source' => $source,
-                                'Action' => $action,
-                                'DateRedeemed' => $date_redeemed,
-                        );
-			
-			// subtract inventory
-			$affected = $this->subtract_inventory($reward_config_id, $new_inventory);
+					$fields_values = array(
+							'ClientId' => $client_id,
+							'RewardId' => $this->reward_id,
+							'UserId' => $user_id,
+							'BrandId' => $brand_id,
+							'CampaignId' => $campaign_id,
+							'ChannelId' => $channel_id,
+							'Source' => $source,
+							'Action' => $action,
+							'DateRedeemed' => $date_redeemed,
+					);
+		
+
 			//if ($affected)
-			{
-				$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
+			//{
+					$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);
 
-				if (PEAR::isError($affectedRows)) {
-					return false;
-				}
+					if (PEAR::isError($affectedRows)) {
+						return false;
+					}
 
-				$res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'RedeemedId = '. $this->conn->quote($this->conn->lastInsertId($this->table_name, 'RedeemedId'), 'integer'), null, true, null);
+					$res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, 'RedeemedId = '. $this->conn->quote($this->conn->lastInsertId($this->table_name, 'RedeemedId'), 'integer'), null, true, null);
 
-				if (PEAR::isError($res)) {
-								return false;
-							}
+					if (PEAR::isError($res)) {
+									return false;
+								}
 
-				$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+					$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
 
-				if (null == $row || sizeof($row) == 0)
-				{
-					return array("NOTINSERTED");
-				}
-							
-			}
-                        return $row;
+					if (null == $row || sizeof($row) == 0)
+					{
+						return array("NOTINSERTED");
+					}
+						
+		//}
+					return $row;
                 }
 
 				public function retrieveRedeemed($user_id,$client_id, $brand_id, $campaign_id, $channel_id)
@@ -175,7 +174,7 @@ class RedeemReward {
 					else
 						$query_string = implode(' AND ', $query_keys);
 
-					$query .= " WHERE " . $query_string  . " ORDER by DateRedeemed ASC";
+					$query .= " WHERE 1=1 " . $query_string  . " AND Inventory > 0 ORDER by DateRedeemed ASC";
 
 					echo $query;
 					$res = $this->conn->query($query);
@@ -219,13 +218,12 @@ class RedeemReward {
 					//$affectedRows = $this->conn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
 
 					$query = "UPDATE $table_name SET Inventory = GREATEST(0, Inventory - 1) WHERE ".$query_string;
-					$affected =& $this->conn->exec($query);
+					$affectedRows = $this->conn->exec($query);
 
 					if (PEAR::isError($affectedRows)) {
 						return false;
 					}
-
-					if ($affected == 0)
+					if ($affectedRows == 0)
 						return false;
 
 					return true;

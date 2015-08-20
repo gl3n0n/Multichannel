@@ -65,6 +65,16 @@
 		return;
 	}
 	
+	// Try to deduct inventory first
+	$affected = $redeem_reward->subtract_inventory($reward_config_id, $new_inventory);
+	if (!$affected)
+    {
+		$response['result_code'] = 403;
+		$response['error_txt'] = 'Insufficient Inventory';
+		echo json_encode($response);
+		return;
+	}
+	
 	// Try to deduct points first
 	$points_class = new Points($dbconn, $subscription_id);
 	$total_points = $points_class->subtractClaimPoints($points,$customer_id, $brand_id, $campaign_id, $channel_id, $client_id);

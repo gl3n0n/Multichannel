@@ -358,7 +358,7 @@ class RedeemCoupon {
 						//$new_balance = ($sub_id["balance"] - $coupon_value["pointsrequired"]);
 						$the_balance = $coupon_value["pointsrequired"];
 						// proceed
-						$query_pts = "UPDATE customer_points set Balance = Balance - $the_balance, Total = Total - $the_balance";
+						$query_pts = "UPDATE customer_points set Balance = Balance - $the_balance, Used = Used + $the_balance, Total = Balance + Used";
 						if (!empty($sub_id["subscriptionid"]))
 							$query_keys_pts[] = 'SubscriptionId = '. $this->conn->quote($sub_id["subscriptionid"], 'integer');
 						

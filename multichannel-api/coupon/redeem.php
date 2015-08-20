@@ -71,7 +71,7 @@
 	{
 		unset($response[0]);
 		$response['result_code'] = 404;
-        $response['error_txt'] = 'Coupon To Points Config Not Found';
+        $response['error_txt'] = 'Coupon on Points Config Not Found';
 	}
 	else if ($response[0] == "INSUFICENT_BAL")
 	{
