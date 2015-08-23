@@ -143,8 +143,41 @@ class ReportsController extends Controller
 			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
 		}
 
+
+                //email + cust-name + etc
+                if('sortby' == 'sortby')
+                {
+                        $criteria->with = array(
+                                'pointlogChannels'  => array('joinType'=>'LEFT JOIN'),
+                                'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
+                                'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+                                'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+                                'pointlogCustomers' => array('joinType'=>'LEFT JOIN'),
+                        );
+                        // set sort options
+                        $sort = new CSort;
+                        $sort->attributes = array(
+                                        'EmailAdd'       => array(
+                                                'asc'    =>'pointlogCustomers.Email',
+                                                'desc'   =>'pointlogCustomers.Email DESC',
+                                                'label'  =>'Email',
+                                        ),
+                                        'CustomerNm'  => array(
+                                                //'asc'    =>'pointlogCustomers.FirstName,pointlogCustomers.LastName',
+                                                //'desc'   =>'pointlogCustomers.FirstName,pointlogCustomers.LastName DESC',
+                                                'asc'    =>'pointlogCustomers.LastName',
+                                                'desc'   =>'pointlogCustomers.LastName DESC',
+                                                'label'  =>'Customer Name',
+                                        ),
+                                        '*',
+                        );
+                        //$sort->multiSort  = true;
+                }
+
+
 		$dataProvider = new CActiveDataProvider('Reports', array(
-				'criteria'=>$criteria,
+				'criteria'=> $criteria,
+				'sort'    => $sort,
 				));
 		
 		//get csv

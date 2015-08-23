@@ -164,13 +164,13 @@ if(!empty($downloadCSV))
        'dataProvider'=>$dataProvider,
        'columns' => array(
 	array(
-		'name'  => 'Customer Name',
+		'name'  => 'CustomerNm',
 		'value'=> '($data->pointlogCustomers != null)?($data->pointlogCustomers->FirstName." ".
 		            $data->pointlogCustomers->LastName):("")',
 		'type'  => 'raw',
 		),	
 	array(
-		'name'  => 'Email',
+		'name'  => 'EmailAdd',
 		'value' => 'CHtml::link(($data->pointlogCustomers != null)?($data->pointlogCustomers->Email):(""),
 			    Yii::app()->createUrl("customers/".$data->pointlogCustomers->CustomerId))',
 		'type'  => 'raw',
