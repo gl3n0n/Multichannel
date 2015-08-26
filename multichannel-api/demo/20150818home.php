@@ -93,7 +93,7 @@ FB.getLoginStatus(function(response) {
 <form action="" method="post">
 <table>
 <tr>
-<td><p> Welcome <?php echo strtoupper($_SESSION['login_user']); ?>! </p></td>
+<td><p> Welcome<?php //echo strtoupper($_SESSION['login_user']); ?>! </p></td>
 <td><input type="hidden" name="logout" value="true"><input style="text-align: right" type="submit" value="Logout"/></td>
 </tr>
 </table>
@@ -136,16 +136,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['claim'])
 
 	$context  = stream_context_create($options);
 	$result = file_get_contents($url, false, $context);
-	$data = json_decode($result, true);
 	//var_dump($result);
-	if ($data["result_code"] == 200)
-	{
-		echo 'Notice: <font color="green">Successfully redeemed reward.<br></font>';
-	}
-	else
-	{
-		echo 'Notice: <font color="red">' . $data["error_txt"] . '<br></font>';
-	}
 }
 ?>	
 
@@ -272,7 +263,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['action'])
 					  'coupon_mapping_id' => $_POST['coupon_mapping_id'],
 					  );
 
-		//print_r($data);
 		$options = array(
 			'http' => array(
 				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -494,10 +484,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['action'])
 	}
 ?>
 
-
 <?php
 $url = 'http://104.156.53.150/multichannel-api/points/inquire.php';
-$data = array('customer_id' => $_SESSION['login_id'], 'client_id' => $_SESSION['client_id']);
+$data = array('customer_id' => $_SESSION['login_id']);
 
 $options = array(
     'http' => array(
@@ -522,7 +511,7 @@ $i = 0;
 foreach ($array_of_rewards as &$reward_params)
 {
 	$url2 = 'http://104.156.53.150/multichannel-api/points/inquire.php';
-	$data2 = array('customer_id' => $_SESSION['login_id'], 'brand_id' => $reward_params[0], 'campaign_id' => $reward_params[1], 'channel_id' => $reward_params[2],  'client_id' => $_SESSION['client_id']);
+	$data2 = array('customer_id' => $_SESSION['login_id'], 'brand_id' => $reward_params[0], 'campaign_id' => $reward_params[1], 'channel_id' => $reward_params[2]);
 	
 	$options2 = array(
 		'http' => array(
@@ -595,7 +584,7 @@ else if ($result_arr_add->{"result_code"} == 405)
 	);
 	$context  = stream_context_create($options);
 	$result = file_get_contents($url, false, $context);*/
-	$qq = "select clients.clientid as clientid, brands.brandid as brandid,channels.channelid as channelid,campaigns.campaignid as campaignid,companyname,brandname,channelname,campaignname,campaigns.description as description from channels join campaigns on channels.CampaignId = campaigns.CampaignId join brands on brands.BrandId = campaigns.BrandId join clients on campaigns.clientid = clients.clientid WHERE campaigns.clientid = " . $_SESSION['client_id'];
+	$qq = "select clients.clientid as clientid, brands.brandid as brandid,channels.channelid as channelid,campaigns.campaignid as campaignid,companyname,brandname,channelname,campaignname,campaigns.description as description from channels join campaigns on channels.CampaignId = campaigns.CampaignId join brands on brands.BrandId = campaigns.BrandId join clients on campaigns.clientid = clients.clientid;";
 	$d = $dbconn->query($qq);
 	//;
 
@@ -670,7 +659,7 @@ else if ($result_arr_add->{"result_code"} == 405)
 		<form action="" method="post">
 		<table border=1>
 		<tr>
-		<th>Client</th><th>Brand</th><th>Campaign</th><th>Channel</th><th>Description</th>
+		<?php if (!$_SESSION['subscription_id']){ ?><th></th><?php }?><th>Client</th><th>Brand</th><th>Campaign</th><th>Channel</th><th>Description</th>
 		</tr>
 		<?php
 		$points = 2;
@@ -678,6 +667,7 @@ else if ($result_arr_add->{"result_code"} == 405)
 		foreach ($data_camp['results'] as &$campaigns)
 		{?>
 			<tr align="center">
+			<?php if (!$_SESSION['subscription_id']){ ?><td><input style="text-align: right" type="submit" value="Click to Participate"/><?php }?>
 			<input type="hidden" name="campaign" value="true">
 			<input type="hidden" name="campaign_id" value="<?php echo $reward['campaignid']; ?>">
 			<input type="hidden" name="brand_id" value="<?php echo $reward['brandid']; ?>">
@@ -708,7 +698,7 @@ else if ($result_arr_add->{"result_code"} == 405)
 </br>
 <?php
 $url = 'http://104.156.53.150/multichannel-api/reward/retrieve_redeemable.php';
-$data = array('customer_id' => $_SESSION['login_id'], 'client_id' => $_SESSION['client_id']);
+$data = array('customer_id' => $_SESSION['login_id']);
 
 $options = array(
 	'http' => array(
@@ -727,7 +717,7 @@ foreach ($arr_rdmble_rwrds as &$reward)
 {
 ?>
 	<form action="" method="post">
-	<p><input style="text-align: right" type="submit" value="Claim"/>  <?php echo $reward['title']; ?> - <?php echo $reward['description']; ?> - <?php echo $reward['campaignname'];?> (worth <?php echo $reward['value']; ?> point(s)) </p>
+	<p><input style="text-align: right" type="submit" value="Claim"/>  <?php echo $reward['title']; ?> - <?php echo $reward['description']; ?> (worth <?php echo $reward['value']; ?> point(s)) </p>
 	<input type="hidden" name="claim" value="true">
 	<input type="hidden" name="points_to_deduct" value="<?php echo "-" . $reward['value']; ?>">
 	<input type="hidden" name="channel_id" value="<?php echo $reward['channelid']; ?>">
@@ -749,7 +739,7 @@ foreach ($arr_rdmble_rwrds as &$reward)
 </br>
 <?php
 $url = 'http://104.156.53.150/multichannel-api/reward/retrieve_available.php';
-$data = array('customer_id' => $_SESSION['login_id'], 'client_id' => $_SESSION['client_id']);
+$data = array('customer_id' => $_SESSION['login_id']);
 
 $options = array(
 	'http' => array(
@@ -769,15 +759,15 @@ if($available_rewards['results'])
 		</br>
 		<table border=1>
 		<tr>
-		<th>Reward</th><th>Client</th><th>Brand</th><th>Description</th><th>Points Needed</th><th>Inventory</th>
+		<th>Reward</th><th>Client</th><th>Brand</th><th>Description</th><th>Points Nedded</th>
 		</tr>
 		<?php
 		foreach ($available_rewards['results'] as &$rwrd)
-		{
-		?>
+		{?>
 			<tr align="center">
-			<td><?php echo $rwrd["title"]; ?></td><td><?php echo $rwrd["companyname"]; ?><td><?php echo $rwrd["brandname"]; ?></td><td><?php echo $rwrd["description"]; ?></td><td><?php echo $rwrd["value"]; ?></td><td><?php echo $rwrd["inventory"] ?></td>
+			<td><?php echo $rwrd["title"]; ?></td><td><?php echo $rwrd["companyname"]; ?><td><?php echo $rwrd["brandname"]; ?></td><td><?php echo $rwrd["description"]; ?></td><td><?php echo $rwrd["value"]; ?></td>
 			</tr>
+			
 		<?php
 		}
 		?>
@@ -850,7 +840,7 @@ if ($rewards_available_counter == 0)
 </br>
 <?php
 $url = 'http://104.156.53.150/multichannel-api/reward/retrieve_redeemed.php';
-$data = array('user_id' => $_SESSION['login_id'],'client_id' => $_SESSION['client_id']);
+$data = array('user_id' => $_SESSION['login_id']);
 
 $options = array(
     'http' => array(
@@ -911,28 +901,28 @@ $data = json_decode($result, true);
 </tr>
 <?php
 
-    $client_query = "SELECT ClientId, CompanyName FROM clients where ClientId = " . $_SESSION["client_id"];
+    $client_query = "SELECT ClientId, CompanyName FROM clients";
 	$client_res = $dbconn->query($client_query);
 	while ($clients = $client_res->fetchRow(MDB2_FETCHMODE_ASSOC))
 	{
 		$clientlist[$clients['clientid']] .= $clients['companyname'];
 	}
 	
-	$brand_query = "SELECT BrandId, BrandName FROM brands where ClientId = " . $_SESSION["client_id"];
+	$brand_query = "SELECT BrandId, BrandName FROM brands";
 	$brand_res = $dbconn->query($brand_query);
 	while ($brands = $brand_res->fetchRow(MDB2_FETCHMODE_ASSOC))
 	{
 		$brandlist[$brands['brandid']] .= $brands['brandname'];
 	}
 	
-	$campaign_query = "SELECT CampaignId, CampaignName FROM campaigns where ClientId = " . $_SESSION["client_id"];
+	$campaign_query = "SELECT CampaignId, CampaignName FROM campaigns";
 	$campaign_res = $dbconn->query($campaign_query);
 	while ($campaigns = $campaign_res->fetchRow(MDB2_FETCHMODE_ASSOC))
 	{
 		$campaignlist[$campaigns['campaignid']] .= $campaigns['campaignname'];
 	}
 	
-	$channel_query = "SELECT ChannelId, ChannelName FROM channels where ClientId = " . $_SESSION["client_id"];
+	$channel_query = "SELECT ChannelId, ChannelName FROM channels";
 	$channel_res = $dbconn->query($channel_query);
 	while ($channels = $channel_res->fetchRow(MDB2_FETCHMODE_ASSOC))
 	{
@@ -1009,12 +999,12 @@ $data = json_decode($result, true);
 	<b>Pending Coupons:</b>	</br>
 <?php
 	$url = 'http://104.156.53.150/multichannel-api/coupon/retrieve.php';
-	/*$data = array(client_id' => '1',
+	/*$data = array('client_id' => '1',
 	              'brand_id' => '1',
 				  'channel_id' => '1',
 				  'campaign_id' => '2',
 				  'status' => 'PENDING');*/
-	$data = array('status' => 'PENDING', 'client_id' => $_SESSION['client_id']);
+	$data = array('status' => 'PENDING');
 
 	$options = array(
 		'http' => array(
@@ -1144,7 +1134,7 @@ $data = json_decode($result, true);
 	              'brand_id' => '1',
 				  'channel_id' => '1',
 				  'campaign_id' => '2');*/
-	$data = array('client_id' => $_SESSION['client_id']);
+	$data = array();
 
 	$options = array(
 		'http' => array(
@@ -1170,8 +1160,6 @@ $data = json_decode($result, true);
 		foreach ($data['results'] as &$coup)
 		{
 			$coupAL_arr[] = $coup["couponid"];
-			//if ($_SESSION['client_id'] == $coup["clientid"])
-			{
 			?>
 			<tr align="center">
 			<td>
@@ -1185,12 +1173,12 @@ $data = json_decode($result, true);
 				<input type="hidden" name="thegeneratedcouponid" value="<?php echo $coup["generatedcouponid"]; ?>">
 				<input type="submit" name="submit" value="Claim AS: "/>
 				<select name="thecustid">
-				     <?php $query="SELECT FirstName, LastName, Email,CustomerId FROM customers where ClientId = " .$_SESSION['client_id']. " ORDER BY 2 ASC;"; 
+				     <?php $query="SELECT Email,CustomerId FROM customers ORDER BY 2 ASC;"; 
 					 $res = $dbconn->query($query);
 					while($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
 					{
 					 ?>
-						<option value="<?php echo $row["customerid"]; ?>"><?php echo $row['firstname'] . ' ' . $row['lastname'] . ' (' .$row["email"] .')'; ?></option>
+						<option value="<?php echo $row["customerid"]; ?>"><?php echo $row["email"]; ?></option>
 					<?php } ?>
 				</select>
 				<select name="the_rdm_option">
@@ -1227,7 +1215,7 @@ $data = json_decode($result, true);
 			?>
 			</td>
 			</tr>
-			<?php } ?>
+			
 		<?php
 		}
 		?>
@@ -1251,7 +1239,7 @@ $url = 'http://104.156.53.150/multichannel-api/coupon/retrieve_redeemed.php';
 	              'brand_id' => '1',
 				  'channel_id' => '1',
 				  'campaign_id' => '2');*/
-	$data = array('client_id' => $_SESSION['client_id']);
+	$data = array();
 
 $options = array(
     'http' => array(
@@ -1354,7 +1342,7 @@ $data = json_decode($result, true);
 				  'channel_id' => '1',
 				  'campaign_id' => '2',
 				  'status' => 'PENDING');*/
-	$data = array('client_id' => $_SESSION['client_id'], 'status' => 'PENDING');
+	$data = array('status' => 'PENDING');
 
 	$options = array(
 		'http' => array(

@@ -151,7 +151,7 @@ class Customer {
 				'ClientId' => $client_id,
 			);
 
-			$select_query = "SELECT * FROM customers WHERE Email = " . $this->conn->quote($email) . " OR FBId = " . $this->conn->quote($fb_id);
+			$select_query = "SELECT * FROM customers WHERE Email = " . $this->conn->quote($email) . " AND ClientId = " . $this->conn->quote($client_id);
 			$select_res = $this->conn->query($select_query);
 			if (PEAR::isError($select_res)){
 				return false;
@@ -159,15 +159,17 @@ class Customer {
 
 			$row_select = $select_res->fetchRow(MDB2_FETCHMODE_ASSOC);
 
-			if ($row_select){
-				if ($row_select["fbid"] == $fb_id)
+			if (sizeof($row_select) > 0)
+			{
+				/*if ($row_select["fbid"] == $fb_id)
 				{
 					return array("EXISTS_FBID");
 				}
 				else
 				{
 					return array("EXISTS_EMAIL");
-				}
+				}*/
+				return array("EXISTS_EMAIL");
 			}
 
 			$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_INSERT, null, null, true, $types);

@@ -217,9 +217,9 @@ class RedeemReward {
 					
 					//$affectedRows = $this->conn->extended->autoExecute($table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
 
-					$query = "UPDATE $table_name SET Inventory = GREATEST(0, Inventory - 1) WHERE Inventory > 0 ".$query_string;
+					$query = "UPDATE $table_name SET Inventory = GREATEST(0, Inventory - 1) WHERE Inventory > 0 AND RewardConfigId = " . $this->conn->quote($reward_config_id, 'integer');
 					$affectedRows = $this->conn->exec($query);
-
+					//echo $query;
 					if (PEAR::isError($affectedRows)) {
 						return false;
 					}
