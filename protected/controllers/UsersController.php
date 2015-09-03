@@ -436,6 +436,79 @@ class UsersController extends Controller
             }
         }
 
+ 	public function actionChangepass($id)
+        {
+            $is_superadmin = Users::model()->findByPk(Yii::app()->user->id)->AccessType === 'SUPERADMIN';
+            if(!$is_superadmin)
+            {
+            	Yii::app()->getUser()->setFlash('user-update-error', 'Failed to save changes. (No privileges)');
+            }
+            
+            
+            if($_POST && $is_superadmin) {
+                $UserModel = array();
+                $form_fields = array('FirstName','MiddleName','LastName','Email','ContactNumber','Status','Password','ConfirmPassword');
+		$form_fields = array('Password','ConfirmPassword');
+                //echo @var_export($_POST['Users'],true); exit;
+
+                foreach($_POST['Users'] as $idx => $val) {
+                    if( in_array($idx, $form_fields)) $UserModel[$idx] = trim($val);
+                }
+
+                $model = Users::model()->findByPk($id, array('select'=>'UserId, ClientId, FirstName, MiddleName, LastName, Gender, Birthdate, ContactNumber, Address, Email, Username, AccessType, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy'));
+
+                $model->attributes = $UserModel;
+                $model->UpdatedBy = Yii::app()->user->id;
+                $model_validated = $model->validate();
+		
+		//try to check
+		$p1 = trim($_POST['Users']['Password']);
+		$p2 = trim($_POST['Users']['ConfirmPassword']);
+		
+		if(!strlen($p1) or !strlen($p1) )
+		{
+			Yii::app()->getUser()->setFlash('user-update-error', 'Failed to save changes. (Please check the password/confirm-password)');
+			$model_validated = false;
+		}
+		
+		if($model_validated)
+                {
+                    if($model->save(false))
+                    {
+                    	Yii::app()->getUser()->setFlash('user-update-success', "User's password updated.");
+                    }
+                    else
+                    {
+                    	Yii::app()->getUser()->setFlash('user-update-error', 'Failed to save changes.');
+                    }
+                }
+                
+
+            	$model->Password = '';
+            	$model->ConfirmPassword = '';
+                    
+                $this->render('_formUpdateChangePass', array(
+                    'model' => $model,
+                ));
+
+            } else {
+                $model = Users::model()->findByPk($id, array('select'=>'UserId, ClientId, Username, FirstName, MiddleName, LastName, ContactNumber, Email, AccessType, Status, DateUpdated'));
+
+                if($model) {
+                    $model->DateUpdated = date('F j, Y g:i A', strtotime($model->DateUpdated));
+                } else {
+                    echo 'Record not found.';
+                    Yii::app()->end();
+                }
+
+                $this->render('_formUpdateChangePass', array(
+                    'model' => $model,
+                ));
+            }
+            
+        }
+
+
 	public function actionView($id)
 	{
         $is_superadmin = Users::model()->findByPk(Yii::app()->user->id)->AccessType === 'SUPERADMIN';

@@ -5,6 +5,14 @@
 		<p>
                     <a href="<?php echo Yii::app()->getBaseUrl(true); ?>/users/index">Back to list</a>
                     <a href="<?php echo Yii::app()->createAbsoluteUrl('users/edit', array('id'=>$data['UserId']?$data['UserId']:0)); ?>">Edit Details</a>
+                    <?php
+                    if(Yii::app()->user->AccessType=="SUPERADMIN")
+                    {
+                    ?>
+                    <a href="<?php echo Yii::app()->createAbsoluteUrl('users/changepass', array('id'=>$data['UserId']?$data['UserId']:0)); ?>">Change Password</a>
+                    <?php
+                    }//change-pass
+                    ?>
                 </p>
 	</div>
 	<?php if(isset($data['error'])): ?>
