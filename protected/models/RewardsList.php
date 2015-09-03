@@ -38,6 +38,7 @@ class RewardsList extends CActiveRecord
 			array('Title, Description', 'length', 'max'=>255),
 			array('Status', 'length', 'max'=>8),
 			array('Availability, DateCreated, DateUpdated', 'safe'),
+			
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('RewardId, Title, Description, Image, Availability, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
@@ -52,8 +53,7 @@ class RewardsList extends CActiveRecord
 				'params' => array(':modelClientId'=>Yii::app()->utils->getUserInfo('ClientId')),
 			),
 			'active'=>array(
-				'condition'=>"Status='ACTIVE' AND ClientId = :modelClientId",
-				'params' => array(':modelClientId'=>Yii::app()->utils->getUserInfo('ClientId')),
+				'condition'=>"Status='ACTIVE'",
 			),
 		);
 	}

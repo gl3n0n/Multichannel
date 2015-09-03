@@ -43,8 +43,10 @@ class RewardDetails extends CActiveRecord
 			array('RewardId', 'length', 'max'=>11),
 			array('Limitations', 'length', 'max'=>255),
 			array('Status', 'length', 'max'=>8),
-            array('Status', 'default', 'value'=>'PENDING', 'setOnEmpty'=>true),
+            		array('Status', 'default', 'value'=>'PENDING', 'setOnEmpty'=>true),
 			array('Availability, DateCreated, DateUpdated', 'safe'),
+			array('Inventory', 'match', 'pattern'=>'/^\d{1,11}$/'),
+			
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('RewardConfigId, RewardId, ChannelId, Limitations, Value, Availability, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy, ClientId, BrandId, CampaignId', 'safe', 'on'=>'search'),

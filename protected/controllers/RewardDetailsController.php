@@ -223,22 +223,42 @@ class RewardDetailsController extends Controller
 		
 		$_brandsCriteria = new CDbCriteria;
 		$_brands = Brands::model()->thisClient()->active()->findAll(array('select'=>'BrandId, BrandName'));
+		
+		if(Yii::app()->user->AccessType === "SUPERADMIN")
+		$_brands = Brands::model()->active()->findAll(array('select'=>'BrandId, BrandName'));
 		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
 		
 		$_campaignsCriteria = new CDbCriteria;
 		$_campaignsCriteria->select='CampaignId, CampaignName';
+		$_campaigns = Campaigns::model()->thisClient()->active()->findAll($_campaignsCriteria);
+		
+		if(Yii::app()->user->AccessType === "SUPERADMIN")
 		$_campaigns = Campaigns::model()->active()->findAll($_campaignsCriteria);
+		
 		$campaigns = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
 		
 		// Needs both brand and campaign.
 		$_channelsCriteria = new CDbCriteria;
+		$_channels = Channels::model()->thisClient()->active()->findAll(array('select'=>'ChannelId, ChannelName'));
+		if(Yii::app()->user->AccessType === "SUPERADMIN")
 		$_channels = Channels::model()->active()->findAll(array('select'=>'ChannelId, ChannelName'));
+		
 		$channels = CHtml::listData($_channels, 'ChannelId', 'ChannelName');
 		
 		$_rewardslistCriteria = new CDbCriteria;
+		$_rewardslist = RewardsList::model()->thisClient()->active()->findAll(array('select'=>'RewardId, Title'));
+		if(Yii::app()->user->AccessType === "SUPERADMIN")
 		$_rewardslist = RewardsList::model()->active()->findAll(array('select'=>'RewardId, Title'));
+		
+		
 		$rewardslist = CHtml::listData($_rewardslist, 'RewardId', 'Title');
 
+		if(0)
+		{
+			echo 'HEHEHE<hr>'.@var_export($_rewardslist,true);
+			echo 'HEHEHE<hr>'.@var_export($rewardslist,true);
+			exit;
+		}
 		$this->render('create',array(
 			'model'=>$model,
 			'client_list'=>$clients,
