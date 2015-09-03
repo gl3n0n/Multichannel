@@ -207,20 +207,16 @@ class RaffleController extends Controller
 
 		//all-pending
 		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
-		
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+		}
+
     		//provider
-    		$dataProvider = new CActiveDataProvider('Coupon', array(
+    		$dataProvider = new CActiveDataProvider('Raffle', array(
 				'criteria'=>$criteria ,
 			));
     		
-    		
-    		
-		
-		//send it
-		$dataProvider = new CActiveDataProvider('Raffle', array(
-			'criteria'=>$criteria ,
-		));
-		
 		
 		$this->render('pending',array(
 			'dataProvider' => $dataProvider,
@@ -235,9 +231,15 @@ class RaffleController extends Controller
 	*/
 	public function actionApprove()
 	{
+		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
-		
 		if($search) $criteria->compare('Source', $search, true);
+
+
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+		}
 
 		//statys msg
 		$this->statusMsg = '';
@@ -316,34 +318,32 @@ class RaffleController extends Controller
 	public function getMoreLists()
 	{
 
+		$clid   = addslashes(Yii::app()->user->ClientId);
+		$cand   = (Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  ? (" AND ClientId='$clid' ") : ('');
+		
 		//brands		
 		$_brands = Brands::model()->findAll(array(
-				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE'"));
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE' $cand "));
 		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
 
 		//campaigns
 		$_campaigns = Campaigns::model()->findAll(array(
-			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE'"));
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE' $cand "));
 		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
 
 		//clients		
 		$_clients   = Clients::model()->findAll(array(
-				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE'"));
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE' $cand "));
 		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
 
 		//channels
 		$_channels   = Channels::model()->findAll(array(
-				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
-		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
-
-		$_channels   = Channels::model()->findAll(array(
-				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE' $cand "));
 		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
 
 
 		//customers
-		$clid   = addslashes(Yii::app()->user->ClientId);
-		$cand   = (Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  ? (" AND ClientId='$clid' ") : ('');
+
 		$_customers = Customers::model()->findAll(array(
 				'select'=>'CustomerId, Email', 'condition'=>" status='ACTIVE' $cand "));
 		$customers = CHtml::listData($_customers, 'CustomerId', 'Email');

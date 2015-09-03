@@ -34,12 +34,12 @@ $this->menu=array(
 		'DateCreated',
 		array(
 			'name' => 'CreatedBy',
-			'value' => $model->raffleCreateUsers->Username,
+			'value' => $model->raffleCreateUsers!=null?$model->raffleCreateUsers->Username:"",
 			),
 		'DateUpdated',
 		array(
 			'name' => 'UpdatedBy',
-			'value' => $model->raffleUpdateUsers->Username,
+			'value' => $model->raffleUpdateUsers!=null?$model->raffleUpdateUsers->Username:"",
 			),
 		'Status',
 		'CouponId',
