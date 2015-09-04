@@ -326,6 +326,8 @@ class CouponController extends Controller
 	public function actionUpdate($id)
 	{
 		$model=$this->loadModel($id);
+		$currentImage =  $model->Image;
+		//exit();
 
         $model->CouponMode = ($model->File) ? 'user' : 'system';
 
@@ -347,12 +349,37 @@ class CouponController extends Controller
                 }
             }
             else {
-                if(intval($_POST['Coupon']['Quantity']) <= intval($model->Quantity) ) {
+                if(intval($_POST['Coupon']['Quantity']) < intval($model->Quantity) ) {
                     $model->addError('error', 'Quantity must be more than the current value.');
                 } else {
                     $model->Quantity = $_POST['Coupon']['Quantity'];
                 }
             }
+			
+			$UploadFile = CUploadedFile::getInstance($model,'Image');
+
+			if ($UploadFile !== null) {
+				$imageFilename = md5(uniqid()) . '_' . $UploadFile->name;
+				$model->Image = Yii::app()->params['baseUploadUrl'] . 'coupon/' . $imageFilename;
+				
+				try {
+					if($UploadFile !== null) 
+					{
+						$UploadFile->saveAs(Yii::app()->params['uploadImageDir'] . 'coupon/'  . $imageFilename);
+					}
+				} 
+				catch (Exception $ex) 
+				{
+					$model->addError('Image', 'Failed to upload image.');
+					Yii::app()->user->setFlash('error', 'Error: ' . $ex->getMessage());
+					// $transaction->rollback();
+				}
+			}
+			else
+			{
+				//$model->addError('Image', 'File cannot be empty.');
+				$model->setAttribute("Image", $currentImage);
+			}
 
             $model->ExpiryDate = $_POST['Coupon']['ExpiryDate'];
 
@@ -364,6 +391,7 @@ class CouponController extends Controller
             if(! $model->hasErrors())
             {
                 $transaction = Yii::app()->db->beginTransaction();
+
                 try {
         			if($model->save()) {
                         if($model->CouponMode==='user') {
