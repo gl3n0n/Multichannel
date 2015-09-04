@@ -45,6 +45,10 @@ $this->menu=array(
 		  'CHtml::image($data->Image,"",array("width"=>"120px"))'.
 		  ',$data->Image)',
 	),
+	array(
+		'name' => 'ClientId',
+		'value'=> '($data->rewardClients != null )?($data->rewardClients->CompanyName):("")',
+		),
 	'Availability',
 	'Status',
 	'DateCreated',

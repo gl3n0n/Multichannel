@@ -29,17 +29,21 @@ $this->menu=array(
 			'type'=>'raw',
 			'value'=> CHtml::image($model->Image),
 			),
+		array(
+			'name' => 'ClientId',
+			'value' => $model->rewardClients!=null?$model->rewardClients->CompanyName:"",
+			),			
 		'Availability',
 		'Status',
 		'DateCreated',
 		array(
 			'name' => 'CreatedBy',
-			'value' => $model->rewardUpdateUsers->Username,
+			'value' => $model->rewardUpdateUsers!=null?$model->rewardUpdateUsers->Username:"",
 			),
 		'DateUpdated',
 		array(
 			'name' => 'UpdatedBy',
-			'value' => $model->rewardUpdateUsers->Username,
+			'value' => $model->rewardUpdateUsers!=null?$model->rewardUpdateUsers->Username:"",
 			),
 	),
 )); ?>

@@ -70,6 +70,7 @@ class RewardsList extends CActiveRecord
 		return array(
 			'rewardCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
 			'rewardUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
+			'rewardClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
 		);
 	}
 
@@ -89,6 +90,7 @@ class RewardsList extends CActiveRecord
 			'CreatedBy' => 'Created By',
 			'DateUpdated' => 'Date Updated',
 			'UpdatedBy' => 'Updated By',
+			'ClientId' => 'Client',
 		);
 	}
 
