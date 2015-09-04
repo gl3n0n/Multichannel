@@ -107,7 +107,7 @@ class ReportsController extends Controller
 		{
 			$filterSrch++;
 			$criteria->with = array(
-				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
+				'pointlogChannels'  => array('joinType'=>'LEFT JOIN'),
 				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
 				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
 				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
@@ -239,6 +239,10 @@ class ReportsController extends Controller
 		$fn   = sprintf("%s-%s-%s-%s.csv",Yii::app()->params['reportPfx'],@date("YmdHis"),uniqid(),md5(uniqid()));
 		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
 		
+		//ensure
+		if (!@file_exists(Yii::app()->params['reportCsv'])) {
+		    @mkdir(Yii::app()->params['reportCsv'], 0777, true);
+		}
 		//get it
 		$csvs = new CActiveDataProvider('Reports', array(
 			'criteria'=>$criteria,
@@ -251,7 +255,7 @@ class ReportsController extends Controller
 
 
 		//hdr
-		$hdr = sprintf('="CUSTOMER NAME",="CUSTOMER EMAIL",="COMPANY NAME",="BRAND NAME",="CAMPAIGN NAME",="CHANNEL NAME",="CREATED BY",="",');
+		$hdr = sprintf('="CUSTOMER ID",="CUSTOMER NAME",="CUSTOMER EMAIL",="CUSTOMER BDAY",="COMPANY NAME",="BRAND NAME",="CAMPAIGN NAME",="CHANNEL NAME",="CREATED BY",="POINTS",="",');
 		$this->io_save($csv, str_replace("\n",'', $hdr)."\n",'a');
 		//get csv
 		foreach($csvs->getData() as $row) 
@@ -259,6 +263,8 @@ class ReportsController extends Controller
 		    $total++;
 		    //customer
 		    $custmail = $row->pointlogCustomers->Email;
+		    $custuid  = $row->pointlogCustomers->CustomerId;
+		    $custbday = $row->pointlogCustomers->BirthDate;
 		    $custname = sprintf("%s %s",$row->pointlogCustomers->FirstName,$row->pointlogCustomers->LastName );
 		    
 		    //comp
@@ -276,15 +282,21 @@ class ReportsController extends Controller
 		    //by
 		    $by        = ($row->pointlogCreateUsers != null)?($row->pointlogCreateUsers->Username):("");
 		    
+		    //pts
+		    $tpts      = ($row->pointlogPoints != null)?($row->pointlogPoints->Value):(0);
+		    
 		    //hdr
-		    $str = sprintf('="%s",="%s",="%s",="%s",="%s",="%s",="%s",="",',
+		    $str = sprintf('="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="",',
+					$custuid,
 					$custname,
 					$custmail,
+					$custbday,
 					$compname,
 					$brandname,
 					$cmpgnname,
 					$chnlname,
-					$by );
+					$by,
+					$tpts);
 		    $this->io_save($csv, str_replace("\n",'', $str)."\n",'a');
 
 		}

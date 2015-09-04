@@ -164,6 +164,11 @@ if(!empty($downloadCSV))
        'dataProvider'=>$dataProvider,
        'columns' => array(
 	array(
+		'name'  => 'Customer Id',
+		'value'=> '($data->pointlogCustomers != null)?($data->pointlogCustomers->CustomerId):("")',
+		'type'  => 'raw',
+		),       
+	array(
 		'name'  => 'CustomerNm',
 		'value'=> '($data->pointlogCustomers != null)?($data->pointlogCustomers->FirstName." ".
 		            $data->pointlogCustomers->LastName):("")',
