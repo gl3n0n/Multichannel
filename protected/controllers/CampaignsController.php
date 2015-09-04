@@ -119,7 +119,7 @@ class CampaignsController extends Controller
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->BrandId));
+				$this->redirect(array('view','id'=>$model->CampaignId));
 		}
 
 		$this->render('create',array(
