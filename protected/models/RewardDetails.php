@@ -65,6 +65,7 @@ class RewardDetails extends CActiveRecord
 			'rdetailChannels'=>array(self::BELONGS_TO, 'Channels', 'ChannelId'),
 			'rdetailCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
 			'rdetailUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
+			'rdetailClients'=>array(self::BELONGS_TO, 'Clients', 'ClientId'),
 
 		);
 	}

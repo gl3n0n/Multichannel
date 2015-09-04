@@ -49,6 +49,10 @@ $this->menu=array(
 		'Value',
 		'Availability',
 		'Status',
+		array(
+		'name' => 'ClientId',
+		'value'=> '($data->rdetailClients != null )?($data->rdetailClients->CompanyName):("")',
+		),		
 		'DateCreated',
 		array(
 		'name' => 'CreatedBy',
