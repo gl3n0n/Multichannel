@@ -35,16 +35,14 @@ $this->menu=array(
 		'value' => 'CHtml::link($data->CustomerId,Yii::app()->createUrl("customers/update",array("id"=>$data->primaryKey)))',
 	),	
 	// 'ClientId',
-	
 	array(
 		'name' => 'ClientId',
-		'value' => '$data->ClientId',
+		'value' => '$data->custClients!=null?$data->custClients->CompanyName:""',
 	),
-	
 	array(
 		'name' => 'Subscriptions',
 		'type' => 'raw',
-		'value'=> 'CHtml::link("View Subscriptions","customerSubscriptions/?customer_id=$data->CustomerId")',
+		'value'=> 'CHtml::link("View Subscriptions",Yii::app()->createUrl("customerSubscriptions/?customer_id=".$data->CustomerId))',
 		),
 	'FirstName',
 	'MiddleName',

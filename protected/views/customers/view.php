@@ -28,6 +28,10 @@ $this->menu=array(
 			'type'=>'raw',
 			'value'=> CHtml::link("View Subscriptions", Yii::app()->createUrl("customerSubscriptions/?customer_id=".$model->CustomerId)),
 			),
+		array(
+			'name' => 'ClientId',
+			'value' => $model->custClients!=null?$model->custClients->CompanyName:"",
+		),			
 		'FirstName',
 		'MiddleName',
 		'LastName',

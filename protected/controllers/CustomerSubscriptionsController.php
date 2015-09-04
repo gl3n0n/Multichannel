@@ -136,7 +136,7 @@ class CustomerSubscriptionsController extends Controller
 				
 			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
 			{
-				$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+				$criteria->compare('t.ClientId', Yii::app()->user->ClientId, true); 
 			}
 			
 			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
@@ -157,7 +157,7 @@ class CustomerSubscriptionsController extends Controller
 
 			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
 			{
-				$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+				$criteria->compare('t.ClientId', Yii::app()->user->ClientId, true); 
 			}
 
 			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(

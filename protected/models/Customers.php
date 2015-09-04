@@ -47,6 +47,7 @@ class Customers extends CActiveRecord
 			array('BirthDate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
 			array('Status', 'length', 'max'=>8),
 			array('DateCreated, DateUpdated', 'safe'),
+			
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('BirthDate,CustomerId, FirstName, MiddleName, LastName, Gender, ContactNumber, Address, Email, FBId, TwitterHandle, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
@@ -61,7 +62,10 @@ class Customers extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-		);
+			'custCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
+			'custUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
+			'custClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
+		);		
 	}
 
 	/**
@@ -86,6 +90,7 @@ class Customers extends CActiveRecord
 			'CreatedBy' => 'Created By',
 			'DateUpdated' => 'Date Updated',
 			'UpdatedBy' => 'Updated By',
+			'ClientId' => 'Client',
 		);
 	}
 
@@ -129,6 +134,22 @@ class Customers extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+
+
+	public function emailExists($xmail='')
+	{
+		$criteria = new CDbCriteria;
+		$criteria->select = 'CustomerId, Email';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			$criteria->addCondition('ClientId = :cid');
+			$criteria->params[':cid'] = Yii::app()->utils->getUserInfo('ClientId');
+		}
+		//chk it
+		$CustomerModel = Customers::model()->findByAttributes(array('Email'=> $xmail), $criteria);
+		return $CustomerModel;
+	}
+
 
 	/**
 	 * Returns the static model of the specified AR class.
