@@ -47,7 +47,11 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	'Source',
 	'ExpiryDate',
 	'Status',
-	'DateCreated',
+	array(
+		'name'  => 'ClientId',
+		'value' => '($data->couponClients!=null)?((@count($data->couponClients)>0)?($data->couponClients[0]->CompanyName):("")):("")',
+		),	
+	/*'DateCreated',
 	array(
 		'name'  => 'CreatedBy',
 		'value' => '$data->couponCreateUsers->Username',
@@ -56,7 +60,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	array(
 		'name'  => 'UpdatedBy',
 		'value' => '($data->couponUpdateUsers!=null)?($data->couponUpdateUsers->Username):("")',
-		),
+		),**/
 	array(
 		'name' => 'Image',
 		'type' => 'raw',
@@ -66,6 +70,6 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	),
 	'Quantity',
 	'LimitPerUser',
-	'File',
+	//'File',
 	),	
 )); ?>

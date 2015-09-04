@@ -240,6 +240,7 @@ var Coupons = function() {
     };
     
     self.addEvents = function() {
+
         jQuery(self.clientItem).off().on("click", function() {
             var selection = self.selection("ClientId");
             self.brandList(selection);
@@ -255,6 +256,25 @@ var Coupons = function() {
             var selCampaigns = self.selection("CampaignId");
             self.channelList(selBrands, selCampaigns);
         });
+        
+        
+	jQuery(self.clientItem).off().on("change", function() {
+	    var selection = self.selection("ClientId");
+	    self.brandList(selection);
+	});
+
+	jQuery(self.brandItem).off().on("change", function() {
+	    var selection = self.selection("BrandId");
+	    self.campaignList(selection);
+	});
+
+	jQuery(self.campaignItem).off().on("change", function() {
+	    var selBrands = self.selection("BrandId");
+	    var selCampaigns = self.selection("CampaignId");
+	    self.channelList(selBrands, selCampaigns);
+	});
+
+        
     };
     
     self.selection = function(field) {

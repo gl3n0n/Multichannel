@@ -35,6 +35,11 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 		'Source',
 		'ExpiryDate',
 		'Status',
+		array(
+		'name'  => 'ClientId',
+		'value' => ($model->couponClients!=null)?((@count($model->couponClients)>0)?($model->couponClients[0]->CompanyName):("")):(""),
+		),	
+		
 		'DateCreated',
 		array(
 			'name' => 'CreatedBy',

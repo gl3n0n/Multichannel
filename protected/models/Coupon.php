@@ -110,7 +110,7 @@ class Coupon extends CActiveRecord
 			'CouponId' => 'Coupon',
 			'Code' => 'Code',
 			'Type' => 'Type',
-			'TypeId' => 'Type',
+			'TypeId' => 'Type Id',
 			'Source' => 'Source',
 			'ExpiryDate' => 'Expiry Date',
 			'Status' => 'Status',

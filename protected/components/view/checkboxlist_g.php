@@ -44,6 +44,8 @@ $idCheckNone  = "{$elemIdPrefix}_chkNone";
     .on("click", function(e) {
       e.preventDefault();
       $(<?php echo $elemIdPrefix; ?>).find("[id^=<?php echo $elemIdPrefix; ?>]").prop("checked", true);
+      $(<?php echo $elemIdPrefix; ?>).find("[id^=<?php echo $elemIdPrefix; ?>]").prop("checked", true).trigger("change");
+      //.trigger("change");
     });
 
   $("#<?=$idCheckNone?>")
@@ -51,5 +53,6 @@ $idCheckNone  = "{$elemIdPrefix}_chkNone";
     .on("click", function(e) {
       e.preventDefault();
       $(<?php echo $elemIdPrefix; ?>).find("[id^=<?php echo $elemIdPrefix; ?>]").prop("checked", false);
+      $(<?php echo $elemIdPrefix; ?>).find("[id^=<?php echo $elemIdPrefix; ?>]").prop("checked", false).trigger("change");
     });
 </script>
