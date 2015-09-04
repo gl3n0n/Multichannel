@@ -10,6 +10,7 @@ $this->menu=array(
 	//array('label'=>'Create Customers', 'url'=>array('create')),
 	array('label'=>'Manage Customers', 'url'=>array('admin')),
 );
+
 ?>
 
 <h1>Customers</h1>
@@ -33,6 +34,13 @@ $this->menu=array(
 		'type' => 'raw',
 		'value' => 'CHtml::link($data->CustomerId,Yii::app()->createUrl("customers/update",array("id"=>$data->primaryKey)))',
 	),	
+	// 'ClientId',
+	
+	array(
+		'name' => 'ClientId',
+		'value' => '$data->ClientId',
+	),
+	
 	array(
 		'name' => 'Subscriptions',
 		'type' => 'raw',
@@ -45,6 +53,7 @@ $this->menu=array(
 	'ContactNumber',
 	'Address',
 	'Email',
+	'BirthDate',
 	'FBId'
 	),
 	

@@ -3,16 +3,16 @@
 /* @var $model Brands */
 
 $this->breadcrumbs=array(
-	'Coupon on Points' =>array('index'),
+	'Convert Points to Coupon' =>array('index'),
 	'Create',
 );
 
 $this->menu=array(
-	array('label'=>'List Coupon on Points', 'url'=>array('index')),
+	array('label'=>'List Convert Points to Coupon', 'url'=>array('index')),
 );
 ?>
 
-<h1>Create Coupon on Points</h1>
+<h1>Create Convert Points to Coupon</h1>
 
 <?php 
 $this->renderPartial('_form', array(

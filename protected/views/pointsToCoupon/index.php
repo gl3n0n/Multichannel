@@ -3,15 +3,15 @@
 /* @var $dataProvider CActiveDataProvider */
 
 $this->breadcrumbs=array(
-	'Coupon on Points',
+	'Convert Points to Coupon',
 );
 
 $this->menu=array(
-	array('label'=>'Create Coupon on Points', 'url'=>array('create')),
+	array('label'=>'Create Convert Points to Coupon', 'url'=>array('create')),
 );
 ?>
 
-<h1>Coupon on Points</h1>
+<h1>Convert Points to Coupon</h1>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("pointsToCoupon/index"),

@@ -3,19 +3,19 @@
 /* @var $model Brands */
 
 $this->breadcrumbs=array(
-	'Coupon on Points'=>array('index'),
+	'Convert Points to Coupon'=>array('index'),
 	$model->PtcId=>array('view','id'=>$model->PtcId),
 	'Update',
 );
 
 $this->menu=array(
-	array('label'=>'List Coupon on Points',   'url'=>array('index')),
-	array('label'=>'Create Coupon on Points', 'url'=>array('create')),
-	array('label'=>'View Coupon on Points',   'url'=>array('view', 'id'=>$model->PtcId)),
+	array('label'=>'List Convert Points to Coupon',   'url'=>array('index')),
+	array('label'=>'Create Convert Points to Coupon', 'url'=>array('create')),
+	array('label'=>'View Convert Points to Coupon',   'url'=>array('view', 'id'=>$model->PtcId)),
 );
 ?>
 
-<h1>Update Coupon on Points <?php echo $model->PtcId; ?></h1>
+<h1>Update <?php echo $model->Title; ?></h1>
 
 <?php 
 $this->renderPartial('_form', array(
