@@ -181,6 +181,9 @@ $types = array('integer');
 				$query_keys[] = 'customer_subscriptions.ChannelId = '. $this->conn->quote($channel_id, 'integer');
 			if (!empty($campaign_id))
 				$query_keys[] = 'customer_subscriptions.CampaignId = '. $this->conn->quote($campaign_id, 'integer');
+
+			//active only
+			$query_keys[] = " rewards_list.Status = 'ACTIVE' ";				
 			
 			if (sizeof($query_keys) == 0)
 				$query_string = null;
@@ -225,6 +228,10 @@ $types = array('integer');
 			if (!empty($campaign_id))
 				$query_keys[] = 'customer_subscriptions.CampaignId = '. $this->conn->quote($campaign_id, 'integer');
 			
+			//active only
+			$query_keys[] = " rewards_list.Status = 'ACTIVE' ";				
+
+
 			if (sizeof($query_keys) == 0)
 				$query_string = null;
 			else
