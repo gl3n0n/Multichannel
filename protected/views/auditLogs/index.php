@@ -58,8 +58,16 @@ $( document ).ready(function() {
 <?php $this->widget('zii.widgets.grid.CGridView', array(
        'dataProvider'=>$dataProvider,
        'columns' => array(
-		'AuditId',
-		'ClientId',
+		array(
+		'name'  => 'AuditId',
+		'value' => 'CHtml::link($data->AuditId,Yii::app()->createUrl("auditLogs/view",array("id"=>$data->primaryKey)))',
+		'type'  => 'raw',
+		),		
+		array(
+		'name'  => 'ClientId',
+		'value' => '($data->byClients != null)?($data->byClients->CompanyName):("")',
+		'type'  => 'raw',
+		),		
 		'GetPost',
 		'UserType',
 		'UserAgent',
