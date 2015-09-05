@@ -8,7 +8,7 @@ $this->breadcrumbs=array(
 
 $this->menu=array(
 	//array('label'=>'Create Customers', 'url'=>array('create')),
-	array('label'=>'List Customers', 'url'=>array('index')),
+	//array('label'=>'Manage Customers', 'url'=>array('admin')),
 );
 
 ?>
@@ -32,7 +32,7 @@ $this->menu=array(
 	array(
 		'name' => 'CustomerId',
 		'type' => 'raw',
-		'value' => 'CHtml::link($data->CustomerId,Yii::app()->createUrl("customers/update",array("id"=>$data->primaryKey)))',
+		'value' => 'CHtml::link($data->CustomerId,Yii::app()->createUrl("customers/view",array("id"=>$data->primaryKey)))',
 	),	
 	// 'ClientId',
 	array(
