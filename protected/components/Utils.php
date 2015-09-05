@@ -33,5 +33,38 @@ class Utils extends CApplicationComponent
 		return $retv;
 	}
 
+	public function saveAuditLogs()
+	{
+		$model = new AuditLogs;
+		$vPost = @var_export($_POST,true);
+		$vGet  = @var_export($_GET,true);
+		$vType = (isset($_POST) ? ('Post') : ('Get'));
+		$vUrl  = Yii::app()->controller->getId().'/'.Yii::app()->controller->getAction()->getId();
+		$vQry  = @trim($_SERVER['QUERY_STRING']);
+		$vAgent= @trim($_SERVER['HTTP_USER_AGENT']);
+		
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		    $vIP = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		    $vIP = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+		    $vIP = $_SERVER['REMOTE_ADDR'];
+		}
+		
+		// [ AuditId,ClientId,UserId,GetPost,UserType,UserAgent,IPAddr,UrlData,UrlQry,CreatedBy,DateCreated,]
+		//put more attrs
+		$model->setAttribute("UserId",    Yii::app()->user->id);
+		$model->setAttribute("ClientId",  Yii::app()->user->ClientId);
+		$model->setAttribute("GetPost",   $vType);
+		$model->setAttribute("UserType",  Yii::app()->user->AccessType);
+		$model->setAttribute("UserAgent", $vAgent);
+		$model->setAttribute("IPAddr",    $vIP);
+		$model->setAttribute("UrlData",   sprintf("%s\n%s\n%s",$vUrl,$vPost,$vGet));
+		$model->setAttribute("UrlQry",    $vQry);
+
+		$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+		$model->setAttribute("CreatedBy", Yii::app()->user->id);
+		$model->save();
+	}
 }
 ?>
