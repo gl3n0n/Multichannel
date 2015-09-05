@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
 	$this->menu=array(
-	array('label'=>'View Logs', 'url'=>array('index')),
+	array('label'=>'View Audit Logs', 'url'=>array('index')),
 	);
 }
 ?>
@@ -37,20 +37,101 @@ $( document ).ready(function() {
 <h1>Audit Logs</h1>
 <fieldset class='filterSrchBold'>
 	<legend id='DIVFILTER'>
+	<h3>Search Filter</h3>
 	</legend>
+	<br/>
 <div id='reportFilter'>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("auditLogs/index"),
 	'method'=>'get',
 )); ?>
+	
 	<fieldset class='filterSrch'>
-		<legend>Search User Name</legend>
+		<legend>
+		  <em><h6>By User Name</h6></em>
+		</legend>
 		<input type="text" id='byUserName' 
 		 style="width:200px;"
-		 name="byUserName" id="byUserName" placeholder="byUserName" title="Search User Name">
-		<br/>
+		 name="byUserName" id="byUserName" placeholder="Created By" 
+		 title="Search User Name"
+		 value="<?=Yii::app()->request->getParam('byUserName')?>"
+		 />
+		 <br/>
 	</fieldset>
+	<fieldset class='filterSrch'>
+		<legend>
+		<em><h6>By IP Address</h6></em>
+		</legend>
+		<input type="text" id='byIPAddress' 
+		 style="width:200px;"
+		 name="byIPAddress" id="byIPAddress" placeholder="IP Address" title="Search IP Address"
+		 value="<?=Yii::app()->request->getParam('byIPAddress')?>"
+		 />
+		 <br/>
+	</fieldset>
+	<fieldset class='filterSrch'>
+		<legend>
+		<em><h6>By Date Range</h6></em>
+		</legend>
+
+		<?php
+		$this->widget('zii.widgets.jui.CJuiDatePicker', array(
+			'name'        => 'byDateFr',
+			'attribute'   => 'byDateFr',
+			'value'       => Yii::app()->request->getParam('byDateFr'),
+			'htmlOptions' => array(
+				'size'        => '15',// textField size
+				'maxlength'   => '10',// textField maxlength
+				'placeholder' => 'Date From',// textField maxlength
+				
+			),
+			// additional javascript options for the date picker plugin
+			'options'     => array(
+			'showAnim'    => "slideDown",
+			'changeMonth' => true,
+			'numberOfMonths' => 1,
+			'showOn'          => "button",
+			'buttonImageOnly' => false,
+			'dateFormat'      => "yy-mm-dd",
+			'showButtonPanel' => true,
+			)
+		));	
+		?>
+		<br/>
+		<?php
+		$this->widget('zii.widgets.jui.CJuiDatePicker', array(
+			'name'        => 'byDateTo',
+			'attribute'   => 'byDateTo',
+			'value'       => Yii::app()->request->getParam('byDateTo'),			
+			'htmlOptions' => array(
+			        'size'        => '15',// textField size
+			        'maxlength'   => '10',// textField maxlength
+			        'placeholder' => 'Date To',// textField maxlength
+    			),
+			// additional javascript options for the date picker plugin
+			'options'     => array(
+			'showAnim'    => "slideDown",
+			'changeMonth' => true,
+			'numberOfMonths' => 1,
+			'showOn'          => "button",
+			'buttonImageOnly' => false,
+			'dateFormat'      => "yy-mm-dd",
+			'showButtonPanel' => true,
+			)
+		));	
+		?>
+		 <br/>
+	</fieldset>
+	<fieldset class='filterSrch'>
+		<br/>
+		<button type="submit" id='btnSearch' style="width:200px;">
+		Search
+		</button>
+		<br/>
+		<br/>
+	</fieldset>	
+	
 <?php $this->endWidget(); ?>
 </div>
 </div>
@@ -77,7 +158,11 @@ $( document ).ready(function() {
 		'value' => '($data->UrlData != null)?(nl2br($data->UrlData)):("")',
 		'type'  => 'raw',
 		),		
-		'UrlQry',
+		array(
+		'name'  => 'UrlQry',
+		'value' => '($data->UrlQry != null)?(nl2br($data->UrlQry)):("")',
+		'type'  => 'raw',
+		),		
         array(
 		'name'  => 'CreatedBy',
 		'value' => '($data->byUsers != null)?($data->byUsers->Username):("")',

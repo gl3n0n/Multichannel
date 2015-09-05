@@ -37,10 +37,13 @@ class Utils extends CApplicationComponent
 	{
 		$model = new AuditLogs;
 		$vPost = @var_export($_POST,true);
-		$vGet  = @var_export($_GET,true);
-		$vType = (isset($_POST) ? ('Post') : ('Get'));
+		$vGet  = @var_export($_GET, true);
+		$vReq  = @var_export($_REQUEST,true);
+		$vType = ((@count($_POST)) ? ('Post') : ('Get'));
 		$vUrl  = Yii::app()->controller->getId().'/'.Yii::app()->controller->getAction()->getId();
-		$vQry  = @trim($_SERVER['QUERY_STRING']);
+		$vUrls = CHtml::normalizeUrl(array(Yii::app()->controller->getId().'/'.Yii::app()->controller->getAction()->getId()));
+		$vQry  = @str_replace('&',"\n",@trim($_SERVER['QUERY_STRING']));
+		
 		$vAgent= @trim($_SERVER['HTTP_USER_AGENT']);
 		
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -59,7 +62,7 @@ class Utils extends CApplicationComponent
 		$model->setAttribute("UserType",  Yii::app()->user->AccessType);
 		$model->setAttribute("UserAgent", $vAgent);
 		$model->setAttribute("IPAddr",    $vIP);
-		$model->setAttribute("UrlData",   sprintf("%s\n%s\n%s",$vUrl,$vPost,$vGet));
+		$model->setAttribute("UrlData",   sprintf("URL:\n%s\nPOST:\n%s\nGET:\n%s\nREQ:\n%s\n",$vUrls,$vPost,$vGet,$vReq));
 		$model->setAttribute("UrlQry",    $vQry);
 
 		$model->setAttribute("DateCreated", new CDbExpression('NOW()'));

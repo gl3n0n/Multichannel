@@ -111,6 +111,24 @@ class AuditLogsController extends Controller
 			$criteria->addCondition(" byUsers.Username LIKE '%".addslashes($byUserName)."%' ");
 		}
 		
+		//addr
+		$byIPAddress  = trim(Yii::app()->request->getParam('byIPAddress'));
+		if(strlen($byIPAddress))
+		{
+			$criteria->addCondition(" t.IPAddr LIKE '%".addslashes($byIPAddress)."%' ");
+		}
+		
+		//date
+		$byDateFr  = trim(Yii::app()->request->getParam('byDateFr'));
+		if(strlen($byDateFr))
+		{
+		   $criteria->addCondition(" t.DateCreated >= '".addslashes($byDateFr)." 00:00:00' ");
+		}		
+		$byDateTo  = trim(Yii::app()->request->getParam('byDateTo'));
+		if(strlen($byDateTo))
+		{
+		   $criteria->addCondition(" t.DateCreated <= '".addslashes($byDateTo)." 23:59:59' ");
+		}		
 		//get it
 		$dataProvider = new CActiveDataProvider('AuditLogs', array(
 			'criteria'=>$criteria ,

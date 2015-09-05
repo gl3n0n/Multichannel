@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
 	$this->menu=array(
-	array('label'=>'View Logs', 'url'=>array('index')),
+	array('label'=>'View Audit Logs', 'url'=>array('index')),
 	);
 }
 ?>
@@ -35,7 +35,11 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 			'value' => ($model->UrlData != null)?(nl2br($model->UrlData)):(""),
 			'type'  => 'raw',
 		),		
-		'UrlQry',
+		array(
+			'name'  => 'UrlQry',
+			'value' => ($model->UrlQry != null)?(nl2br($model->UrlQry)):(""),
+			'type'  => 'raw',
+		),		
 		array(
 			'name'  => 'CreatedBy',
 			'value' => ($model->byUsers != null)?($model->byUsers->Username):(""),
