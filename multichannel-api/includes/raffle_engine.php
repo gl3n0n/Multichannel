@@ -24,6 +24,10 @@ class Raffle {
 			else
 				$query_keys[] = "Status = 'PENDING'";
 			
+			if($client_id>0)
+				$query_keys[] = " ClientId = '".@addslashes(trim($client_id))."' ";
+				
+				
 			if (sizeof($query_keys) == 0)
 				$query_string = null;
 			else
