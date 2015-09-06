@@ -78,8 +78,11 @@
 </div><!-- page -->
 <?php
 //Audit-Logs
-$utilLog = new Utils;
-$utilLog->saveAuditLogs();
+if (!Yii::app()->user->isGuest)
+{
+	$utilLog = new Utils;
+	$utilLog->saveAuditLogs();
+}
 ?>
 </body>
 </html>
