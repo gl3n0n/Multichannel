@@ -51,62 +51,37 @@ $( document ).ready(function() {
 	<table class="detail-view" id="yw0" style="width:400px;padding:2px;2px;2px;2px;">
 		<tr class="even">
 			<th style="200px;">
-			 By User Name
-			</th>
-			<td style="200px;">
-				<input type="text" id='byUserName' 
-						 style="width:200px;"
-						 name="byUserName" id="byUserName" placeholder="Created By" 
-						 title="Search User Name"
-						 value="<?=Yii::app()->request->getParam('byUserName')?>"
-				/>
-			</td>
-		</tr>
-		<tr class="odd">
-			<th style="200px;">
-			 By IP Address
-			</th>
-			<td style="200px;">
-				<input type="text" id='byIPAddress' 
-				 style="width:200px;"
-				 name="byIPAddress" id="byIPAddress" placeholder="IP Address" title="Search IP Address"
-				 value="<?=Yii::app()->request->getParam('byIPAddress')?>"
-		 		/>
-			</td>
-		</tr>		
-		<tr class="odd">
-			<th style="200px;">
-			 By Date Range (From)
+			 Date Range (From)
 			</th>
 			<td style="200px;">
 				<?php
-						$this->widget('zii.widgets.jui.CJuiDatePicker', array(
-							'name'        => 'byDateFr',
-							'attribute'   => 'byDateFr',
-							'value'       => Yii::app()->request->getParam('byDateFr'),
-							'htmlOptions' => array(
-								'size'        => '15',// textField size
-								'maxlength'   => '10',// textField maxlength
-								'placeholder' => 'Date From',// textField maxlength
+			$this->widget('zii.widgets.jui.CJuiDatePicker', array(
+				'name'        => 'byDateFr',
+				'attribute'   => 'byDateFr',
+				'value'       => Yii::app()->request->getParam('byDateFr'),
+				'htmlOptions' => array(
+					'size'        => '15',// textField size
+					'maxlength'   => '10',// textField maxlength
+					'placeholder' => 'Date From',// textField maxlength
 
-							),
-							// additional javascript options for the date picker plugin
-							'options'     => array(
-							'showAnim'    => "slideDown",
-							'changeMonth' => true,
-							'numberOfMonths' => 1,
-							'showOn'          => "button",
-							'buttonImageOnly' => false,
-							'dateFormat'      => "yy-mm-dd",
-							'showButtonPanel' => true,
-							)
-						));	
+				),
+				// additional javascript options for the date picker plugin
+				'options'     => array(
+				'showAnim'    => "slideDown",
+				'changeMonth' => true,
+				'numberOfMonths' => 1,
+				'showOn'          => "button",
+				'buttonImageOnly' => false,
+				'dateFormat'      => "yy-mm-dd",
+				'showButtonPanel' => true,
+				)
+			));	
 				?>
 			</td>
 		</tr>		
 		<tr class="odd">
 			<th style="200px;">
-			 By Date Range (To)
+			 Date Range (To)
 			</th>
 			<td style="200px;">
 			<?php
@@ -133,8 +108,67 @@ $( document ).ready(function() {
 			));	
 			?>
 			</td>
-			</tr>				
+		</tr>				
 		<tr class="even">
+			<th style="200px;">
+			 User Name
+			</th>
+			<td style="200px;">
+				<?php
+				$xtype = Yii::app()->request->getParam('byUserName');
+				echo CHtml::dropDownlist('byUserName','', 
+					$usernamelist, 
+					array(
+						'id'      => 'byUserName',
+						'style'   => 'width:203px;',
+						'prompt'  => '-- Pls Select --',
+						'options' => array("$xtype" => array('selected' => true) ),
+					));
+					
+				?>				
+			</td>
+		</tr>
+		<tr class="odd">
+			<th style="200px;">
+			 User Type
+			</th>
+			<td style="200px;">
+				<?php
+				$xtype = Yii::app()->request->getParam('byUserType');
+				echo CHtml::dropDownlist('byUserType','', 
+					$usertypelist, 
+					array(
+						'id'      => 'byUserType',
+						'style'   => 'width:203px;',
+						'prompt'  => '-- Pls Select --',
+						'options' => array("$xtype" => array('selected' => true) ),
+					));
+					
+				?>
+			</td>
+		</tr>		
+		
+		<tr class="even">
+			<th style="200px;">
+			 Module
+			</th>
+			<td style="200px;">
+				<?php
+				$xtype = Yii::app()->request->getParam('byModule');
+				echo CHtml::dropDownlist('byModule','', 
+					$usermodulelist, 
+					array(
+						'id'      => 'byModule',
+						'style'   => 'width:203px;',
+						'prompt'  => '-- Pls Select --',
+						'options' => array("$xtype" => array('selected' => true) ),
+					));
+					
+				?>
+		 		
+			</td>
+		</tr>		
+		<tr class="odd">
 		<th style="200px;">
 		 	&nbsp;
 		</th>
@@ -144,6 +178,26 @@ $( document ).ready(function() {
 			</button>
 		</td>
 		</tr>			
+		<?php 
+		if(!empty($downloadCSV))
+		{
+		?>
+		<tr class="even">
+			<th style="200px;">
+			 CSV
+			</th>
+			<td style="200px;">
+				<fieldset class='filterSrch'>
+					<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("auditLogs/csv")?>/?fn=<?php echo $downloadCSV?>');">
+					DOWNLOAD CSV 
+					</a>
+				</fieldset>
+				<iframe id="csvdownloader" style="display:none"
+	 					width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
+		 		
+			</td>
+		</tr>
+		<?php }?>
 	</table>
 	
 	
@@ -152,6 +206,8 @@ $( document ).ready(function() {
 	
 <?php $this->endWidget(); ?>
 </div>
+
+
 </div>
 </fieldset>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
@@ -161,31 +217,40 @@ $( document ).ready(function() {
 		'name'  => 'AuditId',
 		'value' => 'CHtml::link($data->AuditId,Yii::app()->createUrl("auditLogs/view",array("id"=>$data->primaryKey)))',
 		'type'  => 'raw',
-		),		
+		),
+		array(
+		'name'  => 'LogDate',
+		'value' => '($data->LogDate != null)?(substr($data->LogDate,0,10)):("")',
+		'type'  => 'raw',
+		),
+		array(
+		'name'  => 'LogTime',
+		'value' => '($data->LogDate != null)?(substr($data->LogDate,11)):("")',
+		'type'  => 'raw',
+		),
+		array(
+			'name'  => 'UserId',
+			'value' => 'CHtml::link((($data->byUsers!=null)?($data->byUsers->Username):("")),Yii::app()->createUrl("users/view",array("id"=>$data->UserId)))',
+			'type'  => 'raw',
+		),
+		'UserType',
+		'IPAddr',
+		'UserAgent',
 		array(
 		'name'  => 'ClientId',
 		'value' => '($data->byClients != null)?($data->byClients->CompanyName):("")',
 		'type'  => 'raw',
 		),		
-		'GetPost',
-		'UserType',
-		'UserAgent',
-		'IPAddr',
 		array(
-		'name'  => 'UrlData',
-		'value' => '($data->UrlData != null)?(nl2br($data->UrlData)):("")',
+		'name'  => 'Module',
+		'value' => '($data->ModPage != null)?(nl2br($data->ModPage)):("")',
 		'type'  => 'raw',
 		),		
 		array(
-		'name'  => 'UrlQry',
-		'value' => '($data->UrlQry != null)?(nl2br($data->UrlQry)):("")',
+		'name'  => 'Action',
+		'value' => '($data->ModAction != null)?(nl2br($data->ModAction)):("")',
 		'type'  => 'raw',
 		),		
-        array(
-		'name'  => 'CreatedBy',
-		'value' => '($data->byUsers != null)?($data->byUsers->Username):("")',
-		'type'  => 'raw',
-	),
-		'DateCreated',
+        
     ),
 )); ?>

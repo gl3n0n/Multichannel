@@ -22,6 +22,36 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	'attributes'=>array(
 		'AuditId',
 		array(
+		'name'  => 'LogDate',
+		'value' => ($model->LogDate != null)?(substr($model->LogDate,0,10)):(""),
+		'type'  => 'raw',
+		),
+		array(
+		'name'  => 'LogTime',
+		'value' => ($model->LogDate != null)?(substr($model->LogDate,11)):(""),
+		'type'  => 'raw',
+		),
+		array(
+			'name'  => 'UserId',
+			'value' => (($model->byUsers!=null)?($model->byUsers->Username):("")),
+			'type'  => 'raw',
+		),
+		array(
+		'name'  => 'ClientId',
+		'value' => ($model->byClients != null)?($model->byClients->CompanyName):(""),
+		'type'  => 'raw',
+		),		
+		array(
+		'name'  => 'Module',
+		'value' => ($model->ModPage != null)?(nl2br($model->ModPage)):(""),
+		'type'  => 'raw',
+		),		
+		array(
+		'name'  => 'Action',
+		'value' => ($model->ModAction != null)?(nl2br($model->ModAction)):(""),
+		'type'  => 'raw',
+		),		
+		array(
 			'name'  => 'ClientId',
 			'value' => ($model->byClients != null)?($model->byClients->CompanyName):(""),
 			'type'  => 'raw',
@@ -45,6 +75,6 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 			'value' => ($model->byUsers != null)?($model->byUsers->Username):(""),
 			'type'  => 'raw',
 		),
-		'DateCreated',
+	
 	),
 )); ?>

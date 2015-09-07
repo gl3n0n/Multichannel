@@ -116,5 +116,28 @@ return array(
 					
 					
 				),
+		'UserTypes' => array(
+				'SuperAdmin' => 'SuperAdmin',
+				'Admin'      => 'Admin'),
+		'Pages'     => array(
+				'AuditLogs'            => 'AuditLogs',
+				'Brands'               => 'Brands',
+				'Campaigns'            => 'Campaigns',
+				'Channels'             => 'Channels',
+				'Clients'              => 'Clients',
+				'Coupon'               => 'Coupon',
+				'CouponToPoints'       => 'CouponToPoints',
+				'Customers'            => 'Customers',
+				'CustomerSubscriptions' => 'CustomerSubscriptions',
+				'GeneratedCoupons'     => 'GeneratedCoupons',
+				'Points'               => 'Points',
+				'PointsLog'            => 'PointsLog',
+				'PointsToCoupon'       => 'PointsToCoupon',
+				'Raffle'               => 'Raffle',
+				'RewardDetails'        => 'RewardDetails',
+				'RewardsList'          => 'RewardsList',
+				'ScheduledPost'        => 'ScheduledPost',
+				'Users'                => 'Users',
+				),
 	),
 );

@@ -39,7 +39,8 @@ class AuditLogs extends CActiveRecord
 		return array(
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('AuditId,ClientId,UserId,UserType,UserAgent,IPAddr,GetPost,UrlData,UrlQry,CreatedBy,DateCreated', 'safe', 'on'=>'search'),
+			array('AuditId,ClientId,UserId,UserType,UserAgent,ModPage,ModAction,IPAddr,GetPost,UrlData,UrlQry,LogDate', 
+			'safe', 'on'=>'search'),
 		);
 	}
 	
@@ -53,7 +54,7 @@ class AuditLogs extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'byClients' =>array(self::BELONGS_TO, 'Clients', 'ClientId'),
-			'byUsers'   =>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
+			'byUsers'   =>array(self::BELONGS_TO, 'Users',   'UserId'),
 		);
 	}
 
@@ -74,17 +75,19 @@ class AuditLogs extends CActiveRecord
 	{
 		//AuditId,ClientId,UserId,UserType,UserAgent,IPAddr,UrlData,UrlQry,CreatedBy,DateCreated,
 		return array(
-			'AuditId'     => 'Id',
+			'AuditId'     => 'Log Id',
 			'ClientId'    => 'Client',
-			'UserId'      => 'User Name',
+			'UserId'      => 'User',
 			'UserType'    => 'User Type',
 			'UserAgent'   => 'User Agent',
 			'IPAddr'      => 'IP',
 			'UrlData'     => 'Data',
 			'GetPost'     => 'Type',
 			'UrlQry'      => 'Query',
-			'DateCreated' => 'Date Created',
-			'CreatedBy'   => 'Created By',
+			'ModPage'     => 'Module',
+			'ModAction'   => 'Action',
+			'LogDate'     => 'Date',
+			'LogTime'     => 'Time',
 		);
 	}
 
@@ -103,7 +106,7 @@ class AuditLogs extends CActiveRecord
 	public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
-		//AuditId,ClientId,UserId,GetPost,UserType,UserAgent,IPAddr,UrlData,UrlQry,CreatedBy,DateCreated
+		//AuditId,ClientId,UserId,UserType,UserAgent,ModPage,ModAction,IPAddr,GetPost,UrlData,UrlQry,LogDate
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('AuditId',$this->AuditId,true);
@@ -116,8 +119,10 @@ class AuditLogs extends CActiveRecord
 		$criteria->compare('UrlData',$this->UrlData,true);
 		$criteria->compare('UrlQry',$this->UrlQry,true);
 		
-		$criteria->compare('DateCreated',$this->DateCreated,true);
-		$criteria->compare('CreatedBy',$this->CreatedBy);
+		$criteria->compare('ModPage',  $this->ModPage,true);
+		$criteria->compare('ModAction',$this->ModAction,true);
+		
+		$criteria->compare('LogDate',$this->LogDate,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -134,4 +139,5 @@ class AuditLogs extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	
 }

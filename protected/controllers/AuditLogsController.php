@@ -33,7 +33,7 @@ class AuditLogsController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('index','view','create','update','list','admin','delete'),
+				'actions'=>array('index','view','create','update','list','admin','delete','csv'),
 				'users'  =>array('@'),
 			),
 			array('deny',  // deny all users
@@ -112,30 +112,56 @@ class AuditLogsController extends Controller
 		}
 		
 		//addr
-		$byIPAddress  = trim(Yii::app()->request->getParam('byIPAddress'));
-		if(strlen($byIPAddress))
+		$byModule  = trim(Yii::app()->request->getParam('byModule'));
+		if(strlen($byModule))
 		{
-			$criteria->addCondition(" t.IPAddr LIKE '%".addslashes($byIPAddress)."%' ");
+			$criteria->addCondition(" UPPER(t.ModPage) LIKE '%".strtoupper(addslashes($byModule))."%' ");
 		}
 		
 		//date
 		$byDateFr  = trim(Yii::app()->request->getParam('byDateFr'));
 		if(strlen($byDateFr))
 		{
-		   $criteria->addCondition(" t.DateCreated >= '".addslashes($byDateFr)." 00:00:00' ");
+		   $criteria->addCondition(" t.LogDate >= '".addslashes($byDateFr)." 00:00:00' ");
 		}		
 		$byDateTo  = trim(Yii::app()->request->getParam('byDateTo'));
 		if(strlen($byDateTo))
 		{
-		   $criteria->addCondition(" t.DateCreated <= '".addslashes($byDateTo)." 23:59:59' ");
-		}		
+		   $criteria->addCondition(" t.LogDate <= '".addslashes($byDateTo)." 23:59:59' ");
+		}	
+		
+		
+		//addr
+		$byUserType  = trim(Yii::app()->request->getParam('byUserType'));
+		if(strlen($byUserType))
+		{
+			$criteria->addCondition(" UPPER(t.UserType) LIKE '".strtoupper(addslashes($byUserType))."' ");
+		}
+
+		
+		//userlist
+		$_usernames = Users::model()->findAll(array(
+				     'select'=>'UserId, Username'));
+		$usernames = array();
+		foreach($_usernames as $row) {
+			$usernames["$row->Username"] = $row->Username;
+
+		}
+		
 		//get it
 		$dataProvider = new CActiveDataProvider('AuditLogs', array(
 			'criteria'=>$criteria ,
 		));		
-							
+	
+		//get csv
+		$csv = $this->formatCsv($criteria);
+	
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
+			'usertypelist'    => Yii::app()->params['UserTypes'],
+			'usermodulelist'  => Yii::app()->params['Pages'],
+			'usernamelist'    => $usernames,
+			'downloadCSV'     => (@intval($csv['total'])>0)?($csv['fn']):(''),
 		));
 	}
 
@@ -167,4 +193,95 @@ class AuditLogsController extends Controller
 			Yii::app()->end();
 		}
 	}
+	
+	protected function formatCsv($criteria)
+	{
+		$fn   = sprintf("%s-%s-%s-%s.csv",'Audit-Logs',@date("YmdHis"),uniqid(),md5(uniqid()));
+		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
+		
+		//ensure
+		if (!@file_exists(Yii::app()->params['reportCsv'])) {
+		    @mkdir(Yii::app()->params['reportCsv'], 0777, true);
+		}
+		
+		//get it
+		$csvs = new CActiveDataProvider('AuditLogs', array(
+			'criteria'=>$criteria,
+		));
+		
+		//set
+		$csvs->setPagination(false);
+		$total = 0;
+		
+
+
+		//hdr
+		$hdr = sprintf('="ID",="USER NAME",="USER TYPE",="MODULE",="ACTION",="IP",="CLIENT",="DATE",="TIME",="AGENT",="",');
+		
+		$this->io_save($csv, str_replace("\n",'', $hdr)."\n",'a');
+		
+		//get csv
+		foreach($csvs->getData() as $row) 
+		{
+		    $total++;
+		    
+		    //hdr
+		    $str = sprintf('="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="",',
+					$row->AuditId,
+					(($row->byUsers!=null)?($row->byUsers->Username):("")),
+					$row->UserType,
+					($row->ModPage   != null)?($row->ModPage)  :(""),
+					($row->ModAction != null)?($row->ModAction):(""),
+					$row->IPAddr,
+					($row->byClients != null)?($row->byClients->CompanyName):(""),
+					($row->LogDate   != null)?(substr($row->LogDate,0,10)):(""),
+					($row->LogDate   != null)?(substr($row->LogDate,11)  ):(""),
+					@str_replace(',',' ',$row->UserAgent)
+					);
+		    $this->io_save($csv, str_replace("\n",'', $str)."\n",'a');
+
+		}
+		
+		//give it back
+		return array(
+			'total' => $total,
+			'fn'    => $fn
+		);
+	}
+	
+	protected function io_save($fname='', $body='', $mode = 'w')
+	{
+		//mode of fopen
+		$mode  = @preg_match("/^(a|append)$/i", $mode) ? ('a') :  ('w');
+		
+		//open it
+		$fh = fopen($fname, $mode);
+		if($fh)
+		{
+			fwrite($fh, $body);
+			fclose($fh); 
+			$is_ok  = true;
+			
+		}
+		
+		//give it back ;-)
+		return $is_ok;
+		 
+	}
+	
+	public function actionCsv()
+	{
+		$fn   = trim(Yii::app()->request->getParam('fn'));
+		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/msexcel');
+		header('Content-Disposition: attachment; filename='.basename($csv));
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		header('Content-Length: '. filesize($csv));
+		@flush();
+		readfile($csv);
+	}
+	
 }

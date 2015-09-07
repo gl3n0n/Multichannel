@@ -43,6 +43,8 @@ class Utils extends CApplicationComponent
 		$vUrl  = Yii::app()->controller->getId().'/'.Yii::app()->controller->getAction()->getId();
 		$vUrls = CHtml::normalizeUrl(array(Yii::app()->controller->getId().'/'.Yii::app()->controller->getAction()->getId()));
 		$vQry  = @str_replace('&',"\n",@trim($_SERVER['QUERY_STRING']));
+		$vPage = trim(strtoupper(Yii::app()->controller->getId()));
+		$vAct  = trim(strtoupper(Yii::app()->controller->getAction()->getId()));
 		
 		$vAgent= @trim($_SERVER['HTTP_USER_AGENT']);
 		
@@ -62,11 +64,13 @@ class Utils extends CApplicationComponent
 		$model->setAttribute("UserType",  Yii::app()->user->AccessType);
 		$model->setAttribute("UserAgent", $vAgent);
 		$model->setAttribute("IPAddr",    $vIP);
-		$model->setAttribute("UrlData",   sprintf("URL:\n%s\nPOST:\n%s\nGET:\n%s\nREQ:\n%s\n",$vUrls,$vPost,$vGet,$vReq));
+		$model->setAttribute("UrlData",   sprintf("URL:\n%s\nREQ:\n%s\n",$vUrls,$vReq));
 		$model->setAttribute("UrlQry",    $vQry);
 
-		$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-		$model->setAttribute("CreatedBy", Yii::app()->user->id);
+		$model->setAttribute("ModPage",   $vPage);
+		$model->setAttribute("ModAction", $vAct);
+		$model->setAttribute("LogDate", new CDbExpression('NOW()'));
+		
 		$model->save();
 	}
 }
