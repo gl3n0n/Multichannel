@@ -339,7 +339,8 @@ class UsersController extends Controller
 		$id = Yii::app()->request->getQuery('id');
 
 		Yii::app()->utils->sendJSONResponse(array('id' => $id));
-
+		$utilLog = new Utils;
+		$utilLog->saveAuditLogs();
 		$rowCount = Users::model()->findByPk($id)->delete();
 		// $this->render('delete');
 	}

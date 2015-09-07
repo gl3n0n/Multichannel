@@ -135,6 +135,10 @@ class PointsLogController extends Controller
 	{
 		//$this->loadModel($id)->delete();
 		$url = Yii::app()->params['updatePoints'];
+		
+		$utilLog = new Utils;
+		$utilLog->saveAuditLogs();
+
 		/*echo $url;
 		exit();
 

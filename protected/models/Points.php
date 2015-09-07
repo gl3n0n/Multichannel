@@ -49,7 +49,7 @@ class Points extends CActiveRecord
 			array('PointCapping', 'default', 'setOnEmpty' => true, 'value' => NULL),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('PointsId, ClientId, BrandId, CampaignId, ChannelId, From, To, Value, PointAction, PointsLimit, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('PointsId, ClientId, BrandId, CampaignId, ChannelId, From, To, Name, Value, PointAction, PointsLimit, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -105,6 +105,7 @@ class Points extends CActiveRecord
 			'CreatedBy' => 'Created By',
 			'DateUpdated' => 'Date Updated',
 			'UpdatedBy' => 'Updated By',
+			'Name' => 'Name',
 		);
 	}
 
@@ -142,7 +143,7 @@ class Points extends CActiveRecord
 		$criteria->compare('CreatedBy',$this->CreatedBy);
 		$criteria->compare('DateUpdated',$this->DateUpdated,true);
 		$criteria->compare('UpdatedBy',$this->UpdatedBy);
-
+		$criteria->compare('Name',$this->Name,true);
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
