@@ -53,6 +53,7 @@
 				array('label'=>'Convert Points to Coupon', 'url'=>array('/pointsToCoupon'), 'visible'=>!Yii::app()->user->isGuest),
 				// array('label'=>'Coupon to Points', 'url'=>array('/couponToPoints'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'AuditLogs', 'url'=>array('/auditLogs'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
+				array('label'=>'Points Action Type', 'url'=>array('/actionType'), 'visible'=>!Yii::app()->user->isGuest),
 				
 				array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
 				array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
