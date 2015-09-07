@@ -73,6 +73,12 @@
 		$response['result_code'] = 404;
         $response['error_txt'] = 'Customer not found';
 	}
+	else if ($response[0] == "EXISTS_EMAIL")
+	{
+		$response['result_code'] = 403;
+		$response['error_txt'] = 'Email Address Already Taken';
+		unset($response[0]);
+	}
     else
     {
         $response['result_code'] = 200;

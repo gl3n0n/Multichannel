@@ -340,12 +340,14 @@ class Customer {
 				array_push($types,'text');
 				array_push($table_fields,'FBId');
 			}
+			
 			if (!empty($email))
 			{
 				$fields_values['Email'] = $email;
 				array_push($types,'text');
 				array_push($table_fields,'Email');
 			}
+			
 			if (!empty($first_name))
 			{
 				$fields_values['FirstName'] = $first_name;
@@ -413,6 +415,30 @@ class Customer {
 				array_push($types,'text');
 				array_push($table_fields,'Status');
 			}
+			
+			// check first if email is available
+			$select_query = "SELECT * FROM customers WHERE Email = " . $this->conn->quote($email) . " AND ClientId = " . $this->conn->quote($client_id . " AND CustomerId = " . $this->customer_id);
+			$select_res = $this->conn->query($select_query);
+			if (PEAR::isError($select_res)){
+				return false;
+			}
+
+			$row_select = $select_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+			if (sizeof($row_select) > 0)
+			{
+				/*if ($row_select["fbid"] == $fb_id)
+				{
+					return array("EXISTS_FBID");
+				}
+				else
+				{
+					return array("EXISTS_EMAIL");
+				}*/
+				return array("EXISTS_EMAIL");
+			}
+			
+			
 			
 			$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
 

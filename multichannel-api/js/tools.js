@@ -6,7 +6,7 @@ $(function() {
     params["/multichannel-api/points/update.php"] = ["subscription_id", "customer_id", "brand_id", "campaign_id", "channel_id", "points", "points_id"];
 	params["/multichannel-api/reports/generate_report2.php"] = ["client_id", "brand_id", "campaign_id","customer_id","date_from","date_to"];
 	params["/multichannel-api/customer/insert.php"] = ["client_id","first_name", "middle_name", "last_name","gender","contact_number","address","email","fb_id","twitter_handle","birthdate"];
-	params["/multichannel-api/customer/update.php"] = ["customer_id","client_id","first_name", "middle_name", "last_name","gender","contact_number","address","email","status","fb_id","twitter_handle","birthdate"];
+	params["/multichannel-api/customer/update.php"] = ["customer_id","client_id","first_name", "middle_name", "last_name","gender","contact_number","email","address","status","fb_id","twitter_handle","birthdate"];
 	
 	params["/multichannel-api/coupon/redeem.php"] = ["generated_coupon_id", "coupon_id", "customer_id","coupon_mapping_id","use_points"];
 	params["/multichannel-api/coupon/convert_to_points.php"] = ["generated_coupon_id", "coupon_id", "customer_id","coupon_mapping_id"];
