@@ -46,14 +46,6 @@ class CGridViewEtc extends CGridView {
 		$hid3
 		<table cellpadding=2 cellspacing=2 style='width:100%'>
 			<tr>
-			<td  align='right' valign='top' style='width:75px;'>
-			   Customer List
-			</td>
-			   <td  align='left' valign='top'>
-			   $sel
-			   </td>
-			</tr>
-			<tr>
 			<td  align='right' valign='top'>
 			   Brand Name
 			</td>
@@ -84,13 +76,6 @@ class CGridViewEtc extends CGridView {
 			</td>
 			   <td  align='center' valign='top'>
 				 $img 
-			   </td>
-			</tr>	
-			<td  align='right' valign='top'>
-			   &nbsp;
-			</td>
-			   <td  align='center' valign='top'>
-				 $btn
 			   </td>
 			</tr>
 		</table>
