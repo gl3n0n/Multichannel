@@ -109,6 +109,11 @@ $this->widget('CGridViewEtc', array(
 		    'type'  => 'raw',
 		    'value'=> '$data["Points"]',
 		),
+		array(
+		    'name'  => 'Date',
+		    'type'  => 'raw',
+		    'value'=> '$data["DateCreated"]',
+		),
 		/**
 		array(
 		    'name'  => 'Points',

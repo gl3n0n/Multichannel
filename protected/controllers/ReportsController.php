@@ -882,6 +882,7 @@ class ReportsController extends Controller
 				       a.BrandId, 
 				       a.CampaignId, 
 				       a.ChannelId, 
+					   a.DateCreated,
 				       a.PointsId, 
 				       b.Value Points,
 				       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
@@ -902,6 +903,7 @@ class ReportsController extends Controller
 					       a.BrandId, 
 					       a.CampaignId, 
 					       a.ChannelId, 
+						   a.DateCreated,
 					       ifnull(a.PointsId,0), a.Points Points,
 					       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
 					from  points_log a,
