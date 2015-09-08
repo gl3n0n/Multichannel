@@ -95,7 +95,9 @@ class PointsSystemController extends Controller
 
 			//reset the campaignId
 			$model->setAttribute("Status", 'ACTIVE');
-			$model->setAttribute("ClientId",    Yii::app()->user->ClientId);
+			if(Yii::app()->user->AccessType !== "SUPERADMIN") {
+				$model->setAttribute("ClientId",    Yii::app()->user->ClientId);
+			}			
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy",   Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));

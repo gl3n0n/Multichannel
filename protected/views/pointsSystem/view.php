@@ -25,6 +25,10 @@ $this->menu=array(
 	'attributes'=>array(
 		'PointsId',
 		'Name',
+		array(
+			'name' => 'ClientId',
+			'value'=> $model->byClients!=null?($model->byClients->CompanyName):(""),
+			),		
 		'DateCreated',
 		array(
 			'name' => 'CreatedBy',
