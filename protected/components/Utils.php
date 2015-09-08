@@ -70,7 +70,7 @@ class Utils extends CApplicationComponent
 		$model->setAttribute("ModPage",   $vPage);
 		$model->setAttribute("ModAction", $vAct);
 		$model->setAttribute("LogDate", new CDbExpression('NOW()'));
-		if(@preg_match("/(INSERT|CREATE|UPDATE|DELETE|APPROVE|GENERATE|NEW)/i",$vAct))
+		if(@preg_match("/(INSERT|CREATE|UPDATE|DELETE|APPROVE|GENERATE|NEW|CHANGE)/i",$vAct))
                 {
                       $model->save();
                 }
