@@ -150,6 +150,7 @@ class RewardDetailsController extends Controller
 						$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 						$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 						$saved = $model->save();
+						
 					}
 					/*
 						$brandchann = Brands::model()->findAllByPk($coupmap[$i]->BrandId);
@@ -197,6 +198,9 @@ class RewardDetailsController extends Controller
 
 					if( !$model->hasErrors() || $saved ) { // Kung walang error
 						$transaction->commit();
+						$utilLog = new Utils;
+						$utilLog->saveAuditLogs();
+
 						$message = "Reward saved. " . CHtml::link('View', $this->createUrl('/rewardDetails'));
 						Yii::app()->user->setFlash('success', $message);
 					} else {
@@ -326,8 +330,12 @@ class RewardDetailsController extends Controller
 			$model->attributes=$_POST['RewardDetails'];
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->RewardConfigId));
+			}
 		}
 
 		$this->render('update',array(

@@ -177,7 +177,11 @@ class ChannelsController extends Controller
         			$model->setAttribute("CreatedBy", Yii::app()->user->id);
         			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
         			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-                    $model->save();
+                    if($model->save())
+                    {
+			$utilLog = new Utils;
+			$utilLog->saveAuditLogs();
+                    }
                 }
                 $save = $transaction->commit();
 				$this->redirect('index');
@@ -231,7 +235,12 @@ class ChannelsController extends Controller
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->ChannelId));
+			}
 		}
 
 		$this->render('update',array(

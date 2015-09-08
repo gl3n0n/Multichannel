@@ -91,8 +91,11 @@ class RaffleController extends Controller
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->RaffleId));
+			}
 		}
 
 		$this->render('create',array(
@@ -128,8 +131,11 @@ class RaffleController extends Controller
 			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->RaffleId));
+			}
 		}
 
 		$this->render('update',array(
@@ -272,6 +278,11 @@ class RaffleController extends Controller
 		    $this->statusMsg = ( ( $ret["result_code"] == 200) ?
 		                       ( 'Successfully generated the raffle.') :
 		                       ( sprintf("Error occurred while generating the  raffle.<br/><br/>[%s]",trim($ret["error_txt"]))) );
+		    if($ret["result_code"] == 200)
+		    {
+			$utilLog = new Utils;
+			$utilLog->saveAuditLogs();
+		    }
 		}
 		
 		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
@@ -468,6 +479,8 @@ class RaffleController extends Controller
 						   $curr_bak
 						   </ul>
 						   ";
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 			}
 			else
 			{

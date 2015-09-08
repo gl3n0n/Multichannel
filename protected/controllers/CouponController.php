@@ -200,6 +200,9 @@ class CouponController extends Controller
                         if(! $model->hasErrors()) {
                             Yii::app()->user->setFlash('success','Coupon saved.');
                             $transaction->commit();
+			    $utilLog = new Utils;
+			    $utilLog->saveAuditLogs();
+
                         }
         			} else {
                         Yii::app()->user->setFlash('error','Unable to save coupon.');
@@ -409,6 +412,9 @@ class CouponController extends Controller
                         if(! $model->hasErrors()) {
                             Yii::app()->user->setFlash('success','Coupon saved.');
                             $transaction->commit();
+			    $utilLog = new Utils;
+			    $utilLog->saveAuditLogs();
+
                         } else {
                             Yii::app()->user->setFlash('error','Coupon not saved.');
                             $transaction->rollback();
@@ -645,9 +651,14 @@ class CouponController extends Controller
 		    $this->statusMsg = ( ( $ret["result_code"] == 200) ?
 		                       ( 'Successfully updated the  coupon.' ) :
 		                       ( sprintf("Error occurred while updating the  coupon.<br/><br/>[%s]",trim($ret["error_txt"]))) );
-		}
+		                       
+			if( $ret["result_code"] == 200)		                       
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+			}
 		
-		
+		}		
 		//redirect it
 		$this->actionPending();
 		return;
@@ -679,6 +690,12 @@ class CouponController extends Controller
 		    		'url'  => Yii::app()->params['api-url']['update_coupon'],
 		    		);
 		    $ret   = $apiUtils->send2Api($api);
+
+			if( $ret["result_code"] == 200)		                       
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+			}
 		    
 		    $this->statusMsg = ( ( $ret["result_code"] == 200) ?
 		                       ( 'Successfully generating the  coupon.' ) :
@@ -799,6 +816,9 @@ class CouponController extends Controller
 			if ($data["result_code"] == 200)
 			{
 				$this->statusMsg = "Notice: <font color='green'>Successfully claimed coupon.<br>  </font>";
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 			}
 			else if ($data["result_code"] == 409)
 			{

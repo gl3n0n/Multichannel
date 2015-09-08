@@ -104,8 +104,11 @@ class PointsLogController extends Controller
 		if(isset($_POST['PointsLog']))
 		{
 			$model->attributes=$_POST['PointsLog'];
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->PointLogId));
+			}
 		}
 
 		$this->render('update',array(

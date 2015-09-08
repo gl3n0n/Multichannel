@@ -164,6 +164,9 @@ class ScheduledPostController extends Controller
 			
 			if($try2Chk <=0 && $model->save())
 			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->SchedId));
 			}
 			else
@@ -255,8 +258,12 @@ class ScheduledPostController extends Controller
 			$model->setAttribute("RepeatType",trim($_POST['ScheduledPost']['RepeatType']));
 
 			
-			if($try2Chk <=0 && $model->save())
+			if($try2Chk <=0 && $model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->SchedId));
+			}
 		}
 
 		$this->render('update',array(

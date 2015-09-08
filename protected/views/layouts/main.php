@@ -81,8 +81,10 @@
 //Audit-Logs
 if (!Yii::app()->user->isGuest)
 {
+	if(0){
 	$utilLog = new Utils;
 	$utilLog->saveAuditLogs();
+	}
 }
 ?>
 </body>

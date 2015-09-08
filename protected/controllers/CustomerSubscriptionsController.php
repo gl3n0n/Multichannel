@@ -74,8 +74,11 @@ class CustomerSubscriptionsController extends Controller
 		if(isset($_POST['CustomerSubscriptions']))
 		{
 			$model->attributes=$_POST['CustomerSubscriptions'];
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->SubscriptionId));
+			}
 		}
 
 		$this->render('create',array(
@@ -98,8 +101,11 @@ class CustomerSubscriptionsController extends Controller
 		if(isset($_POST['CustomerSubscriptions']))
 		{
 			$model->attributes=$_POST['CustomerSubscriptions'];
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->SubscriptionId));
+			}
 		}
 
 		$this->render('update',array(

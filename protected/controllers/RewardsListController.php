@@ -91,6 +91,10 @@ class RewardsListController extends Controller
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
 			{
+			
+			$utilLog = new Utils;
+			$utilLog->saveAuditLogs();
+
 				try {
 	                if($UploadFile !== null) {
 	                    $UploadFile->saveAs(Yii::app()->params['uploadImageDir'] . 'rewards_list/'  . $imageFilename);
@@ -125,8 +129,12 @@ class RewardsListController extends Controller
 			$model->attributes=$_POST['RewardsList'];
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->RewardId));
+			}
 		}
 
 		$this->render('update',array(

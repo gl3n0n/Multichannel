@@ -75,7 +75,12 @@ class ClientsController extends Controller
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->ClientId));
+			}
 		}
 
 		$this->render('create',array(
@@ -101,7 +106,12 @@ class ClientsController extends Controller
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->ClientId));
+			}
 		}
 
 		$this->render('update',array(

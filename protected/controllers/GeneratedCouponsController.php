@@ -74,7 +74,11 @@ class GeneratedCouponsController extends Controller
 		{
 			$model->attributes=$_POST['GeneratedCoupons'];
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->GeneratedCouponId));
+			}
 		}
 
 		$this->render('create',array(
@@ -98,7 +102,11 @@ class GeneratedCouponsController extends Controller
 		{
 			$model->attributes=$_POST['GeneratedCoupons'];
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->GeneratedCouponId));
+			}
 		}
 
 		$this->render('update',array(

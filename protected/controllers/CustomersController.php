@@ -118,7 +118,11 @@ class CustomersController extends Controller
 			}
 			
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->CustomerId));
+			}
 		}
 
 		$this->render('create',array(
@@ -142,7 +146,11 @@ class CustomersController extends Controller
 		{
 			$model->attributes=$_POST['Customers'];
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->CustomerId));
+			}
 		}
 
 		$this->render('update',array(

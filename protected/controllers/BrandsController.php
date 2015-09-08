@@ -114,8 +114,12 @@ class BrandsController extends Controller
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			if($model->save())
+			if($model->save()){
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+
 				$this->redirect(array('view','id'=>$model->BrandId));
+			}
 		}
 
 		$this->render('create',array(
@@ -158,7 +162,11 @@ class BrandsController extends Controller
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->BrandId));
+			}
 		}
 
 		$this->render('update',array(

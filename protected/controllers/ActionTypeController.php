@@ -86,6 +86,7 @@ class ActionTypeController extends Controller
 	 */
 	public function actionCreate()
 	{
+		
 		$model = new ActionType;
 
 		if(isset($_POST['ActionType']))
@@ -102,6 +103,8 @@ class ActionTypeController extends Controller
 			
 			if($model->save())
 			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->ActiontypeId));
 			}
 			else
@@ -127,6 +130,7 @@ class ActionTypeController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
+		
 		//NOTE: this will need to be modified to prevent users from other clients from viewing others' records
 		$model=$this->loadModel($id);
 
@@ -142,7 +146,11 @@ class ActionTypeController extends Controller
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 
 			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 				$this->redirect(array('view','id'=>$model->ActiontypeId));
+			}
 		}
 
 		$this->render('update',array(
@@ -160,6 +168,7 @@ class ActionTypeController extends Controller
 	 */
 	public function actionDelete($id)
 	{
+		
 		$model    = $this->loadModel($id);
 		$rowCount = $model->findByPk($id)->delete();
 		

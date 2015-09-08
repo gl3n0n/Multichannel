@@ -166,6 +166,9 @@ class UsersController extends Controller
 					$response = array(
 						'message'=>'User successfully created.',
 					);
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs();
+
 				}
 				else
 				{
@@ -406,6 +409,9 @@ class UsersController extends Controller
                 {
                     if($model->save(false))
                     {
+			$utilLog = new Utils;
+			$utilLog->saveAuditLogs();
+
                     	Yii::app()->getUser()->setFlash('user-update-success', 'User updated.');
                     }
                     else
@@ -476,6 +482,9 @@ class UsersController extends Controller
                 {
                     if($model->save(false))
                     {
+			$utilLog = new Utils;
+			$utilLog->saveAuditLogs();
+
                     	Yii::app()->getUser()->setFlash('user-update-success', "User's password updated.");
                     }
                     else
@@ -600,6 +609,9 @@ class UsersController extends Controller
 				$saved = $user->save();
 
 				if($saved) {
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs();
+
 					Yii::app()->utils->sendJSONResponse( array('response'=>'success', 'message'=>'Info has been updated.'));
 				}
 				else {
