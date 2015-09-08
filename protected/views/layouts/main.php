@@ -43,6 +43,7 @@
 				array('label'=>'Campaigns', 'url'=>array('/campaigns'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Channels', 'url'=>array('/channels'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Points System', 'url'=>array('/points'), 'visible'=>!Yii::app()->user->isGuest),
+				array('label'=>'Points Action Type', 'url'=>array('/actionType'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Rewards and Redemption', 'url'=>array('/rewardDetails'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Rewards List', 'url'=>array('/rewardsList'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Coupon', 'url'=>array('/coupon'), 'visible'=>!Yii::app()->user->isGuest),
@@ -53,8 +54,7 @@
 				array('label'=>'Convert Points to Coupon', 'url'=>array('/pointsToCoupon'), 'visible'=>!Yii::app()->user->isGuest),
 				// array('label'=>'Coupon to Points', 'url'=>array('/couponToPoints'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'AuditLogs', 'url'=>array('/auditLogs'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
-				array('label'=>'Points Action Type', 'url'=>array('/actionType'), 'visible'=>!Yii::app()->user->isGuest),
-				
+
 				array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
 				array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
 			),
