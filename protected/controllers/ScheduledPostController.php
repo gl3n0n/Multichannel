@@ -671,9 +671,9 @@ class ScheduledPostController extends Controller
 				FROM points t
 				WHERE 1=1 
 					$xtra1 
-					$xtra2
-					$xtra3
-					$xtra4
+					--$xtra2
+					--$xtra3
+					--$xtra4
 			";
 
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
@@ -689,7 +689,7 @@ class ScheduledPostController extends Controller
 		foreach($dataProvider->getData() as $row)
 		{
 			$list[$row["PointsId"]] = sprintf("%s - %s",$row["PointsId"],
-							$row["PointAction"]);
+							$row["Name"]);
 		}
 		//give
 		Yii::app()->utils->sendJSONResponse($list);
