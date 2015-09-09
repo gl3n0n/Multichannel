@@ -75,11 +75,14 @@ class RaffleController extends Controller
 		// $this->performAjaxValidation($model);
 		
 		
-		
-		$_coupon = Coupon::model()->findAll();
+		if(Yii::app()->user->AccessType === "SUPERADMIN") {
+			$_coupon = Coupon::model()->findAll();
+		} else {
+			$_coupon = Coupon::model()->thisClient()->findAll();
+		}
 		$coupons = array();
 		foreach($_coupon as $row) {
-			$coupons[$row->CouponId] = $row->CouponId;
+			$coupons[$row->CouponId] = $row->CouponName;
 
 		}
 
@@ -90,7 +93,9 @@ class RaffleController extends Controller
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			if(Yii::app()->user->AccessType !== "SUPERADMIN" && $model->scenario === 'insert') {
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			}
 			if($model->save()){
 				$utilLog = new Utils;
 				$utilLog->saveAuditLogs();

@@ -22,6 +22,10 @@ $this->menu=array(
 	'data'=>$model,
 	'attributes'=>array(
 		'RaffleId',
+		array(
+		'name' => 'CouponId',
+		'value'=> $model->raffleCoupon!=null?$model->raffleCoupon->CouponName:"",
+		),
 		'Source',
 		'NoOfWinners',
 		'BackUp',
@@ -42,6 +46,5 @@ $this->menu=array(
 			'value' => $model->raffleUpdateUsers!=null?$model->raffleUpdateUsers->Username:"",
 			),
 		'Status',
-		'CouponId',
 	),
 )); ?>

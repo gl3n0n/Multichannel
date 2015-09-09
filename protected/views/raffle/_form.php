@@ -27,6 +27,12 @@
 	</div>
 	
 	<div class="row">
+		<?php echo $form->labelEx($model,'RaffleName'); ?>
+		<?php echo $form->textField($model,'RaffleName',array('size'=>50,'maxlength'=>50)); ?>
+		<?php echo $form->error($model,'RaffleName'); ?>
+	</div>
+	
+	<div class="row">
 		<?php echo $form->labelEx($model,'Source'); ?>
 		<?php echo $form->textField($model,'Source',array('size'=>50,'maxlength'=>50)); ?>
 		<?php echo $form->error($model,'Source'); ?>
@@ -61,6 +67,7 @@
            'options' => array(
                'showAnim' => "slideDown",
                'changeMonth' => true,
+		'changeYear' => true,
                'numberOfMonths' => 1,
                'showOn' => "button",
                'buttonImageOnly' => false,
@@ -69,6 +76,15 @@
            )
        ));	?>
 		<?php echo $form->error($model,'DrawDate'); ?>
+	</div>
+	
+	<div class="row">
+		<?php echo $form->labelEx($model,'Status'); ?>
+		<?php echo CHtml::dropDownList('Raffle[Status]', 
+			$model->scenario === 'update' ? $model->Status : 'ACTIVE', 
+			ZHtml::enumItem($model, 'Status')); 
+		?>
+		<?php echo $form->error($model,'Status'); ?>
 	</div>
 
 	<div class="row buttons">

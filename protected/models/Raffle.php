@@ -5,6 +5,7 @@
  *
  * The followings are the available columns in table 'raffle':
  * @property string $RaffleId
+ * @property string $RaffleName
  * @property string $Source
  * @property integer $NoOfWinners
  * @property integer $BackUp
@@ -35,7 +36,7 @@ class Raffle extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('Source, FdaNo, CouponId', 'required'),
+			array('RaffleName, Source, FdaNo, CouponId', 'required'),
 			array('NoOfWinners, BackUp', 'numerical', 'integerOnly'=>true),
 			array('Source, FdaNo', 'length', 'max'=>50),
 			array('CreatedBy, UpdatedBy', 'length', 'max'=>30),
@@ -45,7 +46,7 @@ class Raffle extends CActiveRecord
 			array('CouponId', 'default', 'setOnEmpty' => true, 'value' => NULL),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('RaffleId, ClientId,Source, NoOfWinners, BackUp, FdaNo, DrawDate, DateCreated, CreatedBy, DateUpdated, UpdatedBy, Status, CouponId', 'safe', 'on'=>'search'),
+			array('RaffleId, ClientId, RaffleName, Source, NoOfWinners, BackUp, FdaNo, DrawDate, DateCreated, CreatedBy, DateUpdated, UpdatedBy, Status, CouponId', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -58,8 +59,22 @@ class Raffle extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'raffleClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
+			'raffleCoupon'     =>array(self::BELONGS_TO, 'Coupon', 'CouponId'),
 			'raffleCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
 			'raffleUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
+		);
+	}
+	
+	public function scopes()
+	{
+		return array(
+			'thisClient'=>array(
+				'condition'=>'ClientId = :modelClientId',
+				'params' => array(':modelClientId'=>Yii::app()->utils->getUserInfo('ClientId')),
+			),
+			'active'=>array(
+				'condition'=>"Status='ACTIVE'",
+			),
 		);
 	}
 
@@ -70,6 +85,7 @@ class Raffle extends CActiveRecord
 	{
 		return array(
 			'RaffleId' => 'Raffle',
+			'RaffleName' => 'Raffle Name',
 			'Source' => 'Source',
 			'ClientId' => 'Client Name',
 			'NoOfWinners' => 'No Of Winners',
@@ -104,6 +120,7 @@ class Raffle extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('RaffleId',$this->RaffleId,true);
+		$criteria->compare('RaffleName',$this->RaffleName,true);
 		$criteria->compare('Source',$this->Source,true);
 		$criteria->compare('NoOfWinners',$this->NoOfWinners);
 		$criteria->compare('BackUp',$this->BackUp);

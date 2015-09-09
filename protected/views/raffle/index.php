@@ -48,6 +48,10 @@ $form=$this->beginWidget('CActiveForm', array(
 		'type' => 'raw',
 		'value'=> 'CHtml::link($data->RaffleId,Yii::app()->createUrl("raffle/update",array("id"=>$data->primaryKey)))',
 		), 
+		array(
+		'name'  => 'CouponId',
+		'value' => '($data->raffleCoupon!=null)?($data->raffleCoupon->CouponName):("")',
+		),
 		'Source',
 		'NoOfWinners',
 		'BackUp',
@@ -68,6 +72,5 @@ $form=$this->beginWidget('CActiveForm', array(
 		'value' => '($data->raffleUpdateUsers!=null)?($data->raffleUpdateUsers->Username):("")',
 		),
 		'Status',
-		'CouponId',
 		),
 )); ?>
