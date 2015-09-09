@@ -6,19 +6,19 @@
  * The followings are the available columns in table 'reward_details':
  * @property string $RewardConfigId
  * @property string $RewardId
- * @property integer $ChannelId
- * @property string $Inventory
+ * @property string $PointsId
+ * @property integer $ClientId
+ * @property string $Name
+ * @property integer $Inventory
  * @property string $Limitations
  * @property string $Value
- * @property string $Availability
+ * @property string $StartDate
+ * @property string $EndDate
  * @property string $Status
  * @property string $DateCreated
  * @property integer $CreatedBy
  * @property string $DateUpdated
  * @property integer $UpdatedBy
- * @property integer $ClientId
- * @property integer $BrandId
- * @property integer $CampaignId
  */
 class RewardDetails extends CActiveRecord
 {
@@ -38,18 +38,17 @@ class RewardDetails extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('RewardId, ChannelId, BrandId, CampaignId, Inventory, Limitations, Value, Availability', 'required'),
-			array('ChannelId, CreatedBy, UpdatedBy, ClientId, BrandId, CampaignId, Inventory, Value',  'numerical', 'integerOnly'=>true),
-			array('RewardId', 'length', 'max'=>11),
-			array('Limitations', 'length', 'max'=>255),
+			array('RewardId, PointsId, ClientId, Name, Inventory, Limitations, Value, StartDate, EndDate', 'required'),
+			array('ClientId, Inventory, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
+			array('RewardId, PointsId', 'length', 'max'=>11),
+			array('Name, Limitations', 'length', 'max'=>255),
+			array('Value', 'length', 'max'=>50),
 			array('Status', 'length', 'max'=>8),
             		array('Status', 'default', 'value'=>'PENDING', 'setOnEmpty'=>true),
-			array('Availability, DateCreated, DateUpdated', 'safe'),
-			array('Inventory', 'match', 'pattern'=>'/^\d{1,11}$/'),
-			
+			array('StartDate, EndDate, DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('RewardConfigId, RewardId, ChannelId, Limitations, Value, Availability, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy, ClientId, BrandId, CampaignId', 'safe', 'on'=>'search'),
+			array('RewardConfigId, RewardId, PointsId, ClientId, Name, Inventory, Limitations, Value, StartDate, EndDate, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,12 +60,14 @@ class RewardDetails extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'rdetailRewardslists'=>array(self::BELONGS_TO, 'RewardsList', 'RewardId'),
-			'rdetailChannels'=>array(self::BELONGS_TO, 'Channels', 'ChannelId'),
-			'rdetailCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
-			'rdetailUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
-			'rdetailClients'=>array(self::BELONGS_TO, 'Clients', 'ClientId'),
-
+			'byClients'      =>array(self::BELONGS_TO, 'Clients',      'ClientId'),
+			'byBrands'       =>array(self::BELONGS_TO, 'Brands',       'BrandId'),
+			'byCampaigns'    =>array(self::BELONGS_TO, 'Campaigns',    'CampaignId'),
+			'byChannels'     =>array(self::BELONGS_TO, 'Channels',     'ChannelId'),
+			'byCreateUsers'  =>array(self::BELONGS_TO, 'Users',        'CreatedBy'),
+			'byUpdateUsers'  =>array(self::BELONGS_TO, 'Users',        'UpdatedBy'),
+			'byPointsSystem' =>array(self::BELONGS_TO, 'PointsSystem', 'PointsId'),
+			'byRewards'   =>array(self::BELONGS_TO, 'RewardsList',   'RewardId'),
 		);
 	}
 
@@ -77,20 +78,20 @@ class RewardDetails extends CActiveRecord
 	{
 		return array(
 			'RewardConfigId' => 'Reward Config',
+			'Name' => 'Reward Name',
 			'RewardId' => 'Reward',
-			'ChannelId' => 'Channel',
+			'PointsId' => 'Point System',
+			'ClientId' => 'Client',
 			'Inventory' => 'Inventory',
 			'Limitations' => 'Limitations',
 			'Value' => 'Value',
-			'Availability' => 'Availability',
+			'StartDate' => 'Start Date',
+			'EndDate' => 'End Date',
 			'Status' => 'Status',
 			'DateCreated' => 'Date Created',
 			'CreatedBy' => 'Created By',
 			'DateUpdated' => 'Date Updated',
 			'UpdatedBy' => 'Updated By',
-			'ClientId' => 'Client',
-			'BrandId' => 'Brand',
-			'CampaignId' => 'Campaign',
 		);
 	}
 
@@ -114,19 +115,19 @@ class RewardDetails extends CActiveRecord
 
 		$criteria->compare('RewardConfigId',$this->RewardConfigId,true);
 		$criteria->compare('RewardId',$this->RewardId,true);
-		$criteria->compare('ChannelId',$this->ChannelId);
-		$criteria->compare('Inventory',$this->Inventory,true);
+		$criteria->compare('PointsId',$this->PointsId,true);
+		$criteria->compare('ClientId',$this->ClientId);
+		$criteria->compare('Name',$this->Name,true);
+		$criteria->compare('Inventory',$this->Inventory);
 		$criteria->compare('Limitations',$this->Limitations,true);
 		$criteria->compare('Value',$this->Value,true);
-		$criteria->compare('Availability',$this->Availability,true);
+		$criteria->compare('StartDate',$this->StartDate,true);
+		$criteria->compare('EndDate',$this->EndDate,true);
 		$criteria->compare('Status',$this->Status,true);
 		$criteria->compare('DateCreated',$this->DateCreated,true);
 		$criteria->compare('CreatedBy',$this->CreatedBy);
 		$criteria->compare('DateUpdated',$this->DateUpdated,true);
 		$criteria->compare('UpdatedBy',$this->UpdatedBy);
-		$criteria->compare('ClientId',$this->ClientId);
-		$criteria->compare('BrandId',$this->BrandId);
-		$criteria->compare('CampaignId',$this->CampaignId);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

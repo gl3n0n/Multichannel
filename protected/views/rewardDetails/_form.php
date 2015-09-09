@@ -17,65 +17,42 @@
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
-    <?php
-    foreach(Yii::app()->user->getFlashes() as $key => $message) {
-        echo '<div class="flash-' . $key . '">' . $message . "</div>\n";
-    }
-    ?>
-
 	<?php echo $form->errorSummary($model); ?>
-<?php if($model->scenario === 'insert'): // These are displayed when user is creating a new coupon. ?>
+    <?php if($model->scenario === 'insert'): // These are displayed when user is creating a new reward details. ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'RewardId'); ?>
 		<?php echo $form->dropDownList($model,'RewardId',$rewards_list); ?>
 		<?php echo $form->error($model,'RewardId'); ?>
-	</div>
+	</div>	
 	
-    <?php if(Yii::app()->user->AccessType === 'SUPERADMIN' && $model->scenario === 'insert'): ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'ClientId'); ?>
-		<?php $this->renderPartial('application.components.view.checkboxlist', array(
-			'model'=>$model,
-			'listData'=>$client_list,
-			'attributeName'=>'ClientId',
-		)); ?>
-		<?php echo $form->error($model,'ClientId'); ?>
+		<?php echo $form->labelEx($model,'PointsId'); ?>
+		<?php echo $form->dropDownList($model,'PointsId',$points_list); ?>
+		<?php echo $form->error($model,'PointsId'); ?>
 	</div>
-    <?php endif;?>
+	<?php else: // End Create scenario ?>	
+	<div class="row">
+		<?php echo $form->labelEx($model,'RewardId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byRewards->Title)); ?>
+        <?php echo $form->error($model,'RewardId'); ?>
+	  </div>
+	  
+	  <div class="row">
+		<?php echo $form->labelEx($model,'PointsId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byPointsSystem->Name)); ?>
+        <?php echo $form->error($model,'PointsId'); ?>
+	  </div>
+	<?php endif; // End Create scenario ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'BrandId'); ?>
-		<?php $this->renderPartial('application.components.view.checkboxlist', array(
-			'model'=>$model,
-			'listData'=>(Yii::app()->user->AccessType === 'SUPERADMIN' && $model->scenario === 'insert') ? array() : $brand_list,
-			'attributeName'=>'BrandId',
-		)); ?>
-		<?php echo $form->error($model,'BrandId'); ?>
+		<?php echo $form->labelEx($model,'Name'); ?>
+		<?php echo $form->textField($model,'Name',array('size'=>60,'maxlength'=>255)); ?>
+		<?php echo $form->error($model,'Name'); ?>
 	</div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'CampaignId'); ?>
-		<?php $this->renderPartial('application.components.view.checkboxlist', array(
-			'model'=>$model,
-			'listData'=>array(),
-			'attributeName'=>'CampaignId',
-		)); ?>
-		<?php echo $form->error($model,'CampaignId'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'ChannelId'); ?>
-		<?php $this->renderPartial('application.components.view.checkboxlist', array(
-			'model'=>$model,
-			'listData'=>array(),
-			'attributeName'=>'ChannelId',
-		)); ?>
-		<?php echo $form->error($model,'ChannelId'); ?>
-	</div>
-<?php endif; // End Create scenario ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'Inventory'); ?>
-		<?php echo $form->textField($model,'Inventory',array('size'=>60,'maxlength'=>255)); ?>
+		<?php echo $form->textField($model,'Inventory'); ?>
 		<?php echo $form->error($model,'Inventory'); ?>
 	</div>
 
@@ -90,25 +67,58 @@
 		<?php echo $form->textField($model,'Value',array('size'=>50,'maxlength'=>50)); ?>
 		<?php echo $form->error($model,'Value'); ?>
 	</div>
-
+	
 	<div class="row">
-		<?php echo $form->labelEx($model,'Availability'); ?>
+		<?php echo $form->labelEx($model,'StartDate'); ?>
 		<?php
 			$this->widget('zii.widgets.jui.CJuiDatePicker', array(
-			'model'=>$model,
-			'attribute'=>'Availability',
-			'value'=>$model->Availability,
-			//additional javascript options for the date picker plugin
-			'options'=>array(
-			'dateFormat'=>'yy-mm-dd', // yy-mm-dd
-			'showAnim'=>'fold',
-            // 'debug'=>true,
-			'datepickerOptions'=>array('changeMonth'=>true, 'changeYear'=>true),
-			),
-			// 'htmlOptions'=>array('style'=>'height:15px;'),
-			));
-			// - See more at: http://arjunphp.com/add-date-picker-text-field-yii/#sthash.8djSHyAQ.dpuf		?>
-		<?php echo $form->error($model,'Availability'); ?>
+           'name' => 'StartDate',
+		   'model'=>$model,
+			'attribute'=>'StartDate',
+           // additional javascript options for the date picker plugin
+           'options' => array(
+               'showAnim' => "slideDown",
+               'changeMonth' => true,
+               'numberOfMonths' => 1,
+               'showOn' => "button",
+               'buttonImageOnly' => false,
+               'dateFormat' => "yy-mm-dd",
+               'showButtonPanel' => true,
+               'onClose' => 'js:function(selectedDate) { $("#EndDate").datepicker("option", "minDate", selectedDate); }',            
+           )
+       ));	?>
+		<?php echo $form->error($model,'StartDate'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'EndDate'); ?>
+		<?php
+			 $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+           'name' => 'EndDate',
+		   'model'=>$model,
+			'attribute'=>'EndDate',
+           // additional javascript options for the date picker plugin
+           'options' => array(
+               'showAnim' => "slideDown",
+               'changeMonth' => true,
+               'numberOfMonths' => 1,
+               'showOn' => "button",
+               'buttonImageOnly' => false,
+               'dateFormat' => "yy-mm-dd",
+               'showButtonPanel' => true,
+               'onClose' => 'js:function(selectedDate) { $("#StartDate").datepicker("option", "maxDate", selectedDate); }',
+           )
+       ));	?>
+		<?php echo $form->error($model,'EndDate'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'Status'); ?>
+		<?php echo CHtml::dropDownList('RewardDetails[Status]', 
+			$model->scenario === 'update' ? $model->Status : 'ACTIVE', 
+			ZHtml::enumItem($model, 'Status')); 
+		?>
+		<?php echo $form->error($model,'Status'); ?>
 	</div>
 
 	<div class="row buttons">
@@ -117,161 +127,4 @@
 
 <?php $this->endWidget(); ?>
 
-<script type="text/javascript">
-
-var RewardDetails = function() {
-    var self = this;
-    
-    self.moduleName = "RewardDetails";
-    
-    self.itemPattern  = "#{mod}_{fld}_Container input[id^={mod}_{fld}_]".replace(/\{mod\}/g, self.moduleName);
-    self.rewardItem   = "#{mod}_RewardId".replace(/\{mod\}/g, self.moduleName);
-    self.clientItem   = self.itemPattern.replace(/\{fld\}/g, "ClientId");
-    self.brandItem    = self.itemPattern.replace(/\{fld\}/g, "BrandId");
-    self.campaignItem = self.itemPattern.replace(/\{fld\}/g, "CampaignId");
-    self.channelItem  = self.itemPattern.replace(/\{fld\}/g, "ChannelId");
-    
-    self.lstContainerPtrn = "#{mod}_{fld}_Container".replace(/\{mod\}/g, self.moduleName);
-    self.clientContainer   = self.lstContainerPtrn.replace(/\{fld\}/g, "ClientId");
-    self.brandContainer    = self.lstContainerPtrn.replace(/\{fld\}/g, "BrandId");
-    self.campaignContainer = self.lstContainerPtrn.replace(/\{fld\}/g, "CampaignId");
-    self.channelContainer  = self.lstContainerPtrn.replace(/\{fld\}/g, "ChannelId");
-    
-    self.init = function() {
-        self.addEvents();
-    };
-    
-    self.addEvents = function() {
-        jQuery(self.clientItem).off().on("click", function() {
-            var selection = self.selection("ClientId");
-            self.brandList(selection);
-        });
-        
-        jQuery(self.brandItem).off().on("click", function() {
-            var selection = self.selection("BrandId");
-            self.campaignList(selection);
-        });
-
-        jQuery(self.campaignItem).off().on("click", function() {
-            var selBrands = self.selection("BrandId");
-            var selCampaigns = self.selection("CampaignId");
-            self.channelList(selBrands, selCampaigns);
-        });
-
-        jQuery(self.clientItem).off().on("change", function() {
-            var selection = self.selection("ClientId");
-            self.brandList(selection);
-        });
-        
-        jQuery(self.brandItem).off().on("change", function() {
-            var selection = self.selection("BrandId");
-            self.campaignList(selection);
-        });
-
-        jQuery(self.campaignItem).off().on("change", function() {
-            var selBrands = self.selection("BrandId");
-            var selCampaigns = self.selection("CampaignId");
-            self.channelList(selBrands, selCampaigns);
-        });
-
-
-
-    };
-    
-    self.selection = function(field) {
-        var checkedItems = self.itemPattern.replace(/\{fld\}/g, field) + ":checked";
-        return jQuery(checkedItems).map( function() { return this.value; }).get();
-    };
-    
-    self.brandList = function(client) {
-        var requestObj = {
-            url: BaseUrl + "rewardDetails/getbrands",
-            type: "GET",
-            dataType: "json"
-        };
-        requestObj.data = {
-            ClientId: client
-        };
-        requestObj.beforeSend = function() {
-            jQuery(self.brandContainer).html("Loading...");
-            jQuery(self.campaignContainer).empty();
-            jQuery(self.channelContainer).empty();
-        };
-        requestObj.success = function(response) {
-            self.refreshList("BrandId", response);
-        };
-        jQuery.ajax(requestObj);
-    };
-    
-    self.campaignList = function(brand) {
-        var requestObj = {
-            url: BaseUrl + "rewardDetails/getcampaigns",
-            type: "GET",
-            dataType: "json"
-        };
-        requestObj.data = {
-            BrandId: brand
-        };
-        requestObj.beforeSend = function() {
-            jQuery(self.campaignContainer).html("Loading...");
-            jQuery(self.channelContainer).empty();
-        };
-        requestObj.success = function(response) {
-            self.refreshList("CampaignId", response);
-        };
-        jQuery.ajax(requestObj);
-    };
-    
-    self.channelList = function(brand, campaign) {
-        var requestObj = {
-            url: BaseUrl + "rewardDetails/getchannels",
-            type: "GET",
-            dataType: "json"
-        };
-        requestObj.data = {
-            BrandId: brand,
-            CampaignId: campaign
-        };
-        requestObj.beforeSend = function() {
-            jQuery(self.channelContainer).html("Loading...");
-        };
-        requestObj.success = function(response) {
-            self.refreshList("ChannelId", response);
-        };
-        jQuery.ajax(requestObj);
-    };
-    
-    self.refreshList = function(field, data) {
-        var container = self.lstContainerPtrn.replace(/\{fld\}/g, field);
-        jQuery(container).empty();
-        
-        if(!data) jQuery(container).html("--No data--");
-        
-        jQuery.each(data, function(idx, val) {
-          var itemContainer = jQuery("<div/>");
-   
-          itemContainer
-            .append( // make checkbox
-              jQuery("<input>", { type: "checkbox", id: self.moduleName + "_" + field + "_" + idx,
-                value: idx, name: self.moduleName + "[" + field + "][]" })
-            )
-            .append("&nbsp;")
-            .append( // make label
-              jQuery("<label/>", { "for": self.moduleName + "_" + field + "_" + idx, text: val })
-                .css("display", "inline-block")
-            )
-
-          jQuery(container).append(itemContainer);
-        });
-
-        self.addEvents();
-
-
-    };
-}
-
-var rewardDetails = new RewardDetails();
-rewardDetails.init();
-
-</script>
 </div><!-- form -->
