@@ -78,7 +78,11 @@ class RewardDetailsController extends Controller
 			$model->setAttribute("Status", 'ACTIVE');
 			if(Yii::app()->user->AccessType !== "SUPERADMIN") {
 				$model->setAttribute("ClientId",    Yii::app()->user->ClientId);
-			}			
+			}		
+			//get points id
+			list($PointsId, $ClientId ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
+			$model->setAttribute("PointsId",    $PointsId);
+			$model->setAttribute("ClientId",    $ClientId);
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy",   Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
@@ -124,13 +128,34 @@ class RewardDetailsController extends Controller
 		}
 
 		$this->render('create',array(
-			'model'=>$model,
-			'client_list'=>$clients,
-			'points_id'=>$pointslist,
-			'rewardlist_id'=>$rewardslist,
+			'model'        => $model,
+			'client_list'  => $clients,
+			'points_id'    => $this->getDropList(),
+			'rewardlist_id'=> $rewardslist,
 		));
 	}
 
+
+	protected function getDropList()
+	{
+	
+		$criteria = new CDbCriteria;
+		// Uncomment the following line if AJAX validation is needed
+		$xmore = '';
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") {
+			$xmore = " AND t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
+		}
+		$criteria->addCondition(" t.status='ACTIVE' $xmore ");
+		$_list = PointsSystem::model()->with('byClients')->findAll($criteria);
+		$data  = array();
+		foreach($_list as $row) {
+			$vkey = sprintf("%s-%s",$row->PointsId ,$row->ClientId );
+			$data["$vkey"] = sprintf("%s ( %s )",$row->Name,($row->byClients!=null ? ($row->byClients->CompanyName) : ("")));
+
+		}
+		//give it back
+		return $data;
+	}
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
@@ -146,6 +171,10 @@ class RewardDetailsController extends Controller
 		if(isset($_POST['RewardDetails']))
 		{
 			$model->attributes=$_POST['RewardDetails'];
+			
+			
+			//get points id
+	
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			

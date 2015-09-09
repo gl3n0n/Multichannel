@@ -65,17 +65,19 @@ class PointsSystemMappingController extends Controller
 
 	protected function getDropList()
 	{
+	
+		$criteria = new CDbCriteria;
 		// Uncomment the following line if AJAX validation is needed
 		$xmore = '';
 		if(Yii::app()->user->AccessType !== "SUPERADMIN") {
-			$xmore = " AND ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
+			$xmore = " AND t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
 		}
-		$_list = PointsSystem::model()->findAll(array(
-			  'select'=>'PointsId, ClientId, Name', 'condition' => " status='ACTIVE' $xmore "));
-		$data = array();
+		$criteria->addCondition(" t.status='ACTIVE' $xmore ");
+		$_list = PointsSystem::model()->with('byClients')->findAll($criteria);
+		$data  = array();
 		foreach($_list as $row) {
 			$vkey = sprintf("%s-%s",$row->PointsId ,$row->ClientId );
-			$data["$vkey"] = $row->Name;
+			$data["$vkey"] = sprintf("%s ( %s )",$row->Name,($row->byClients!=null ? ($row->byClients->CompanyName) : ("")));
 
 		}
 		//give it back

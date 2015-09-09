@@ -21,50 +21,63 @@
     <?php if($model->scenario === 'insert'): // These are displayed when user is creating a new reward details. ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'RewardId'); ?>
-		<?php echo $form->dropDownList($model,'RewardId',$rewards_list); ?>
+		<?php echo $form->dropDownList($model,'RewardId',$rewards_list,
+				array(
+				'style' => 'width:200px;',
+				)); ?>
 		<?php echo $form->error($model,'RewardId'); ?>
 	</div>	
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'PointsId'); ?>
-		<?php echo $form->dropDownList($model,'PointsId',$points_list); ?>
+		<?php echo $form->dropDownList($model,'PointsId',$points_list,
+				array(
+				'style' => 'width:200px;',
+				)); ?>
 		<?php echo $form->error($model,'PointsId'); ?>
 	</div>
 	<?php else: // End Create scenario ?>	
 	<div class="row">
 		<?php echo $form->labelEx($model,'RewardId'); ?>
-        <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byRewards->Title)); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,
+        		'maxlength'=>20,
+        		'disabled'=>true, 
+        		'value'=>$model->byRewards->Title,
+        		'style' => 'width:200px;')); ?>
         <?php echo $form->error($model,'RewardId'); ?>
 	  </div>
 	  
 	  <div class="row">
 		<?php echo $form->labelEx($model,'PointsId'); ?>
-        <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byPointsSystem->Name)); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,
+        			'maxlength'=>20,'disabled'=>true, 
+        			'value'    =>$model->byPointsSystem->Name,
+        			'style'    => 'width:200px;')); ?>
         <?php echo $form->error($model,'PointsId'); ?>
 	  </div>
 	<?php endif; // End Create scenario ?>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'Name'); ?>
-		<?php echo $form->textField($model,'Name',array('size'=>60,'maxlength'=>255)); ?>
+		<?php echo $form->textField($model,'Name',array('size'=>60,'maxlength'=>255,'style' => 'width:200px;')); ?>
 		<?php echo $form->error($model,'Name'); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'Inventory'); ?>
-		<?php echo $form->textField($model,'Inventory'); ?>
+		<?php echo $form->textField($model,'Inventory',array('style' => 'width:200px;')); ?>
 		<?php echo $form->error($model,'Inventory'); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'Limitations'); ?>
-		<?php echo $form->textField($model,'Limitations',array('size'=>60,'maxlength'=>255)); ?>
+		<?php echo $form->textField($model,'Limitations',array('size'=>60,'maxlength'=>255 ,'style' => 'width:200px;')); ?>
 		<?php echo $form->error($model,'Limitations'); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'Value'); ?>
-		<?php echo $form->textField($model,'Value',array('size'=>50,'maxlength'=>50)); ?>
+		<?php echo $form->textField($model,'Value',array('size'=>50,'maxlength'=>50 ,'style' => 'width:200px;')); ?>
 		<?php echo $form->error($model,'Value'); ?>
 	</div>
 	
