@@ -22,18 +22,27 @@
 	<div class="row">
 		<?php echo $form->labelEx($model,'RewardId'); ?>
 		<?php echo $form->dropDownList($model,'RewardId',$rewards_list,
-				array(
-				'style' => 'width:200px;',
-				)); ?>
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->RewardId" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
 		<?php echo $form->error($model,'RewardId'); ?>
 	</div>	
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'PointsId'); ?>
-		<?php echo $form->dropDownList($model,'PointsId',$points_list,
-				array(
-				'style' => 'width:200px;',
-				)); ?>
+		<?php echo $form->dropDownList($model,'PointsId',$rewards_list,
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->PointsId" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+        	
 		<?php echo $form->error($model,'PointsId'); ?>
 	</div>
 	<?php else: // End Create scenario ?>	
@@ -141,3 +150,47 @@
 <?php $this->endWidget(); ?>
 
 </div><!-- form -->
+
+<script>
+
+
+//dynamic loading
+$( document ).ready(function() {
+
+	
+	$("#RewardDetails_RewardId").change(function(){
+	    
+		var choice = $("#RewardDetails_RewardId" ).val();
+
+		//chk	
+		var mde  = "RewardId="     + encodeURIComponent(choice) ;
+		var url  = BaseUrl         + "rewardDetails/getPointSystemlist/?" + mde;
+		loadlist($('select#RewardDetails_PointsId').get(0),
+		url,
+		''
+		);
+	});
+
+
+	//add it
+	function loadlist(selobj,url,nameattr)
+	{
+	    $(selobj).empty();
+	    $(selobj).append(
+		$('<option></option>')
+		.val('')
+		.html('-- Please Select --'));
+	    $.getJSON(url,{},function(data)
+	    {
+	        $.each(data, function(i,obj)
+	        {
+	            $(selobj).append(
+	                 $('<option></option>')
+	                        .val(i)
+	                        .html(obj));
+	        });
+	 });
+}
+});
+
+</script>

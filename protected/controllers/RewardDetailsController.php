@@ -35,7 +35,7 @@ class RewardDetailsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update','getPointSystemlist'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -80,9 +80,15 @@ class RewardDetailsController extends Controller
 				$model->setAttribute("ClientId",    Yii::app()->user->ClientId);
 			}		
 			//get points id
-			list($PointsId, $ClientId ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
+			list($RewardId, $ClientIda ) = @explode('-',trim($_POST['RewardDetails']['RewardId']));
+			list($PointsId, $ClientId  ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
+			
+			//save it
+			$model->setAttribute("RewardId",    $RewardId);
 			$model->setAttribute("PointsId",    $PointsId);
 			$model->setAttribute("ClientId",    $ClientId);
+			$model->setAttribute("StartDate",   substr($_POST['RewardDetails']['StartDate'],0,10));
+			$model->setAttribute("EndDate",     substr($_POST['RewardDetails']['EndDate']  ,0,10));
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy",   Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
@@ -106,11 +112,16 @@ class RewardDetailsController extends Controller
 		$clients = CHtml::listData($_clients, 'ClientId', 'CompanyName');
 		
 		$_rewardslistCriteria = new CDbCriteria;
-		$_rewardslist = RewardsList::model()->thisClient()->active()->findAll(array('select'=>'RewardId, Title'));
+		$_rewardslist = RewardsList::model()->thisClient()->active()->findAll(array('select'=>'RewardId, Title, ClientId'));
 		if(Yii::app()->user->AccessType === "SUPERADMIN")
-		$_rewardslist = RewardsList::model()->active()->findAll(array('select'=>'RewardId, Title'));
+		$_rewardslist = RewardsList::model()->active()->findAll(array('select'=>'RewardId, Title, ClientId'));
 		
-		$rewardslist = CHtml::listData($_rewardslist, 'RewardId', 'Title');
+		$rewardslist  = array();
+		foreach($_rewardslist as $row) {
+			$vkey                 = sprintf("%s-%s",$row->RewardId ,$row->ClientId );
+			$rewardslist["$vkey"] = $row->Title;
+		}
+		
 		
 		$_pointsSystemCriteria = new CDbCriteria;
 		$_pointsSystem = PointsSystem::model()->thisClient()->active()->findAll(array('select'=>'PointsId, Name'));
@@ -155,6 +166,28 @@ class RewardDetailsController extends Controller
 		}
 		//give it back
 		return $data;
+	}
+	
+	public function actionGetPointSystemlist()
+	{
+		//give
+		$criteria = new CDbCriteria;
+		
+		//get params
+		list($RewardId, $ClientId ) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		
+		// Uncomment the following line if AJAX validation is needed
+		$xmore = " AND t.ClientId = '".addslashes($ClientId)."' ";
+		$criteria->addCondition(" t.status='ACTIVE' $xmore ");
+		$_list = PointsSystem::model()->with('byClients')->findAll($criteria);
+		$data  = array();
+		foreach($_list as $row) {
+			$vkey = sprintf("%s-%s",$row->PointsId ,$row->ClientId );
+			$data["$vkey"] = sprintf("%s ( %s )",$row->Name,($row->byClients!=null ? ($row->byClients->CompanyName) : ("")));
+
+		}
+		//give it back
+		Yii::app()->utils->sendJSONResponse($data);
 	}
 	/**
 	 * Updates a particular model.
