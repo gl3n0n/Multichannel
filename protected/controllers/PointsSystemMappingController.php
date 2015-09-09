@@ -111,7 +111,9 @@ class PointsSystemMappingController extends Controller
 			{	
 				//fmt
 				list($PointsId, $ClientId ) = @explode('-',trim($_POST['PointsSystemMapping']['PointsId']));
-				$BrandId     = @trim($_POST['PointsSystemMapping']['BrandId']);
+
+				//arr
+				$BrandIds     = $_POST['PointsSystemMapping']['BrandId'];
 
 				//arr
 				$CampaignIds = $_POST['PointsSystemMapping']['CampaignId'];
@@ -126,8 +128,6 @@ class PointsSystemMappingController extends Controller
 
 				//$model->addError('error', 'Must select a valid Points');
 				$model->setAttribute("PointsId", $PointsId);
-				$model->setAttribute("ClientId", $ClientId);
-				$model->setAttribute("BrandId",  $BrandId);
 
 				//reset the campaignId
 				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
@@ -139,20 +139,22 @@ class PointsSystemMappingController extends Controller
 				{
 					foreach($ChannelIds as $KK => $VV)
 					{
-					    list($vCampaignId, $vChannelId ) = @explode('-',trim($VV));
+					    list($vClientId,$vBrandId,$vCampaignId, $vChannelId ) = @explode('-',trim($VV));
 					    $model->setAttribute("CampaignId",  $vCampaignId);
 					    $model->setAttribute("ChannelId",   $vChannelId);
+					    $model->setAttribute("ClientId",    $vClientId);
+					    $model->setAttribute("BrandId",     $vBrandId);
 					    
 					    
 					    
 					    //chk
 					    $kcondchk   = array();
 					    $kcondchk[] = " 1=1 ";
-					    $kcondchk[] = " AND t.PointsId   = '".addslashes($PointsId).   "' ";
-					    $kcondchk[] = " AND t.ClientId   = '".addslashes($ClientId).   "' ";
-					    $kcondchk[] = " AND t.BrandId    = '".addslashes($BrandId).    "' ";
-					    $kcondchk[] = " AND t.CampaignId = '".addslashes($vCampaignId)."' ";
-					    $kcondchk[] = " AND t.ChannelId  = '".addslashes($vChannelId). "' ";
+					    $kcondchk[] = " AND t.PointsId   = '".addslashes($PointsId).    "' ";
+					    $kcondchk[] = " AND t.ClientId   = '".addslashes($vClientId).   "' ";
+					    $kcondchk[] = " AND t.BrandId    = '".addslashes($vBrandId).    "' ";
+					    $kcondchk[] = " AND t.CampaignId = '".addslashes($vCampaignId). "' ";
+					    $kcondchk[] = " AND t.ChannelId  = '".addslashes($vChannelId).  "' ";
 					    $ksql       = @implode('',$kcondchk);
 					    $kmapping   = PointsSystemMapping::model()->findAll(array(
 								'select'    => "PointMappingId, PointsId", 
@@ -486,12 +488,16 @@ protected function getBrands($ClientId=0)
 
     }
 
-    public function actionGetCampaigns($BrandId=null)
+    public function actionGetCampaigns()
     {
-        // $BrandId = Yii::app()->request->getParam('BrandId', 0);
-        if( ! (intval($BrandId)) ) return Yii::app()->utils->sendJSONResponse(array());
+	$BrandId    = Yii::app()->request->getParam("BrandId", array());
+  	if( ! is_array($BrandId) && intval($BrandId)) {
+		$BrandId = array( intval($BrandId) );
+	}
 
-        $model = Campaigns::model()->findAllByAttributes(array('BrandId'=>$BrandId), array('select'=>'CampaignId, CampaignName'));
+	$criteria = new CDbCriteria;
+	$criteria->addInCondition('BrandId',    $BrandId);
+        $model = Campaigns::model()->findAll($criteria);
         $list  = array();
 
         foreach($model as $row) { $list[$row['CampaignId']] = $row['CampaignName']; }
@@ -501,6 +507,32 @@ protected function getBrands($ClientId=0)
     }
 
     public function actionGetChannels()
+    {
+	    $BrandId    = Yii::app()->request->getParam("BrandId", array());
+	    $CampaignId = Yii::app()->request->getParam("CampaignId", array());
+
+	    if( ! is_array($BrandId) && intval($BrandId)) {
+		    $BrandId = array( intval($BrandId) );
+	    }
+
+	    if( ! is_array($CampaignId) && intval($CampaignId)) {
+		    $CampaignId = array( intval($CampaignId) );
+	    }
+
+	    $criteria = new CDbCriteria;
+	    $criteria->addInCondition('t.BrandId',    $BrandId);
+	    $criteria->addInCondition('t.CampaignId', $CampaignId);
+	    $model = Channels::model()->with('channelCampaigns')->findAll($criteria);
+	    $list  = array();
+
+	    foreach($model as $row) {
+		    $idxk          = sprintf("%s-%s-%s-%s",$row->ClientId,$row->BrandId,$row->CampaignId,$row->ChannelId);
+		    $list["$idxk"] = "{$row->ChannelName} ({$row->channelCampaigns->CampaignName})";
+	    }
+	    Yii::app()->utils->sendJSONResponse($list);
+    }
+
+    public function actionGetChannelsORIG()
     {
         $BrandId    = (int) Yii::app()->request->getParam("BrandId", "0");
         $CampaignId = Yii::app()->request->getParam("CampaignId", array());
@@ -526,7 +558,6 @@ protected function getBrands($ClientId=0)
 		}
         Yii::app()->utils->sendJSONResponse($list);
     }
-
 
 	
 }

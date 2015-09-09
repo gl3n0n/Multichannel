@@ -51,6 +51,7 @@
            		'options' => array(
 					'showAnim' => "slideDown",
 					'changeMonth' => true,
+					'changeYear' => true,
 					'numberOfMonths' => 1,
 					'showOn' => "button",
 					'buttonImageOnly' => false,
@@ -62,15 +63,14 @@
 		<?php echo $form->error($model,'Availability'); ?>
 	</div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'Status'); ?>
-		<?php echo ZHtml::enumDropDownList(RewardsList::model(), 'Status', array(
-    'id'=>'search-status',
-    'name'=>'RewardsList[Status]',
-    'value'=>'',
-)); ?>
-		<?php echo $form->error($model,'Status'); ?>
-	</div>
+<div class="row">
+    <?php echo $form->labelEx($model,'Status'); ?>
+    <?php echo CHtml::dropDownList('RewardsList[Status]', 
+        $model->scenario === 'update' ? $model->Status : 'ACTIVE', 
+        ZHtml::enumItem($model, 'Status')); 
+    ?>
+    <?php echo $form->error($model,'Status'); ?>
+</div>
 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

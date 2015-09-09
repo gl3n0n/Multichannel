@@ -33,49 +33,21 @@ if($model->scenario === 'insert')
 			$pIdx = '';
 			if($model->PointsId && $model->ClientId)
 				$pIdx = sprintf("%s-%s",$model->PointsId,$model->ClientId);
-				
 			echo $form->dropDownList($model,'PointsId',$points_system_list, array(
-			'empty'=>'--Select Points System--',
-			'options' => array("$pIdx" => array('selected'=>true)),
-			'ajax'=>array('type'=>'get',
-			'url'=>$this->createUrl('/pointsSystemMapping/getbrands'),
-			'data'=>'js:{"PointsId" : this.value }',
-			'success'=>'js:function data(response) {
-			    $("#' . get_class($model) . '_BrandId'.'").html("");
-			    $("#' . get_class($model) . '_CampaignId'.'").html($("<option/>", {value: "", text: "--Select Points System--" })).attr("size", 1);
-
-			    var curval = $("#' . get_class($model) . '_PointsId'.'").val();
-
-			    if(response.length === 0 || ! curval)
-			    {
-				var promptText = "--Select a brand--";
-			    }
-			    else {
-				var promptText = "--Select a brand--";
-				$("#' . get_class($model) . '_CampaignId'.'")
-				  .html($("<option/>", {value: "", text: "--Select a brand--" }))
-				  .attr("size", 1);
-			    }
-
-			    $("#' . get_class($model) . '_BrandId'.'").html($("<option/>", {value: "", text: promptText }));
-
-			    $.each(response, function(idx, val) {
-				$("#' . get_class($model) . '_BrandId'.'").append($("<option/>", {
-				    value: idx,
-				    text: val
-				}));
-			    });
-			}',
-			),
-		)); ?>        	
+				'empty'   => '--Select Points System--',
+				'options' => array("$pIdx" => array('selected'=>true)),
+				'onchange'=> "javascript:multi.refreshListBRANDS();",
+			));?>
 		<?php echo $form->error($model,'PointsId'); ?>
 	</div>
 
 	<div class="row">
-	    <?php echo $form->labelEx($model,'BrandId'); ?>
-	    <?php echo $form->dropDownList($model,'BrandId',$brand_list,array(
-	      'prompt' => '--Select a brand--',
-	    )); ?>
+	   <?php echo $form->labelEx($model,'BrandId'); ?>
+	    <?php $this->renderPartial('application.components.view.checkboxlist', array(
+	      'model'        => $model,
+	      'listData'     => $brand_list,
+	      'attributeName'=> 'BrandId',
+	    )); ?>	    
 	    <?php echo $form->error($model,'BrandId'); ?>
 	  </div>
 
@@ -116,158 +88,165 @@ $( document ).ready(function() {
 });
 
 
-var CampaignList = function()
-{
-  var self = this;
+var PointsSystemMapping = function() {
+    var self = this;
+    
+    self.moduleName = "PointsSystemMapping";
+    
+    self.itemPattern  = "#{mod}_{fld}_Container input[id^={mod}_{fld}_]".replace(/\{mod\}/g, self.moduleName);
+    self.pointItem    = self.itemPattern.replace(/\{fld\}/g, "PointsId");
+    self.brandItem    = self.itemPattern.replace(/\{fld\}/g, "BrandId");
+    self.campaignItem = self.itemPattern.replace(/\{fld\}/g, "CampaignId");
+    self.channelItem  = self.itemPattern.replace(/\{fld\}/g, "ChannelId");
+    
+    self.lstContainerPtrn = "#{mod}_{fld}_Container".replace(/\{mod\}/g, self.moduleName);
+    self.pointContainer   = self.lstContainerPtrn.replace(/\{fld\}/g,  "PointsId");
+    self.brandContainer    = self.lstContainerPtrn.replace(/\{fld\}/g, "BrandId");
+    self.campaignContainer = self.lstContainerPtrn.replace(/\{fld\}/g, "CampaignId");
+    self.channelContainer  = self.lstContainerPtrn.replace(/\{fld\}/g, "ChannelId");
+    
+    self.init = function() {
+        self.addEvents();
+    };
+    
+    self.addEvents = function() {
+        jQuery(self.pointItem).off().on("click", function() {
+            var selection = self.selection("PointsId");
+            self.brandList(selection);
+        });
+        
+        jQuery(self.brandItem).off().on("click", function() {
+            var selection = self.selection("BrandId");
+            self.campaignList(selection);
+        });
 
-  self.listData = {};
-  self.brandId             = "#PointsSystemMapping_BrandId";
-  self.campaignContainerId = "#PointsSystemMapping_CampaignId_Container";
-  self.channelContainerId  = "#PointsSystemMapping_ChannelId_Container";
-  self.chkCampaignItems    = '#PointsSystemMapping_CampaignId_Container input[id^=PointsSystemMapping_CampaignId_]';
-  self.chkAllCampaignId
+        jQuery(self.campaignItem).off().on("click", function() {
+            var selBrands    = self.selection("BrandId");
+            var selCampaigns = self.selection("CampaignId");
+            self.channelList(selBrands, selCampaigns);
+        });
 
-  self.init = function()
-  {
-    jQuery(self.channelContainerId).empty();
-    jQuery(self.campaignContainerId).empty();
-    self.addEvents();
-  };
+        jQuery(self.pointItem).off().on("change", function() {
+            var selection = self.selection("PointsId");
+            self.brandList(selection);
+        });
+        
+        jQuery(self.brandItem).off().on("change", function() {
+            var selection = self.selection("BrandId");
+            self.campaignList(selection);
+        });
 
-  self.addEvents = function()
-  {
-    jQuery(self.brandId)
-      .off()
-      .on("change", function() {
-        self.getData(this.value, [
-          self.render,
-          self.addEvents
-        ]);
-      }); // End on
+        jQuery(self.campaignItem).off().on("change", function() {
+            var selBrands = self.selection("BrandId");
+            var selCampaigns = self.selection("CampaignId");
+            self.channelList(selBrands, selCampaigns);
+        });
 
-    jQuery(self.chkCampaignItems)
-      .off()
-      .on("change", function() {
-        self.getChannelList(jQuery(self.brandId).val());
-    });
 
-    jQuery()
-      .off()
-      .on("change", function() {
-        self.getChannelList(jQuery(self.brandId).val());
-    });
-  };
 
-  self.getListData = function(BrandId, callbacks)
-  {
-    self.getData(BrandId);
-  };
+    };
+    
+    self.selection = function(field) {
+        var checkedItems = self.itemPattern.replace(/\{fld\}/g, field) + ":checked";
+        return jQuery(checkedItems).map( function() { return this.value; }).get();
+    };
+    
+    self.brandList = function(client) {
+        var requestObj = {
+            url: BaseUrl + "pointsSystemMapping/getbrands",
+            type: "GET",
+            dataType: "json"
+        };
+        requestObj.data = {
+            PointsId: client
+        };
+        requestObj.beforeSend = function() {
+            jQuery(self.brandContainer).html("Loading...");
+            jQuery(self.campaignContainer).empty();
+            jQuery(self.channelContainer).empty();
+        };
+        requestObj.success = function(response) {
+            self.refreshList("BrandId", response);
+        };
+        jQuery.ajax(requestObj);
+    };
+    
+    self.campaignList = function(brand) {
+        var requestObj = {
+            url: BaseUrl + "pointsSystemMapping/getcampaigns",
+            type: "GET",
+            dataType: "json"
+        };
+        requestObj.data = {
+            BrandId: brand
+        };
+        requestObj.beforeSend = function() {
+            jQuery(self.campaignContainer).html("Loading...");
+            jQuery(self.channelContainer).empty();
+        };
+        requestObj.success = function(response) {
+            self.refreshList("CampaignId", response);
+        };
+        jQuery.ajax(requestObj);
+    };
+    
+    self.channelList = function(brand, campaign) {
+        var requestObj = {
+            url: BaseUrl + "pointsSystemMapping/getchannels",
+            type: "GET",
+            dataType: "json"
+        };
+        requestObj.data = {
+            BrandId: brand,
+            CampaignId: campaign
+        };
+        requestObj.beforeSend = function() {
+            jQuery(self.channelContainer).html("Loading...");
+        };
+        requestObj.success = function(response) {
+            self.refreshList("ChannelId", response);
+        };
+        jQuery.ajax(requestObj);
+    };
+    
+    self.refreshList = function(field, data) {
+        var container = self.lstContainerPtrn.replace(/\{fld\}/g, field);
+        jQuery(container).empty();
+        
+        if(!data) jQuery(container).html("--No data--");
+        
+        jQuery.each(data, function(idx, val) {
+          var itemContainer = jQuery("<div/>");
+   
+          itemContainer
+            .append( // make checkbox
+              jQuery("<input>", { type: "checkbox", id: self.moduleName + "_" + field + "_" + idx,
+                value: idx, name: self.moduleName + "[" + field + "][]" })
+            )
+            .append("&nbsp;")
+            .append( // make label
+              jQuery("<label/>", { "for": self.moduleName + "_" + field + "_" + idx, text: val })
+                .css("display", "inline-block")
+            )
 
-  self.getChannelList = function() {
-      var requestObject = {
-          url: BaseUrl + "pointsSystemMapping/getchannels",
-          type: "GET",
-          dataType: "json"
-      };
+          jQuery(container).append(itemContainer);
+        });
 
-      requestObject.data = { 
-          BrandId: jQuery(self.brandId).val(),
-          CampaignId: self.getCampaignIds()
-      };
+        self.addEvents();
 
-      requestObject.beforeSend = function() {
-          jQuery(self.channelContainerId).html("Loading...");
-      };
 
-      requestObject.success = function(response) {
-          self.refreshChannels(response);
-      };
+    };
 
-      jQuery.ajax(requestObject);
-  };
+    self.refreshListBRANDS = function() {
+        //var selection = self.selection("PointsId");
+        var selection = $('#PointsSystemMapping_PointsId').val();
+        self.brandList(selection);
+    }
 
-  self.getData = function(BrandId, callbacks)
-  {
-    rData = {"BrandId": BrandId};
+}
 
-    // Send request
-    jQuery.ajax({
-      url: BaseUrl + "pointsSystemMapping/getcampaigns",
-      data: rData,
-      type: 'GET',
-      dataType: 'json',
-      beforeSend: function() {
-        jQuery(self.campaignContainerId).html("Loading...");
-      },
-      success: function(response) {
-        // Empty the contents of list
-        jQuery(self.campaignContainerId).empty();
-
-        if( response ) self.listData = response;
-
-        if(callbacks) {
-          jQuery.each(callbacks, function(idx, callback) {
-            callback();
-          });
-        }
-
-      }
-    }); // End request
-
-  };
-
-  self.getCampaignIds = function() {
-      return jQuery(self.chkCampaignItems + ":checked").map(function() { return this.value }).get();
-  };
-
-  self.refreshChannels = function(data)
-  {
-    jQuery(self.channelContainerId).empty();
-
-    jQuery.each(data, function(idx, val) {
-      var itemContainer = jQuery("<div/>");
-
-      // Create the item
-      itemContainer
-        .append( // make checkbox
-          jQuery("<input>", { type: "checkbox", id: "PointsSystemMapping_ChannelId_" + idx,
-            value: idx, name: "PointsSystemMapping[ChannelId][]" })
-        )
-        .append("&nbsp;")
-        .append( // make label
-          jQuery("<label/>", { "for": "PointsSystemMapping_ChannelId_" + idx, text: val })
-            .css("display", "inline-block")
-        )
-      // 
-      jQuery(self.channelContainerId).append(itemContainer);
-    });
-  };
-
-  self.render = function()
-  {
-    jQuery.each(self.listData, function(idx, val) {
-      var itemContainer = jQuery("<div/>");
-
-      // Create the item
-      itemContainer
-        .append( // make checkbox
-          jQuery("<input>", { type: "checkbox", id: "PointsSystemMapping_CampaignId_" + idx,
-            value: idx, name: "PointsSystemMapping[CampaignId][]" })
-        )
-        .append("&nbsp;")
-        .append( // make label
-          jQuery("<label/>", { "for": "PointsSystemMapping_CampaignId_" + idx, text: val })
-            .css("display", "inline-block")
-        )
-      // 
-      jQuery(self.campaignContainerId).append(itemContainer);
-    });
-  };
-};
-
-var campaignsList = new CampaignList();
-campaignsList.init();
-
+var multi = new PointsSystemMapping();
+multi.init();
 
 
 
