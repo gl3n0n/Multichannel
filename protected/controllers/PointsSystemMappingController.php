@@ -126,19 +126,25 @@ class PointsSystemMappingController extends Controller
 					exit;
 				}
 
-				//$model->addError('error', 'Must select a valid Points');
-				$model->setAttribute("PointsId", $PointsId);
-
-				//reset the campaignId
-				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-				$model->setAttribute("CreatedBy",   Yii::app()->user->id);
-				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-				$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
 
 				if(@is_array($ChannelIds))
 				{
 					foreach($ChannelIds as $KK => $VV)
 					{
+
+					    $model = new PointsSystemMapping;
+					    $model->attributes=$_POST['PointsSystemMapping'];
+
+					    //$model->addError('error', 'Must select a valid Points');
+					    $model->setAttribute("PointsId", $PointsId);
+
+					    //reset the campaignId
+					    $model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+					    $model->setAttribute("CreatedBy",   Yii::app()->user->id);
+					    $model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+					    $model->setAttribute("UpdatedBy",   Yii::app()->user->id);
+
+					    //1x1
 					    list($vClientId,$vBrandId,$vCampaignId, $vChannelId ) = @explode('-',trim($VV));
 					    $model->setAttribute("CampaignId",  $vCampaignId);
 					    $model->setAttribute("ChannelId",   $vChannelId);
@@ -159,7 +165,7 @@ class PointsSystemMappingController extends Controller
 					    $kmapping   = PointsSystemMapping::model()->findAll(array(
 								'select'    => "PointMappingId, PointsId", 
 								'condition' => "$ksql"));
-					    if($kmapping == null)
+					    if($kmapping == null or !$kmapping)
 					    { 
 						    if($model->save())
 						    {
