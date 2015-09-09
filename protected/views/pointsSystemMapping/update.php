@@ -22,11 +22,7 @@ $this->menu=array(
 
 <?php 
 $this->renderPartial('_form', array(
-	'model'	        =>$model, 
-	'points_system_list'  => $points_system_list,
-	'brand_list'          => $brand_list,
-	'campaign_list'       => $campaign_list,
-	'channel_list'        => $channel_list,
+	'model'	        =>$model,
 )); 
 
 ?>

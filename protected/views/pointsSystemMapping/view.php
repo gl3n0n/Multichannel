@@ -10,11 +10,12 @@ $this->breadcrumbs=array(
 $this->menu=array(
 	array('label'=>'List Points System Mapping',   'url'=>array('index')),
 	array('label'=>'Create Points System Mapping', 'url'=>array('create')),
-	//array('label'=>'Update Points System Mapping', 'url'=>array('update', 'id'=>$model->PointMappingId)),
+	array('label'=>'Update Points System Mapping', 'url'=>array('update', 'id'=>$model->PointMappingId)),
+	/*
 	array('label'=>'Delete Points System Mapping', 'url'=>'#', 
 	'linkOptions'=>array('submit'=>array('delete','id'=>$model->PointMappingId),
 	'confirm'=>'Are you sure you want to delete this item?')),	
-
+	*/
 	
 );
 ?>
@@ -44,6 +45,7 @@ $this->menu=array(
 			'name' => 'ChannelId',
 			'value'=> $model->byChannels!=null?($model->byChannels->ChannelName):(""),
 			),							
+		'Status',
 		'DateCreated',
 		array(
 			'name' => 'CreatedBy',

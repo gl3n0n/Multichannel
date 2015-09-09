@@ -10,6 +10,7 @@
  * @property string $BrandId
  * @property string $CampaignId
  * @property string $ChannelId
+ * @property string $Status
  */
 class PointsSystemMapping extends CActiveRecord
 {
@@ -30,10 +31,10 @@ class PointsSystemMapping extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('PointsId, ClientId, BrandId, CampaignId, ChannelId', 'required'),
-			array('PointsId, ClientId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
+			array('PointsId, ClientId, BrandId, CampaignId, ChannelId, Status', 'length', 'max'=>11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('PointMappingId, PointsId, ClientId, BrandId, CampaignId, ChannelId', 'safe', 'on'=>'search'),
+			array('PointMappingId, PointsId, ClientId, BrandId, CampaignId, ChannelId, Status', 'safe', 'on'=>'search'),
 		);
 	}
 	/**
@@ -67,6 +68,7 @@ class PointsSystemMapping extends CActiveRecord
 			'BrandId' => 'Brand',
 			'CampaignId' => 'Campaign',
 			'ChannelId' => 'Channel',
+			'Status' => 'Status',
 		);
 	}
 
@@ -94,6 +96,7 @@ class PointsSystemMapping extends CActiveRecord
 		$criteria->compare('BrandId',$this->BrandId,true);
 		$criteria->compare('CampaignId',$this->CampaignId,true);
 		$criteria->compare('ChannelId',$this->ChannelId,true);
+		$criteria->compare('Status',$this->Status,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

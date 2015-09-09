@@ -48,6 +48,18 @@ if($model->scenario === 'insert')
 		?>
 		<?php echo $form->error($model,'Name'); ?>
 	</div>
+	
+	<div class="row">
+    <?php echo $form->labelEx($model,'Status'); ?>
+    <?php echo CHtml::dropDownList('PointsSystem[Status]', 
+        $model->scenario === 'update' ? $model->Status : 'ACTIVE', 
+        ZHtml::enumItem($model, 'Status')); 
+    ?>
+    <?php echo $form->error($model,'Status'); ?>
+</div>
+
+	
+	
 
 	 
 	 <div class="row buttons">

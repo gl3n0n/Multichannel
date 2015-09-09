@@ -53,6 +53,7 @@ $this->menu=array(
 			'name' => 'ChannelId',
 			'value'=> '$data->byChannels!=null?($data->byChannels->ChannelName):("")',
 			),							
+		'Status',
 		'DateCreated',
 		array(
 			'name' => 'CreatedBy',

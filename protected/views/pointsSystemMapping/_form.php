@@ -24,7 +24,7 @@ if($model->scenario === 'insert')
 
 	<?php echo $form->errorSummary($model); ?>
 
-
+	<?php if($model->scenario === 'insert'): // These are displayed when user is creating a new coupon. ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'PointsId'); ?>
 		
@@ -70,6 +70,48 @@ if($model->scenario === 'insert')
 	    )); ?>
 	    <?php echo $form->error($model,'ChannelId'); ?>
 	  </div>
+	  
+	  <?php else: // End Create scenario ?>
+	  <div class="row">
+		
+		<?php echo $form->labelEx($model,'PointsId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byPointsSystem->Name)); ?>
+        <?php echo $form->error($model,'PointsId'); ?>
+	  </div>
+	  <div class="row">
+		
+		<?php echo $form->labelEx($model,'ClientId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byClients->CompanyName)); ?>
+        <?php echo $form->error($model,'ClientId'); ?>
+	  </div>
+		
+		<div class="row">
+			<?php echo $form->labelEx($model,'BrandId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byBrands->BrandName)); ?>
+        <?php echo $form->error($model,'BrandId'); ?>
+		</div>
+
+		<div class="row">
+			<?php echo $form->labelEx($model,'CampaignId'); ?>
+			 <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byCampaigns->CampaignName)); ?>
+        <?php echo $form->error($model,'CampaignId'); ?>
+		</div>
+		
+		<div class="row">
+			<?php echo $form->labelEx($model,'ChannelId'); ?>
+			 <?php echo $form->textField($model,'CodeLength',array('size'=>20,'maxlength'=>20,'disabled'=>true, 'value'=>$model->byChannels->ChannelName)); ?>
+        <?php echo $form->error($model,'ChannelId'); ?>
+		</div>
+	  <?php endif; // End Create scenario ?>
+	  
+	  <div class="row">
+		<?php echo $form->labelEx($model,'Status'); ?>
+		<?php echo CHtml::dropDownList('PointsSystemMapping[Status]', 
+			$model->scenario === 'update' ? $model->Status : 'ACTIVE', 
+			ZHtml::enumItem($model, 'Status')); 
+		?>
+		<?php echo $form->error($model,'Status'); ?>
+	</div>
 
 	 
 	 <div class="row buttons">

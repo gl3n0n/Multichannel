@@ -220,6 +220,40 @@ class PointsSystemMappingController extends Controller
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
+	 
+	 public function actionUpdate($id)
+	{
+		
+		//NOTE: this will need to be modified to prevent users from other clients from viewing others' records
+		$model=$this->loadModel($id);
+
+
+		if(isset($_POST['PointsSystemMapping']))
+		{
+			$model->attributes=$_POST['PointsSystemMapping'];
+			
+			//reset the campaignId
+			// $model->setAttribute("Status", 'ACTIVE');
+			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+
+			if($model->save())
+			{
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
+				$this->redirect(array('view','id'=>$model->PointMappingId));
+			}
+		}
+
+		$this->render('update',array(
+			'model'      => $model,
+		));
+
+
+	}
+	 
+	/* 
 	public function actionUpdate($id)
 	{
 		
@@ -237,7 +271,7 @@ class PointsSystemMappingController extends Controller
 				$model->addError('CampaignId', 'Campaign cannot be blank.');
 			if(empty($_POST['PointsSystemMapping']['ChannelId']))  
 				$model->addError('ChannelId', 'Channel cannot be blank.');
-			
+
 			$saveOk  = 0;
 			$saveDup = 0;
 			if(!$model->hasErrors())
@@ -339,6 +373,7 @@ class PointsSystemMappingController extends Controller
 			'channel_list'        => $this->getChannels($model->BrandId,$model->CampaignId),
 		));
 	}
+	*/
 
 	/**
 	 * Deletes a particular model.

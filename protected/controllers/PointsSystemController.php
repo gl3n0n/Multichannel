@@ -142,7 +142,7 @@ class PointsSystemController extends Controller
 			$model->attributes=$_POST['PointsSystem'];
 			
 			//reset the campaignId
-			$model->setAttribute("Status", 'ACTIVE');
+			// $model->setAttribute("Status", 'ACTIVE');
 			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
