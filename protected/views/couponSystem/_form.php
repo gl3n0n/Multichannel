@@ -227,29 +227,24 @@ if($model->scenario === 'insert')
         <?php echo $form->fileField($model,'File', array('class'=>'input-file')); ?>
         <?php echo $form->error($model,'File'); ?>
     </div>
-    <div class="row">
-		<?php echo $form->labelEx($model,'CouponType'); ?>
-		<?php echo ZHtml::enumDropDownList(CouponSystem::model(), 'CouponType', array(
-		    'id'   =>'CouponType',
-		    'name' =>'CouponSystem[CouponType]',
-		    'style'=> 'width:200px;',
-		    'options' => array("$model->CouponType" => array('selected'=>true)),
-		)); ?>
-		<?php echo $form->error($model,'CouponType'); ?>
-	</div>
-         <div class="row">
-		<div id='PointsValue_Container' style="display:none">
-		<?php echo $form->labelEx($model,  'PointsValue'); ?>
-		<?php echo $form->textField($model,'PointsValue',
-				array('size'=>20,
-					'style'    => 'width:200px;',
-					'maxlength'=>20)); ?>
-		<?php echo $form->error($model,'PointsValue'); ?>
-		</div>
-	</div>
 
     <?php } ?>
 <?php endif; ?>
+<?php if($model->scenario==='update'): ?>
+	<div class="row">
+        <?php echo $form->labelEx($model,'CouponType'); ?>
+        <?php echo $form->textField($model,'CouponType',array('size'=>11, 'style'=> 'width:200px;','maxlength'=>11,'disabled'=>true)); ?>
+        <?php echo $form->error($model,'CouponType'); ?>
+    </div>
+	
+
+	 <?php if($model->CouponType==='CONVERT_TO_POINTS') { ?>
+		<div class="row">
+                <?php echo $form->labelEx($model,'PointsValue'); ?>
+		<?php echo $form->textField($model,'PointsValue',array('size'=>11, 'style'=> 'width:200px;','maxlength'=>11)); ?>
+		<?php echo $form->error($model,'PointsValue'); ?>
+    		</div>
+        <?php } ?>
 
 	<div class="row">
 	    <?php echo $form->labelEx($model,'Status'); ?>
@@ -259,7 +254,7 @@ if($model->scenario === 'insert')
 	    ?>
 	    <?php echo $form->error($model,'Status'); ?>
 	</div>
-
+<?php endif; ?>
 	 
 	 <div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

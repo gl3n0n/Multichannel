@@ -245,6 +245,7 @@ class CouponSystemController extends Controller
 	{
 		$model = CouponSystem::model()->findByPk($id);
 		$currentImage =  $model->Image;
+		$currentFile  =  $model->File;
 		//exit();
 
 		$model->CouponMode = ($model->File) ? 'user' : 'system';
@@ -304,6 +305,9 @@ class CouponSystemController extends Controller
 
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+			if($model->CouponType==='CONVERT_TO_POINTS') {
+				$model->setAttribute("PointsValue", trim($_POST['CouponSystem']["PointsValue"]));
+			}
 
 			if(! $model->hasErrors())
 			{
