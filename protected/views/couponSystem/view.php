@@ -11,15 +11,14 @@ $this->menu=array(
 	array('label'=>'List Coupon System', 'url'=>array('index')),
 	array('label'=>'Create Coupon System', 'url'=>array('create')),
 	array('label'=>'Update Coupon System', 'url'=>array('update', 'id'=>$model->CouponId)),
-	// array('label'=>'Delete Coupon', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->CouponId),'confirm'=>'Are you sure you want to delete this item?')),
-	// array('label'=>'Manage Coupon', 'url'=>array('admin')),
 );
 
 //overwrite
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
-	$this->menu[] =	array('label'=>'Pending Coupons', 'url'=>array('pending'));
+	$this->menu[] =	array('label'=>'Pending Coupon System', 'url'=>array('pending'));
 }
+
 
 ?>
 
@@ -64,6 +63,10 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 		),		
 		'Quantity',
 		'LimitPerUser',
-		'File',
+		array(
+		'name' => 'File',
+		'type' => 'raw',
+		'value'=> ($model->File != null)?(basename($model->File)):(""),
+		),		
 	),
 )); ?>

@@ -11,13 +11,15 @@ class CGridViewEtc extends CGridView {
 	public function etcButtonCoupon($data=null,$custlist=null)
 	{
 		$frmid= $data["GeneratedCouponId"];
-		$sfrm = CHtml::beginForm(Yii::app()->createUrl("coupon/genapproved"),
+		$sfrm = CHtml::beginForm(Yii::app()->createUrl("couponSystem/genapproved"),
 				'post',array('id'=>'mainFrm'.$frmid));
 		$btn  = CHTML::button('Claim AS',  array(
 				'id'     => 'btnClaim' ,
 				'style'  => 'width:200px;',
 				'onclick'=> "javascript:generateCoupon($frmid);"));
 		$efrm = CHtml::endForm(); 
+		
+		/**
 		$txt  = sprintf("%s , %s , %s",
 				$data["BrandName"],
 				$data["CampaignName"],
@@ -27,13 +29,14 @@ class CGridViewEtc extends CGridView {
 		$str2  = CHtml::textField('CampaignName', $data["CampaignName"], array(
 				     'style' => 'width:200px;','disabled'=>'disabled'));				     
 		$str3  = CHtml::textField('ChannelName', $data["ChannelName"], array(
-				     'style' => 'width:200px;','disabled'=>'disabled'));				     
-		$sel  = CHtml::dropDownlist('CustomerId','',$custlist, array(
-						'id' => 'CustomerId',
+				     'style' => 'width:200px;','disabled'=>'disabled'));	
+				     **/
+		$sel   = CHtml::dropDownlist('CustomerId','',$custlist, array(
+						'id'    => 'CustomerId',
 						'style' => 'width:203px;',
 						));
 		$hid1 = CHtml::hiddenField('CouponId',          $data["CouponId"], array('id'=>'CouponId'));				
-		$hid2 = CHtml::hiddenField('CouponMappingId',   $data["CouponMappingId"], array('id'=>'CouponMappingId'));
+		//$hid2 = CHtml::hiddenField('CouponMappingId',   $data["CouponMappingId"], array('id'=>'CouponMappingId'));
 		$hid3 = CHtml::hiddenField('GeneratedCouponId', $data["GeneratedCouponId"], array('id'=>'GeneratedCouponId'));				
 		$img  = $this->getQrCodeImage($data);
 		
@@ -42,35 +45,9 @@ class CGridViewEtc extends CGridView {
 		<hr>
 		$sfrm
 		$hid1
-		$hid2
 		$hid3
 		<table cellpadding=2 cellspacing=2 style='width:100%'>
 			<tr>
-			<td  align='right' valign='top'>
-			   Brand Name
-			</td>
-			   <td  align='left' valign='top'>
-				$str1
-			   </td>
-			</tr>
-			<tr>
-			<td  align='right' valign='top'>
-			   Campaign Name
-			</td>
-
-			   <td  align='left' valign='top'>
-				$str2
-			   </td>
-			</tr>
-			<tr>
-			<td  align='right' valign='top'>
-			   Channel Name
-			</td>
-
-			   <td  align='left' valign='top'>
-				$str3
-			   </td>
-			</tr>
 			<td  align='right' valign='top'>
 			   QR-Code
 			</td>

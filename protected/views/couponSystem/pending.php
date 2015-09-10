@@ -1,5 +1,5 @@
 <?php
-/* @var $this BrandsController */
+/* @var $this CouponController */
 /* @var $dataProvider CActiveDataProvider */
 
 $this->breadcrumbs=array(
@@ -16,25 +16,24 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	$this->menu=array(
 		array('label'=>'Create Coupon System',  'url'=>array('create')),
 		array('label'=>'Pending Coupon System', 'url'=>array('pending')),
-	);
+		);
 }
 ?>
 
-<h1>Coupon System</h1>
+<h1>Pending Coupon System</h1>
 <div>
-<?php $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("couponSystem/index"),
+<?php 
+if($this->statusMsg != null)
+{
+    echo "<div class='errorSummary'><p><h5>$this->statusMsg</h5></p></div>";
+}
+$form=$this->beginWidget('CActiveForm', array(
+	'action'=>Yii::app()->createUrl("couponSystem/pending"),
 	'method'=>'get',
 )); ?>
 	<fieldset>
 		<legend>Search By Source</legend>
-		<input type="text" 
-		id='search' 
-		name="search" 
-		id="list-search" 
-		placeholder="Source" 
-		value="<?=trim(Yii::app()->request->getParam('search'))?>"
-		title="Search Source" />
+		<input type="text" id='search' name="search" id="list-search" placeholder="Source" title="Search Source">
 		<button type="submit">Search</button>
 	</fieldset>
 <?php $this->endWidget(); ?>
@@ -42,11 +41,11 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=> $dataProvider,
 	'columns'=>array(
-	array(
-		'name'  => 'CouponId',
-		'value' => 'CHtml::link($data->CouponId,Yii::app()->createUrl("couponSystem/view",array("id"=>$data->primaryKey)))',
-		'type'  => 'raw',
-	),
+		array(
+			'name'  => 'CouponId',
+			'value' => 'CHtml::link($data->CouponId,Yii::app()->createUrl("couponSystem/view",array("id"=>$data->primaryKey)))',
+			'type'  => 'raw',
+		),
 	'CouponName',
 	'Type',
 	'TypeId',
@@ -66,7 +65,14 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	),
 	'Quantity',
 	'LimitPerUser',
+	array(
+		'name' => 'Action',
+		'type' => 'raw',
+		'value'=> '($data->Status !== "PENDING")?
+			(($data->edit_flag==1)?(CHtml::link("Update Approved",Yii::app()->createUrl("couponSystem/approveupdate/",array("uid"=>$data->primaryKey)))):
+			((CHtml::link("View Generated",Yii::app()->createUrl("couponSystem/generatedview/",array("uid"=>$data->primaryKey)))))):
+			(CHtml::link("Approve",Yii::app()->createUrl("couponSystem/approve/",array("uid"=>$data->primaryKey))))'
+	), 
+
        ),
 )); 
-?>
-

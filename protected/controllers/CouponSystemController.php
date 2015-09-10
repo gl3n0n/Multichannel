@@ -380,17 +380,11 @@ class CouponSystemController extends Controller
 		$criteria = new CDbCriteria;
 		if($search) $criteria->compare('Source', $search, true);
 
-		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')   
-		{
-
-			//relations
-			$criteria->with = array('couponMap',
-					'couponClients');
-			$criteria->together = true; // ADDED THIS
-			$criteria->condition = "couponMap.CouponId = t.CouponId AND 
-				couponMap.ClientId = couponClients.ClientId AND 
-				couponClients.ClientId= '".addslashes(Yii::app()->user->ClientId)."' ";
-		}
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')
+                {
+                        //relations
+                        $criteria->condition =  " t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
+                }
 
 		//create data
 		$dataProvider = new CActiveDataProvider('CouponSystem', array(
@@ -435,69 +429,18 @@ class CouponSystemController extends Controller
 		if($search) $criteria->compare('Source', $search, true);
 
 		//all-pending
-
-
-
-		//brands		
-		$_brands = Brands::model()->findAll(array(
-					'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE'"));
-		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
-
-		//campaigns
-		$_campaigns = Campaigns::model()->findAll(array(
-					'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE'"));
-		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
-
-		//clients		
-		$_clients   = Clients::model()->findAll(array(
-					'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE'"));
-		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
-
-		//channels
-		$_channels   = Channels::model()->findAll(array(
-					'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
-		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
-
-		$xtrasql     = (strlen($search) > 0) ? (" t.Source LIKE '%".addslashes($search)."%' AND ") : (""); 
+		$xtrasql     = (strlen($search) > 0) ? (" AND t.Source LIKE '%".addslashes($search)."%'  ") : (""); 
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')   
 		{
 
 			//relations
-			$criteria->with = array('couponMap',
-					'couponClients',
-					'couponMap.couponClients',
-					'couponMap.couponBrands',
-					'couponMap.couponChannels',
-					'couponMap.couponCampaigns');
-			$criteria->together  = true; // ADDED THIS
 			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '1' AND 
-				couponMap.CouponId = t.CouponId AND 
-				couponMap.ClientId = couponClients.ClientId AND $xtrasql
-				couponClients.ClientId= '".addslashes(Yii::app()->user->ClientId)."' ";
+					         t.ClientId= '".addslashes(Yii::app()->user->ClientId)."' $xtrasql ";
 		}
 		else
 		{
 			//relations
-			$criteria->with = array('couponMap',
-					'couponClients',
-					'couponMap.couponClients',
-					'couponMap.couponBrands',
-					'couponMap.couponChannels',
-					'couponMap.couponCampaigns');
-			$criteria->together  = true; // ADDED THIS
-			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '1' AND 
-				couponMap.CouponId = t.CouponId AND $xtrasql
-				couponMap.ClientId = couponClients.ClientId "; 
-		}
-		//try 
-		if(0){
-			$criteria->with=array(
-					'couponMap.couponClients',
-					'couponMap.couponBrands',
-					'couponMap.couponChannels',
-					'couponMap.couponCampaigns',
-					'couponMap',
-					);
+			$criteria->condition = " t.Status IN ('ACTIVE','PENDING') AND t.edit_flag <= '1' $xtrasql ";
 		}
 		//provider
 		$dataProvider = new CActiveDataProvider('CouponSystem', array(
@@ -510,11 +453,6 @@ class CouponSystemController extends Controller
 			{
 				echo '<hr><hr>'.@var_export($row,true);
 			}
-
-			echo '<hr><hr>'.@var_export($brands,true);
-			echo '<hr><hr>'.@var_export($campaigns,true);
-			echo '<hr><hr>'.@var_export($clients,true);
-			echo '<hr><hr>'.@var_export($channels,true);
 			exit;
 		}
 
@@ -526,10 +464,10 @@ class CouponSystemController extends Controller
 					));
 
 		$mapping =  array(
-				'Brands'       => $brands,
-				'Campaigns'    => $campaigns,
-				'Clients'      => $clients,
-				'Channels'     => $channels,
+				'Brands'       => array(),
+				'Campaigns'    => array(),
+				'Clients'      => array(),
+				'Channels'     => array(),
 				);
 
 		$this->render('pending',array(
@@ -559,7 +497,8 @@ class CouponSystemController extends Controller
 
 			$api   = array(
 					'data' => array('coupon_id'     => $uid, 
-						'update_coupon' => true),
+						        'update_coupon' => true,
+						        'client_id'     => Yii::app()->user->ClientId),
 					'url'  => Yii::app()->params['api-url']['update_coupon'],
 				      );
 			$ret   = $apiUtils->send2Api($api);
@@ -602,7 +541,9 @@ class CouponSystemController extends Controller
 
 			$api   = array(
 					'data' => array('coupon_id'          => $uid, 
-						'update_edit_coupon' => true),
+						        'update_edit_coupon' => true,
+						        'client_id'          => Yii::app()->user->ClientId
+						        ),
 					'url'  => Yii::app()->params['api-url']['update_coupon'],
 				      );
 			$ret   = $apiUtils->send2Api($api);
@@ -646,27 +587,21 @@ class CouponSystemController extends Controller
 		if(1){
 			$rawSql   = "
 				SELECT 
-				coupon_mapping.CouponMappingId,
-				coupon_mapping.ClientId as ClientId,
-				brands.BrandId as BrandId, campaigns.CampaignId as CampaignId, 
-				channels.ChannelId as ChannelId,BrandName,
-				ChannelName,CampaignName ,
-				GC.CouponId,
-				GC.GeneratedCouponId,
-				GC.Code,
-				GC.Status
-					FROM generated_coupons GC
-					join coupon_mapping on GC.CouponId     = coupon_mapping.CouponId 
-					join brands on brands.BrandId          = coupon_mapping.BrandId 
-					join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId 
-					join channels on channels.ChannelId    = coupon_mapping.ChannelId 
-					WHERE GC.CouponId = '$uid'
+					GC.CouponId,
+					GC.GeneratedCouponId,
+					GC.Code,
+					GC.Status,
+					coupon.CouponName
+				 FROM   generated_coupons GC
+					join points on points.PointsId = GC.PointsId 
+					join coupon on coupon.CouponId = GC.CouponId
+				    WHERE GC.CouponId = '$uid'
 					AND   GC.Status IN ('PENDING')
 					";
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
 			$dataProvider    = new CSqlDataProvider($rawData, array(
-						'keyField' => 'GeneratedCouponId',
+						'keyField'       => 'GeneratedCouponId',
 						'totalItemCount' => $rawCount,
 						)
 					);
@@ -692,7 +627,6 @@ class CouponSystemController extends Controller
 		$this->render('genapprove',array(
 					'dataProvider' => $dataProvider,
 					'mapping'      => $this->getMoreLists(),
-
 
 					));
 	}
@@ -720,10 +654,11 @@ class CouponSystemController extends Controller
 		{
 
 			$api   = array(
-					'data' => array('coupon_id'           => trim(Yii::app()->request->getParam('CouponId')), 
+					'data' => array('coupon_id'   => trim(Yii::app()->request->getParam('CouponId')), 
 						'generated_coupon_id' => trim(Yii::app()->request->getParam('GeneratedCouponId')),
 						'coupon_mapping_id'   => trim(Yii::app()->request->getParam('CouponMappingId')),
 						'customer_id'         => trim(Yii::app()->request->getParam('CustomerId')),
+						'client_id'           => Yii::app()->user->ClientId,
 						'redeem_coupon'       => true),
 					'url'  => Yii::app()->params['api-url']['redeem_coupon'],
 				      );
@@ -774,7 +709,7 @@ class CouponSystemController extends Controller
 		$xtra   = '';
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
 		{
-			$xtra   = " AND coupon_mapping.ClientId = '$clid'  ";
+			$xtra   = " AND t.ClientId = '$clid'  ";
 		}
 		$filter = '';
 		if(strlen($search)) 

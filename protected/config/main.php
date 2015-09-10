@@ -97,8 +97,14 @@ return array(
 		'list'=>array(
 			'perPage'=>10,
 			),
-		'uploadCouponDir'=>'/var/www/html/multichannel/protected/uploads/coupons/',
-		'uploadImageDir'=>'/var/www/html/multichannel/images/',
+		//'uploadCouponDir'=>'/var/www/html/multichannel/protected/uploads/coupons/',
+		//'uploadImageDir' =>'/var/www/html/multichannel/images/',
+		'uploadCouponDir' => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
+				     ('C:\wamp\www\Multichannel\protected\uploads\coupons'  .DIRECTORY_SEPARATOR):
+				     ('/var/www/html/multichannel/protected/uploads/coupons'.DIRECTORY_SEPARATOR)),
+		'uploadImageDir'  => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
+					('C:\wamp\www\Multichannel\images'.DIRECTORY_SEPARATOR):
+				        ('/var/www/html/multichannel/images'.DIRECTORY_SEPARATOR)),
 		'baseUploadUrl' => 'http://104.156.53.150/multichannel/images/',
 		'updatePoints'  => 'http://104.156.53.150/multichannel-api/points/update.php',
 		'jQueryInclude' => '<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>',
@@ -106,6 +112,9 @@ return array(
 		'reportCsv'     => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
 				     ('C:\wamp\www\Multichannel\protected\downloads'):
 				     ('/var/www/html/multichannel/protected/downloads')),
+		'uploadCoupons'     => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
+				     ('C:\wamp\www\Multichannel\protected\uploads\coupons'):
+				     ('/var/www/html/multichannel/protected/uploads/coupons')),
 		'api-url'       => array(
 					'update_coupon' => 'http://104.156.53.150/multichannel-api/coupon/generate.php',
 					'update_raffle' => 'http://104.156.53.150/multichannel-api/raffle_engine/update.php',
