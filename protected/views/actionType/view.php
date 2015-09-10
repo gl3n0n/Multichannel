@@ -11,15 +11,16 @@ $this->menu=array(
 	array('label'=>'List Action Type',   'url'=>array('index')),
 	array('label'=>'Create Action Type', 'url'=>array('create')),
 	array('label'=>'Update Action Type', 'url'=>array('update', 'id'=>$model->ActiontypeId)),
+	/*
 	array('label'=>'Delete Action Type', 'url'=>'#', 
 	'linkOptions'=>array('submit'=>array('delete','id'=>$model->ActiontypeId),
 	'confirm'=>'Are you sure you want to delete this item?')),	
-
+	*/
 	
 );
 ?>
 
-<h1>View Action Type#<?php echo $model->ActiontypeId; ?></h1>
+<h1>View <?php echo $model->Name; ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

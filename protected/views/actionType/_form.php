@@ -34,7 +34,7 @@ if($model->scenario === 'insert')
 		?>
 		<?php echo $form->error($model,'Name'); ?>
 	</div>
-
+	<?php if($model->scenario === 'insert'): // These are displayed when user is creating a new reward details. ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'PointsId'); ?>
 		<?php echo $form->dropDownList($model,'PointsId',$pointslist,
@@ -47,6 +47,16 @@ if($model->scenario === 'insert')
         	?>
 		<?php echo $form->error($model,'PointsId'); ?>
 	</div>
+	<?php else: // End Create scenario ?>	
+	<div class="row">
+		<?php echo $form->labelEx($model,'PointsId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,
+        			'maxlength'=>20,'disabled'=>true, 
+        			'value'    =>$model->byPoints->Name,
+        			'style'    => 'width:200px;')); ?>
+        <?php echo $form->error($model,'PointsId'); ?>
+	  </div>
+	<?php endif; // End Create scenario ?>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,  'Value'); ?>

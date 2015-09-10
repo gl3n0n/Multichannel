@@ -92,25 +92,39 @@ class ActionTypeController extends Controller
 		if(isset($_POST['ActionType']))
 		{
 			$model->attributes=$_POST['ActionType'];
-
-			//reset the campaignId
-			$model->setAttribute("Status", 'ACTIVE');
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
-			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-			$model->setAttribute("CreatedBy", Yii::app()->user->id);
-			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			
-			if($model->save())
+			// check if value/multiplier is greater than Points Limit
+			// if ($_POST['ActionType']['Value'] < $_POST['ActionType']['PointsLimit'])
+			if ($_POST['ActionType']['PointsLimit'] >= $_POST['ActionType']['Value'])
 			{
-				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
-				$this->redirect(array('view','id'=>$model->ActiontypeId));
+				//reset the campaignId
+				$model->setAttribute("Status", 'ACTIVE');
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+				$model->setAttribute("CreatedBy", Yii::app()->user->id);
+				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+				$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			}
 			else
 			{
-				Yii::app()->user->setFlash('error', 'An unexpected error occured.');
+				$model->addError('Value', 'Multiplier/Value must be greater than or equal to the Points Limit.');
 			}
+			
+			if(!$model->hasErrors())
+			{
+				if($model->save())
+				{
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs();
+					$this->redirect(array('view','id'=>$model->ActiontypeId));
+				}
+				else
+				{
+					Yii::app()->user->setFlash('error', 'An unexpected error occured.');
+				}
+
+			}
+
 			
 		
 		}
@@ -139,18 +153,33 @@ class ActionTypeController extends Controller
 		{
 			$model->attributes=$_POST['ActionType'];
 			
-			//reset the campaignId
-			$model->setAttribute("Status", 'ACTIVE');
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
-			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-
-			if($model->save())
+			// check if value/multiplier is greater than Points Limit
+			// if ($_POST['ActionType']['Value'] < $_POST['ActionType']['PointsLimit'])
+			if ($_POST['ActionType']['PointsLimit'] >= $_POST['ActionType']['Value'])
 			{
-				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
-				$this->redirect(array('view','id'=>$model->ActiontypeId));
+				//reset the campaignId
+				$model->setAttribute("Status", 'ACTIVE');
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+				$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+
 			}
+			else
+			{
+				$model->addError('Value', 'Multiplier/Value must be greater than or equal to the Points Limit.');
+			}
+			if(!$model->hasErrors())
+			{
+				if($model->save())
+				{
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs();
+					$this->redirect(array('view','id'=>$model->ActiontypeId));
+				}
+
+			}
+			
+
 		}
 
 		$this->render('update',array(
