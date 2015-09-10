@@ -39,16 +39,23 @@ class CouponToPoints extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('Title, CouponId,CouponRequired,PointsValue', 'required'),
-			array('CouponId, CouponRequired, PointsValue', 'numerical', 'integerOnly'=>true),
+			array('ClientId,CouponId,Name,Value', 'required'),
+			array('ClientId,CouponId,Value', 'numerical', 'integerOnly'=>true),
 			array('Status', 'length', 'max'=>8),
-			
+			array('Value',  'match', 'pattern' =>'/^[0-9]+$/'),
+			array('Value',  'moreThanZero'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('CtpId,ClientId,CouponId,CouponRequired,PointsValue,Title,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('CtpId,ClientId,CouponId,Value,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
+	public function moreThanZero()
+	{
+		if(@intval($this->Value) <= 0) 
+		    $this->addError('Value', 'PointsValue must be Numeric.');
+		
+	}
 	/**
 	 * @return array relational rules.
 	 */
@@ -57,11 +64,10 @@ class CouponToPoints extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'p2couponCoupon'     =>array(self::BELONGS_TO, 'Coupon', 'CouponId'),
-			'p2couponClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
-			'p2couponMap'        =>array(self::HAS_MANY,   'CouponMapping','CouponId'),
-			'p2couponCreateUsers'=>array(self::BELONGS_TO, 'Users',  'CreatedBy'),
-			'p2couponUpdateUsers'=>array(self::BELONGS_TO, 'Users',  'UpdatedBy'),
+			'byCoupon'     =>array(self::BELONGS_TO, 'Coupon', 'CouponId'),
+			'byClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
+			'byCreateUsers'=>array(self::BELONGS_TO, 'Users',  'CreatedBy'),
+			'byUpdateUsers'=>array(self::BELONGS_TO, 'Users',  'UpdatedBy'),
 		);
 	}
 	
@@ -84,12 +90,11 @@ class CouponToPoints extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'CtpId'       => 'Seq #',
-			'ClientId'    => 'Client Name',
+			'CtpId'       => 'Id',
+			'ClientId'    => 'Client',
 			'CouponId'    => 'Coupon Id',
-			'CouponRequired' => 'Coupon Required',
-			'PointsValue'    => 'Points Value',
-			'Title'       => 'Title',
+			'Value'       => 'Coupon Value',
+			'Name'        => 'Coupon Name',
 			'Status'      => 'Status',
 			'DateCreated' => 'Date Created',
 			'CreatedBy'   => 'Created By',
@@ -118,9 +123,9 @@ class CouponToPoints extends CActiveRecord
 
 		$criteria->compare('CtpId',      $this->CtpId,true);
 		$criteria->compare('CouponId',   $this->CouponId,true);
-		$criteria->compare('CouponRequired',    $this->CouponRequired,true);
-		$criteria->compare('PointsValue', $this->PointsValue,true);
-		$criteria->compare('Title',      $this->Title,true);
+		$criteria->compare('ClientId',   $this->ClientId,true);
+		$criteria->compare('Value',      $this->Value,true);
+		$criteria->compare('Name',       $this->Name,true);
 		$criteria->compare('Status',     $this->Status,true);
 		$criteria->compare('DateCreated',$this->DateCreated,true);
 		$criteria->compare('CreatedBy',  $this->CreatedBy);
