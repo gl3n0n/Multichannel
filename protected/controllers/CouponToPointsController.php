@@ -73,12 +73,14 @@ class CouponToPointsController extends Controller
 		if(isset($_POST['CouponToPoints']))
 		{
 			$model->attributes=$_POST['CouponToPoints'];
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
-			$model->setAttribute("Status", 'ACTIVE');
+			//$row->CouponId ,$row->ClientId 
+			list($CouponId, $ClientId) = @explode('-',$_POST['CouponToPoints']['CouponId']);
+			$model->setAttribute("ClientId",$ClientId);
+			$model->setAttribute("CouponId",$CouponId);
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-			$model->setAttribute("CreatedBy", Yii::app()->user->id);
+			$model->setAttribute("CreatedBy",   Yii::app()->user->id);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+			$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
 			if($model->save())
 			{
 				$utilLog = new Utils;
@@ -90,35 +92,12 @@ class CouponToPointsController extends Controller
 
 		$this->render('create',array(
 			'model'       =>$model,
-			'coupon_list' =>$this->getCouponList(),
+			'coupon_list' =>$this->getDropList(),
 			
 		));
 	}
 
-	protected function getCouponList()
-	{
-	
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-		$criteria = new CDbCriteria;
-		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')   
-		{
-			$criteria->with = array(
-				'couponMap' => array('joinType'=>'LEFT JOIN'),
-			);
-			$criteria->addCondition(" ( couponMap.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ) ");
-		}
 
-
-		$_coupon = Coupon::model()->findAll($criteria);
-		$coupons = array();
-		foreach($_coupon as $row) {
-			$coupons[$row->CouponId] = $row->CouponId . ' - ' - $row->Code;
-
-		}
-		//give
-		return $coupons;
-	}
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
@@ -131,10 +110,11 @@ class CouponToPointsController extends Controller
 		if(isset($_POST['CouponToPoints']))
 		{
 			$model->attributes=$_POST['CouponToPoints'];
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
-			$model->setAttribute("Status", 'ACTIVE');
+			list($CouponId, $ClientId) = @explode('-',$_POST['CouponToPoints']['CouponId']);
+			$model->setAttribute("ClientId",$ClientId);
+			$model->setAttribute("CouponId",$CouponId);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+			$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
 
 			if($model->save())
 			{
@@ -146,7 +126,7 @@ class CouponToPointsController extends Controller
 
 		$this->render('update',array(
 			'model'       =>$model,
-			'coupon_list' =>$this->getCouponList(),
+			'coupon_list' =>$this->getDropList(),
 		));
 	}
 
@@ -175,14 +155,14 @@ class CouponToPointsController extends Controller
 		if(strlen($search))
 		{
 			$criteria->addCondition(" (
-			 	t.Title     LIKE '%".addslashes($search)."%' 
+			 	t.Name LIKE '%".addslashes($search)."%' 
 			 ) ");
 		}
 		
 		
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
 		{
-			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+			 $criteria->compare('t.ClientId', Yii::app()->user->ClientId, true); 
 		}
 		
 
@@ -239,5 +219,26 @@ class CouponToPointsController extends Controller
 		}
 	}
 
+
+	protected function getDropList()
+	{
 	
+		$criteria = new CDbCriteria;
+		// Uncomment the following line if AJAX validation is needed
+		$xmore = '';
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") {
+			$xmore = " AND t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
+		}
+		$criteria->addCondition(" t.status='ACTIVE' $xmore ");
+		$_list = CouponSystem::model()->with('byClients')->findAll($criteria);
+		$data  = array();
+		foreach($_list as $row) {
+			$vkey = sprintf("%s-%s",$row->CouponId ,$row->ClientId );
+			$data["$vkey"] = sprintf("%s ( %s )",$row->CouponName,($row->byClients!=null ? ($row->byClients->CompanyName) : ("")));
+
+		}
+		//give it back
+		return $data;
+	}
+		
 }

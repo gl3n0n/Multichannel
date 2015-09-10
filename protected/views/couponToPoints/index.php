@@ -18,8 +18,8 @@ $this->menu=array(
 	'method'=>'get',
 )); ?>
 	<fieldset>
-		<legend>Search Title</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Title" title="Search Title">
+		<legend>Search Name</legend>
+		<input type="text" id='search' name="search" id="list-search" placeholder="Name" title="Search Name">
 		<button type="submit">Search</button>
 	</fieldset>
 <?php $this->endWidget(); 
@@ -40,25 +40,28 @@ if(0)
 		'type'  => 'raw',
 	),
 	array(
-	'name' => 'ClientId',
-	'value'=> '$data->p2couponClients!=null?$data->p2couponClients->CompanyName:""',
+			'name'  => 'CouponId',
+			'value' => 'CHtml::link($data->byCoupon!=null?$data->byCoupon->CouponName:"",Yii::app()->createUrl("couponSystem/view",array("id"=>$data->CouponId)))',
+			'type'  => 'raw',
 	),
-	'Title',
-	'CouponRequired',
-	'CouponId',
-	'PointsValue',
+	array(
+	'name' => 'ClientId',
+	'value'=> '$data->byClients!=null?$data->byClients->CompanyName:""',
+	),
+	'Name',
+	'Value',
 	'Status',
 	'DateCreated',
 	array(
 		'name' => 'CreatedBy',
-		'value'=> '$data->p2couponCreateUsers!=null ? $data->p2couponCreateUsers->Username : ""',
+		'value'=> '$data->byCreateUsers!=null?$data->byCreateUsers->Username:""',
 	),
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
-		'value'=> '$data->p2couponUpdateUsers!=null ? $data->p2couponUpdateUsers->Username : ""',
+		'value'=> '$data->byUpdateUsers!=null?$data->byUpdateUsers->Username:""',
 	),
-	),
+    ),
 )); 
 ?>
 

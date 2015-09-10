@@ -24,7 +24,7 @@ echo Yii::app()->params['jQueryInclude'];
 		<?php echo $form->labelEx($model,'CouponId'); ?>
 		<?php echo $form->dropDownList($model,'CouponId',$coupon_list,
 		array(
-        	    'style'   => 'width:100px;',
+        	    'style'   => 'width:200px;',
         	    'options' => array("$model->CouponId" => array('selected'=>true)),
         	)); 
         	?>
@@ -34,33 +34,34 @@ echo Yii::app()->params['jQueryInclude'];
  
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'Title'); ?>
-		<?php echo $form->textField($model,'Title',array(
+		<?php echo $form->labelEx($model,  'Name'); ?>
+		<?php echo $form->textField($model,'Name',array(
 		'style'    => 'width:200px;',
 		'maxlength'=>255
 		)); 
 		?>
-		<?php echo $form->error($model,'Title'); ?>
+		<?php echo $form->error($model,'Name'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,  'CouponRequired'); ?>
-		<?php echo $form->textField($model,'CouponRequired',array(
-			'style' => 'width:100px;',
-			'maxlength'=>20
+		<?php echo $form->labelEx($model,  'Value'); ?>
+		<?php echo $form->textField($model,'Value',array(
+			'style'     => 'width:200px;',
+			'maxlength' => 11
 		));
 		?>
-		<?php echo $form->error($model,'CouponRequired'); ?>
+		<?php echo $form->error($model,'Value'); ?>
 	</div>
+	
 	<div class="row">
-		<?php echo $form->labelEx($model,  'PointsValue'); ?>
-		<?php echo $form->textField($model,'PointsValue',array(
-			'style' => 'width:100px;',
-			'maxlength'=>20
-		));
-		?>
-		<?php echo $form->error($model,'PointsValue'); ?>
+	 <?php echo $form->labelEx($model,'Status'); ?>
+		    <?php echo CHtml::dropDownList('CouponToPoints[Status]', 
+			$model->scenario === 'update' ? $model->Status : 'ACTIVE', 
+			ZHtml::enumItem($model, 'Status'),array( 'style' => 'width:200px;')); 
+		    ?>
+	   <?php echo $form->error($model,'Status'); ?>
 	</div>
+	
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
 	</div>

@@ -25,23 +25,25 @@ $this->menu=array(
 		'type'  => 'raw',
 	),
 	array(
+	'name' => 'CouponId',
+	'value'=> $model->byCoupon!=null?$model->byCoupon->CouponName:"",
+	),	
+	array(
 	'name' => 'ClientId',
-	'value'=> $model->p2couponClients!=null?$model->p2couponClients->CompanyName:"",
+	'value'=> $model->byClients!=null?$model->byClients->CompanyName:"",
 	),
-	'Title',
-	'CouponRequired',
-	'CouponId',
-	'PointsValue',
+	'Name',
+	'Value',
 	'Status',
 	'DateCreated',
 	array(
 		'name' => 'CreatedBy',
-		'value'=> $model->p2couponCreateUsers!=null?$model->p2couponCreateUsers->Username:"",
+		'value'=> $model->byCreateUsers!=null?$model->byCreateUsers->Username:"",
 	),
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
-		'value'=> $model->p2couponUpdateUsers!=null?$model->p2couponUpdateUsers->Username:"",
+		'value'=> $model->byUpdateUsers!=null?$model->byUpdateUsers->Username:"",
 	),
      ),
 )); ?>

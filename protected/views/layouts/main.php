@@ -53,8 +53,8 @@
 				array('label'=>'Customers', 'url'=>array('/customers'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="ADMIN"),
 				array('label'=>'Customer Report', 'url'=>array('/reports'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Scheduled Post', 'url'=>array('/scheduledPost'), 'visible'=>!Yii::app()->user->isGuest),
-				array('label'=>'Convert Points to Coupon', 'url'=>array('/pointsToCoupon'), 'visible'=>!Yii::app()->user->isGuest),
-				// array('label'=>'Coupon to Points', 'url'=>array('/couponToPoints'), 'visible'=>!Yii::app()->user->isGuest),
+				//array('label'=>'Convert Points to Coupon', 'url'=>array('/pointsToCoupon'), 'visible'=>!Yii::app()->user->isGuest),
+				array('label'=>'Coupon to Points', 'url'=>array('/couponToPoints'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'AuditLogs', 'url'=>array('/auditLogs'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
 
 				array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
