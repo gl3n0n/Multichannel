@@ -95,7 +95,13 @@ class RewardDetailsController extends Controller
 				$model->setAttribute("ClientId",    Yii::app()->user->ClientId);
 			}		
 			//get points id
-			list($RewardId, $ClientIda ) = @explode('-',trim($_POST['RewardDetails']['RewardId']));
+			$RewardId = '';
+			$ClientIda= '';
+			$PointsId = '';
+			$ClientId = '';
+			if(!empty($_POST['RewardDetails']['RewardId']))
+			list($ClientIda, $RewardId)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
+			if(!empty($_POST['RewardDetails']['PointsId']))
 			list($PointsId, $ClientId  ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
 			
 			//save it

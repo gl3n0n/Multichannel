@@ -16,16 +16,17 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Raffle #<?php echo $model->RaffleId; ?></h1>
+<h1>View <?php echo $model->RaffleId; ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
 		'RaffleId',
 		array(
-		'name' => 'CouponId',
-		'value'=> $model->raffleCoupon!=null?$model->raffleCoupon->CouponName:"",
-		),
+			'name' => 'CouponId',
+			'value'=> $model->raffleCoupon!=null?$model->raffleCoupon->CouponName:"",
+			),
+		'RaffleName',
 		'Source',
 		'NoOfWinners',
 		'BackUp',

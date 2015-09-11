@@ -52,6 +52,7 @@ $form=$this->beginWidget('CActiveForm', array(
 		'name'  => 'CouponId',
 		'value' => '($data->raffleCoupon!=null)?($data->raffleCoupon->CouponName):("")',
 		),
+		'RaffleName',
 		'Source',
 		'NoOfWinners',
 		'BackUp',

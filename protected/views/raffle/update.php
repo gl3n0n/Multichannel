@@ -16,6 +16,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Raffle <?php echo $model->RaffleId; ?></h1>
+<h1>Update <?php echo $model->RaffleName; ?></h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model, 'coupon_list'=>$coupon_id)); ?>
