@@ -8,6 +8,18 @@
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="js/tools.js"></script>
     <title>API Console</title>
+<style>
+	.wbreak {
+	    word-wrap: break-word;
+	    -moz-hyphens:auto; 
+	    -webkit-hyphens:auto; 
+	    -o-hyphens:auto; 
+	    word-wrap: break-word;
+    	    overflow-wrap: break-word;
+	   text-overflow: ellipsis;
+	   width: 200px; 
+	}
+</style>
 </head>
 
 <body>
@@ -25,7 +37,12 @@
 					<option value="/multichannel-api/customer/update.php">Update Customer Details</option>
 					<option value="/multichannel-api/coupon/redeem.php">Redeem Coupon (Set use_points to true, to claim via points)</option>
 					<option value="/multichannel-api/coupon/convert_to_points.php">Convert Coupon To Points</option>
-
+					
+					<option value="/multichannel-api/campaigns/list_campaign.php">List of Available Campaign</option>
+					<option value="/multichannel-api/campaigns/participate_a_campaign.php">Participate A Campaign</option>
+					<option value="/multichannel-api/campaigns/list_customer_subscriptions.php">List of Participated Campaign</option>
+					
+					
 <!--                    <option value="/multichannel-api/customer/retrieve.php">Retrieve Customer</option>
 					<option value="/multichannel-api/customer/retrieve_subscriptions.php">Customer Subscriptions</option> 
                     <option value="/multichannel-api/reward/retrieve.php">View Reward</option>
@@ -50,7 +67,9 @@
 
         <tr>
             <td>Response:</td>
-            <td id="txtResponse">&nbsp;</td>
+            <td id="txtResponse" class="wbreak">
+               &nbsp;
+            </td>
         </tr>
 
         <tr>
