@@ -35,7 +35,7 @@ class RewardDetailsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','getPointSystemlist'),
+				'actions'=>array('create','update','getPointSystemlist','getRewardslist'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -66,6 +66,21 @@ class RewardDetailsController extends Controller
 	public function actionCreate()
 	{
 		$model=new RewardDetails;
+		
+		$clientsID = Users::model()->findByPk(Yii::app()->user->id)->ClientId;
+		
+		if(Yii::app()->user->AccessType === "SUPERADMIN" && $model->scenario === 'insert') {
+			$_clients = Clients::model()->active()->findAll();
+		} else {
+			$_clients = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>'ClientId='.$clientsID.''));
+		}
+		
+		$clients = array();
+		foreach($_clients as $row) {
+			$clients[$row->ClientId] = $row->CompanyName;
+
+		}
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -107,9 +122,10 @@ class RewardDetailsController extends Controller
 		}
 		
 		$get_active_clause='Status=\'ACTIVE\'';
-
+		/*
 		$_clients = Clients::model()->active()->findAll(array('select'=>'ClientId, CompanyName'));
 		$clients = CHtml::listData($_clients, 'ClientId', 'CompanyName');
+		*/
 		
 		$_rewardslistCriteria = new CDbCriteria;
 		$_rewardslist = RewardsList::model()->thisClient()->active()->findAll(array('select'=>'RewardId, Title, ClientId'));
@@ -166,6 +182,29 @@ class RewardDetailsController extends Controller
 		}
 		//give it back
 		return $data;
+	}
+	
+	public function actionGetRewardslist()
+	{
+		//give
+		$criteria = new CDbCriteria;
+		
+		//get params
+		// list($ClientId, $RewardId ) = @explode('-',trim(Yii::app()->request->getParam('ClientId')));
+		$ClientId = Yii::app()->request->getParam('ClientId');
+		
+		// Uncomment the following line if AJAX validation is needed
+		$xmore = " AND t.ClientId = '".addslashes($ClientId)."' ";
+		$criteria->addCondition(" t.status='ACTIVE' $xmore ");
+		$_list = RewardsList::model()->with('rewardClients')->findAll($criteria);
+		$data  = array();
+		foreach($_list as $row) {
+			$vkey = sprintf("%s-%s",$row->ClientId, $row->RewardId );
+			$data["$vkey"] = sprintf("%s ( %s )",$row->Title,($row->rewardClients!=null ? ($row->rewardClients->CompanyName) : ("")));
+
+		}
+		//give it back
+		Yii::app()->utils->sendJSONResponse($data);
 	}
 	
 	public function actionGetPointSystemlist()

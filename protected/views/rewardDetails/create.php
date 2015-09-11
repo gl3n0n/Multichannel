@@ -9,9 +9,9 @@ $this->breadcrumbs=array(
 
 $this->menu=array(
 	array('label'=>'List RewardDetails', 'url'=>array('index')),
-	array('label'=>'Manage RewardDetails', 'url'=>array('admin')),
+	// array('label'=>'Manage RewardDetails', 'url'=>array('admin')),
 );
-?>
+?>	
 
 <h1>Create RewardDetails</h1>
 

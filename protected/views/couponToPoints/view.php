@@ -14,7 +14,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Coupon To Points #<?php echo $model->CtpId; ?></h1>
+<h1>View <?php echo $model->Name; ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

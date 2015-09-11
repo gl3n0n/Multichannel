@@ -19,6 +19,22 @@
 
 	<?php echo $form->errorSummary($model); ?>
     <?php if($model->scenario === 'insert'): // These are displayed when user is creating a new reward details. ?>
+
+	 <?php if(Yii::app()->user->AccessType === 'SUPERADMIN'): ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'ClientId'); ?>
+		<?php echo $form->dropDownList($model,'ClientId',$client_list,
+		array(
+        	    'style'   => 'width:200px;',
+        	    'options' => array("$model->ClientId" => array('selected'=>true)),
+        	    'prompt'  => '-- Pls Select --',
+        	),
+        	array('empty' => '-- Pls Select --')); 
+        	?>
+		<?php echo $form->error($model,'ClientId'); ?>
+	</div>	
+	<?php endif; ?>
+	
 	<div class="row">
 		<?php echo $form->labelEx($model,'RewardId'); ?>
 		<?php echo $form->dropDownList($model,'RewardId',$rewards_list,
@@ -46,6 +62,17 @@
 		<?php echo $form->error($model,'PointsId'); ?>
 	</div>
 	<?php else: // End Create scenario ?>	
+	
+	<div class="row">
+		<?php echo $form->labelEx($model,'ClientId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,
+        		'maxlength'=>20,
+        		'disabled'=>true, 
+        		'value'=>$model->byClients->CompanyName,
+        		'style' => 'width:200px;')); ?>
+        <?php echo $form->error($model,'ClientId'); ?>
+	  </div>
+	  
 	<div class="row">
 		<?php echo $form->labelEx($model,'RewardId'); ?>
         <?php echo $form->textField($model,'CodeLength',array('size'=>20,
@@ -157,6 +184,18 @@
 //dynamic loading
 $( document ).ready(function() {
 
+	$("#RewardDetails_ClientId").change(function(){
+	    
+		var choice = $("#RewardDetails_ClientId" ).val();
+
+		//chk	
+		var mde  = "ClientId="     + encodeURIComponent(choice) ;
+		var url  = BaseUrl         + "rewardDetails/getRewardslist/?" + mde;
+		loadlist($('select#RewardDetails_RewardId').get(0),
+		url,
+		''
+		);
+	});
 	
 	$("#RewardDetails_RewardId").change(function(){
 	    

@@ -12,7 +12,7 @@ $this->menu=array(
 	array('label'=>'List RewardDetails', 'url'=>array('index')),
 	array('label'=>'Create RewardDetails', 'url'=>array('create')),
 	array('label'=>'View RewardDetails', 'url'=>array('view', 'id'=>$model->RewardConfigId)),
-	array('label'=>'Manage RewardDetails', 'url'=>array('admin')),
+	// array('label'=>'Manage RewardDetails', 'url'=>array('admin')),
 );
 ?>
 
