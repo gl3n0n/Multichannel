@@ -74,7 +74,7 @@ class CouponSystem extends CActiveRecord
 			array('CouponName,PointsId,ClientId,Type,LimitPerUser,ExpiryDate', 'required'),
 			array('File',       'checkCouponMode'),
 			array('CouponMode', 'checkPointsValue'),
-			array('ClientId,PointsId,CodeLength,PointsValue, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
+			array('ClientId,PointsId,CodeLength,PointsValue, Quantity, LimitPerUser, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
 			array('Type, TypeId, Source', 'length', 'max'=>50),
 			array('Status', 'length', 'max'=>8),
 			array('Quantity, LimitPerUser', 'length', 'max'=>11),
@@ -88,6 +88,19 @@ class CouponSystem extends CActiveRecord
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('CouponId,ClientId,PointsId,Code,CouponName,Type,TypeId,Source,ExpiryDate, CodeLength, CouponType,PointsValue,Status,Image,Quantity,LimitPerUser,File,ImagePath,edit_flag,DateCreated,CreatedBy,DateUpdated,UpdatedBy', 'safe', 'on'=>'search'),
+		);
+	}
+	
+	public function scopes()
+	{
+		return array(
+			'thisClient'=>array(
+				'condition'=>'ClientId = :modelClientId',
+				'params' => array(':modelClientId'=>Yii::app()->utils->getUserInfo('ClientId')),
+			),
+			'active'=>array(
+				'condition'=>"Status='ACTIVE'",
+			),
 		);
 	}
 
