@@ -22,6 +22,15 @@ $(function() {
 	params["/multichannel-api/campaigns/participate_a_campaign.php"]      = ["client_id", "customer_id","points_id","brand_id","campaign_id"];
 	params["/multichannel-api/campaigns/list_customer_subscriptions.php"] = ["client_id", "customer_id"];
 
+	
+	params["/multichannel-api/points/list_action_points.php"]             = ["client_id", "customer_id"];
+	params["/multichannel-api/points/gain_points.php"]                    = ["customer_id", "client_id", "brand_id", "campaign_id", "channel_id", "actiontype_id"]; 
+	params["/multichannel-api/points/list_customer_points.php"]           = ["client_id", "customer_id"];
+	
+	params["/multichannel-api/coupon/list_available_coupon.php"]          = ["client_id", "customer_id"];
+	params["/multichannel-api/coupon/list_redeemed_coupon.php"]           = ["client_id", "customer_id"];
+	
+	
 	$('#cmbAPIType').val(0);
 	$('#tdParams').html('&nbsp');
 	$('#tdResponse').html('&nbsp');
@@ -33,7 +42,7 @@ $(function() {
 		{
 		    html += "<tr>";
 		    html += "<td style='width:50%;'>" + params[key][i] + "</td>";
-		    html += "<td><input type='text' value='' style='width:95%;' /></td>";
+		    html += "<td><input type='text' value='' style='width:95%;' class='form-control'  /></td>";
 		    html += "</tr>";
 		}
 		html += '</table>';
@@ -65,6 +74,7 @@ $(function() {
             $('#tdParams').html(generateParams($(this).val()));
             $('#txtURL').val(DOMAIN + $(this).val());
             //display the post params
+            $('#tdResponse').html('&nbsp');
         }
         else
         {
@@ -80,7 +90,7 @@ $(function() {
             var params = getData();
             $.post( $('#txtURL').val(), params)
               .done(function( resp ) {
-                  $('#txtResponse').html(resp);
+                  $('#txtResponse').html('<p class="wbreak">'+resp+'</p>');
             });
         }
 
