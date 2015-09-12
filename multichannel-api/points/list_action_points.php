@@ -2,7 +2,7 @@
 
 require_once('../config/database.php');		
 require_once('../config/constants.php');		
-require_once('../includes/campaign.php');
+require_once('../includes/points_action_type.php');
 
 
 //chk params
@@ -25,13 +25,13 @@ if (
 
 //prep
 $data     = array();
-$campaign = new Campaign($dbconn);
-$response = $campaign->lists(
-			    array(
+$obj      = new PointsActionType($dbconn);
+$response = $obj->list_of_action_pts(
+			array(
 				"client_id"   => $client_id,
 				"customer_id" => $customer_id
 				)
-);
+			);
 
 
 if ($response)
@@ -43,7 +43,7 @@ if ($response)
 else
 {
 	$response['result_code'] = 404;
-	$response['error_txt']   = 'No Campaign List to Participate found!';
+	$response['error_txt']   = 'No List of Action Points found!';
 }
 
 

@@ -36,23 +36,22 @@ if (
 //prep
 $data     = array();
 $campaign = new Campaign($dbconn);
-$response = $campaign->participate($client_id,
-			$customer_id,
-			$points_id,
-			$brand_id,
-			$campaign_id,
-			$created_by);
+$response = $campaign->participate(
+		array(
+			"client_id"   => $client_id,
+			"customer_id" => $customer_id,
+			"points_id"   => $points_id,
+			"brand_id"    => $brand_id,
+			"campaign_id" => $campaign_id,
+			"created_by"  => $created_by,
+		)
+);
 
 if ($response)
 {		
 	$data['results']     = $response;
 	$data['result_code'] = 200;
 	$response            = $data;
-}
-else
-{
-	$response['result_code'] = 404;
-	$response['error_txt']   = 'No Customer Subscriptions List found!';
 }
 
 

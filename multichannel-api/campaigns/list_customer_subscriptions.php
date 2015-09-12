@@ -26,7 +26,12 @@ if (
 //prep
 $data     = array();
 $campaign = new Campaign($dbconn);
-$response = $campaign->listsCustomerSub($client_id,$customer_id);
+$response = $campaign->listsCustomerSub(
+				array(
+					"client_id"   => $client_id,
+					"customer_id" => $customer_id
+				)
+		);
 
 
 if ($response)
