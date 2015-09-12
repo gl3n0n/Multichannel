@@ -53,15 +53,6 @@ $response = $obj->gain_points(array(
 );
 
 
-//chk
-if ($response['status'])
-{		
-	$data['results']     = $response;
-	$data['result_code'] = 200;
-	$response            = $data;
-}
-
-
 //give it back
 echo json_encode($response);
 ?>
