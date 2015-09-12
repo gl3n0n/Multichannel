@@ -88,16 +88,18 @@
         </tr>
 
         <tr>
-            <td class="success">Response:</td>
-            <td id="txtResponse" class="wbreak">
+            <td>&nbsp;</td>
+            <td align="center" valign="top"><input type="button" value="POST API CALL" id="cmbPost" /></td>
+        </tr>
+        <tr>
+            <th class="success" colspan="2" align="center" valign="top">Response:</th>
+        </tr>
+        <tr>
+            <td id="txtResponse" class="wbreak" colspan="2" align="left" valign="top">
                &nbsp;
             </td>
         </tr>
 
-        <tr>
-            <td>&nbsp;</td>
-            <td align="center" valign="top"><input type="button" value="POST API CALL" id="cmbPost" /></td>
-        </tr>
     </table>
 </div>
 </body>

@@ -30,7 +30,7 @@ if (
 //prep
 $data     = array();
 $obj      = new CouponList($dbconn);
-$response = $obj->list_of_available_coupon(
+$response = $obj->list_of_redeemed_coupon(
 			array(
 				"client_id"   => $client_id,
 				"customer_id" => $customer_id,
@@ -48,8 +48,7 @@ if ($response['status'])
 else
 {
 	$response['result_code'] = 404;
-	$response['error_txt']   = 'No List of Available Coupon found!';
-	
+	$response['error_txt']   = 'No List of Redeemed Coupon found!';
 }
 
 
