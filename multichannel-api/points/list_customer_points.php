@@ -17,7 +17,7 @@ if (
 (                          
 	( strlen($client_id)     <= 0 ) or
 	( strlen($customer_id)   <= 0 ) 
-)      
+) 
 )
 {
 	$response['result_code'] = 405;
@@ -30,7 +30,7 @@ if (
 //prep
 $data     = array();
 $obj      = new PointsActionType($dbconn);
-$response = $obj->list_of_action_pts(
+$response = $obj->list_of_customer_pts(
 			array(
 				"client_id"   => $client_id,
 				"customer_id" => $customer_id
@@ -38,7 +38,7 @@ $response = $obj->list_of_action_pts(
 			);
 
 
-if ($response)
+if ($response['status'])
 {		
 	$data['results']     = $response;
 	$data['result_code'] = 200;
@@ -47,7 +47,7 @@ if ($response)
 else
 {
 	$response['result_code'] = 404;
-	$response['error_txt']   = 'No List of Action Points found!';
+	$response['error_txt']   = 'No List of Customer Points found!';
 }
 
 

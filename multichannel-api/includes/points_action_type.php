@@ -552,5 +552,81 @@ class PointsActionType
 		//give it back
 		return $row["total"];
 	}
+	
+	
+	public function list_of_customer_pts($pdata=null)
+	{
+
+			//fmt
+			$client_id  = addslashes($pdata["client_id"]  );
+			$customer_id= addslashes($pdata["customer_id"]);
+			$retv                 = array();
+			$retv["total_points"] = 0;
+			$retv["breakdown"]    = array();;
+			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
+			$query      = "
+			SELECT  DISTINCT
+				sub.SubscriptionId,
+				pmap.PointLogId,
+				pmap.Value as total,
+				pmap.ClientId ,
+				clnt.CompanyName,
+				pmap.BrandId  ,
+				brnd.BrandName,
+				pmap.CampaignId ,
+				camp.CampaignName,
+				pmap.ChannelId,
+				chan.ChannelName
+			FROM 
+				customer_subscriptions sub,
+				points_log pmap,
+				customers  cust,
+				campaigns  camp,
+				channels   chan,
+				brands     brnd,
+				clients    clnt
+			WHERE   1=1
+				AND sub.SubscriptionId    = pmap.SubscriptionId
+				AND sub.ClientId    = '$client_id'
+				AND sub.CustomerId  = '$customer_id'
+				AND sub.PointsId    = pmap.PointsId
+				AND sub.ClientId    = pmap.ClientId
+				AND sub.BrandId     = pmap.BrandId
+				AND sub.CampaignId  = pmap.CampaignId
+				AND sub.Status      = 'ACTIVE'
+				AND sub.CustomerId  = cust.CustomerId
+				AND pmap.ClientId   = clnt.ClientId
+				AND pmap.BrandId    = brnd.BrandId
+				AND pmap.CampaignId = camp.CampaignId
+				AND pmap.ChannelId  = chan.ChannelId
+			";
+
+
+
+			//run
+			$res = $this->conn->query($query);
+			if (PEAR::isError($res)) {
+				$retv["status"] = 0;
+				return $retv;
+			}
+
+			$counter   = 0;
+			$total_pts = 0;
+			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
+			{				
+				//save
+				$retv["breakdown"][] = $row;
+				$total_pts += $row["total"];
+				$counter++;
+			}
+			
+			$retv["totalrows"]    = $counter;
+			$retv["total_points"] = $total_pts;
+			$retv["status"]       = ($counter>0)?(1):(0);
+			
+			//give it back
+			return $retv;
+	}
+
 }
 ?>
