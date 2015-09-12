@@ -281,7 +281,7 @@ class PointsActionType
 			//		or channel.Status != ACTIVE)
 			if(
 			     $row["channel_status"]  != 'ACTIVE'  and
-			     ( ! ( $dit >= $row["channel_durationto"] and $dit <= $row["channel_durationto"]  ) )
+			     ( ! ( $dit >= $row["channel_durationfrom"] and $dit <= $row["channel_durationto"]  ) )
 			 )
 			 {
 

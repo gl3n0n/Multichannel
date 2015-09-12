@@ -64,6 +64,9 @@
 					
 					<option value="/multichannel-api/coupon/list_available_coupon.php">List Available Coupon</option>	
 					<option value="/multichannel-api/coupon/list_redeemed_coupon.php">List Redeemed Coupon</option>	
+					<option value="/multichannel-api/coupon/do_redeemed_coupon.php">Do Redeem Coupon</option>	
+					
+					
 					
 <!--                    <option value="/multichannel-api/customer/retrieve.php">Retrieve Customer</option>
 					<option value="/multichannel-api/customer/retrieve_subscriptions.php">Customer Subscriptions</option> 
