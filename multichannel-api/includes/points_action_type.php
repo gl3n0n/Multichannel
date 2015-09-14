@@ -16,6 +16,10 @@ class PointsActionType
 			//fmt
 			$client_id  = addslashes($pdata["client_id"]  );
 			$customer_id= addslashes($pdata["customer_id"]);
+			
+			$retv                 = array();
+			$retv["totalrows"] = 0;
+			$retv["breakdown"]    = array();
 
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$query      = "
@@ -86,12 +90,14 @@ class PointsActionType
 			$counter = 0;
 			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
 	    		{				
-				$result_array[] = $row;
+				// $result_array[] = $row;
+				$retv["breakdown"][] = $row;
 				$counter++;
 			}
-			$result_array["totalrows"] = $counter;
+			// $result_array["totalrows"] = $counter;
+			$retv["totalrows"] = $counter;
 			//give it back
-			return ($counter == 0) ? (false) : ($result_array);
+			return ($counter == 0) ? (false) : ($retv);
 	}
 
 
@@ -562,7 +568,7 @@ class PointsActionType
 			$customer_id= addslashes($pdata["customer_id"]);
 			$retv                 = array();
 			$retv["total_points"] = 0;
-			$retv["breakdown"]    = array();;
+			$retv["breakdown"]    = array();
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$query      = "
 			SELECT  DISTINCT

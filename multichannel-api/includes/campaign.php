@@ -59,7 +59,9 @@ class Campaign
 			//fmt
 			$client_id  = addslashes($pdata["client_id"]  );
 			$customer_id= addslashes($pdata["customer_id"]);
-			
+			$retv                 = array();
+			$retv["totalrows"] = 0;
+			$retv["breakdown"]    = array();
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$query      = "
 			SELECT 
@@ -71,6 +73,7 @@ class Campaign
 				map.ChannelId,
 				pts.Name as PointsName,
 				camp.CampaignName,
+				camp.Description,
 				brnd.BrandName,
 				chn.ChannelName,
 				clnt.CompanyName,
@@ -127,13 +130,14 @@ class Campaign
 	    		{			
 	    			if($row["participated"] <= 0)
 				{
-					$result_array[] = $row;
+					// $result_array[] = $row;
+					$retv["breakdown"][] = $row;
 					$counter++;
 				}
 			}
-			$result_array["totalrows"] = $counter;
+			$retv["totalrows"] = $counter;
 			//give it back
-			return ($counter == 0) ? (false) : ($result_array);
+			return ($counter == 0) ? (false) : ($retv);
 	}
 
 
@@ -144,7 +148,9 @@ class Campaign
 			//fmt
 			$client_id  = addslashes($pdata["client_id"]  );
 			$customer_id= addslashes($pdata["customer_id"]);
-			
+			$retv                 = array();
+			$retv["totalrows"] = 0;
+			$retv["breakdown"]    = array();
 			
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$query      = "
@@ -155,6 +161,7 @@ class Campaign
 				map.BrandId  ,
 				map.CampaignId ,
 				camp.CampaignName,
+				camp.Description,
 				brnd.BrandName,
 				clnt.CompanyName,
 				pts.Name as PointsName,
@@ -188,16 +195,17 @@ class Campaign
 				return false;
 			}
 
-			$result_array = array();
 			$counter = 0;
 			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
 	    		{				
-				$result_array[] = $row;
+				// $result_array[] = $row;
+				$retv["breakdown"][] = $row;
 				$counter++;
 			}
-			$result_array["totalrows"] = $counter;
+			// $result_array["totalrows"] = $counter;
+			$retv["totalrows"] = $counter;
 			//give it back
-			return ($counter == 0) ? (false) : ($result_array);
+			return ($counter == 0) ? (false) : ($retv);
 	}
 
 
