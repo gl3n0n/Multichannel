@@ -100,7 +100,8 @@ class RewardDetailsController extends Controller
 			$PointsId = '';
 			$ClientId = '';
 			if(!empty($_POST['RewardDetails']['RewardId']))
-			list($ClientIda, $RewardId)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
+			//list($ClientIda, $RewardId)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
+			list($RewardId, $ClientIda)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
 			if(!empty($_POST['RewardDetails']['PointsId']))
 			list($PointsId, $ClientId  ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
 			
@@ -220,7 +221,8 @@ class RewardDetailsController extends Controller
 		
 		//get params
 		//list($RewardId, $ClientId ) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
-		list($ClientId, $RewardId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		//list($ClientId, $RewardId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		list($RewardId, $ClientId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
 		
 		// Uncomment the following line if AJAX validation is needed
 		$xmore = " AND t.ClientId = '".addslashes($ClientId)."' ";

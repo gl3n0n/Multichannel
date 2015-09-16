@@ -417,7 +417,9 @@ class PointsSystemMappingController extends Controller
 				'byPointsSystem'    => array('joinType'=>'LEFT JOIN'),
 			);
 		        $criteria->addCondition(" ( byPointsSystem.Name LIKE '%".addslashes($search)."%' ) $xtra ");
-		}			
+		} else {
+			$criteria->addCondition(" t.ClientId = '".@addslashes(Yii::app()->user->ClientId)."' ");
+		}		
 
 		$dataProvider = new CActiveDataProvider('PointsSystemMapping', array(
 				'criteria'=>$criteria ,

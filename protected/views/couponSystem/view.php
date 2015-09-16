@@ -22,7 +22,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 
 ?>
 
-<h1>View Coupon System #<?php echo $model->CouponId; ?></h1>
+<h1>View <?php echo $model->CouponName; ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

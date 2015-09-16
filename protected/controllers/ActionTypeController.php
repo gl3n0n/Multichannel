@@ -95,7 +95,25 @@ class ActionTypeController extends Controller
 			
 			// check if value/multiplier is greater than Points Limit
 			// if ($_POST['ActionType']['Value'] < $_POST['ActionType']['PointsLimit'])
-			if ($_POST['ActionType']['PointsLimit'] >= $_POST['ActionType']['Value'])
+			if ($_POST['ActionType']['PointsLimit'] != 0)
+			{
+				if ($_POST['ActionType']['PointsLimit'] >= $_POST['ActionType']['Value'])
+				{
+					//reset the campaignId
+					$model->setAttribute("Status", 'ACTIVE');
+					$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+					$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+					$model->setAttribute("CreatedBy", Yii::app()->user->id);
+					$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+					$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+				}
+				else
+				{
+					$model->addError('Value', 'Multiplier/Value must be greater than or equal to the Points Limit.');
+				}
+
+			}
+			else
 			{
 				//reset the campaignId
 				$model->setAttribute("Status", 'ACTIVE');
@@ -104,10 +122,6 @@ class ActionTypeController extends Controller
 				$model->setAttribute("CreatedBy", Yii::app()->user->id);
 				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 				$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			}
-			else
-			{
-				$model->addError('Value', 'Multiplier/Value must be greater than or equal to the Points Limit.');
 			}
 			
 			if(!$model->hasErrors())

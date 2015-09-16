@@ -50,18 +50,10 @@ if($model->scenario === 'insert')
 		?>
 	<?php echo $form->error($model,'PointsId'); ?>
 	</div>
-
-	    
-
 	
-	    <div class="row">
-		<?php echo $form->labelEx($model,'Image Path'); ?>
-		<?php echo $form->fileField($model,'Image', array('class'=>'input-file')); ?>
-		<?php echo $form->error($model,'Image'); ?>
-	    </div>
 
 <?php endif; // End Create scenario ?>
-	
+
 	<div class="row">
 		<?php echo $form->labelEx($model,'ExpiryDate'); ?>
 		<?php
@@ -82,6 +74,12 @@ if($model->scenario === 'insert')
            	));
        	?>
 		<?php echo $form->error($model,'ExpiryDate'); ?>
+	</div>
+	
+	<div class="row">
+		<?php echo $form->labelEx($model,'Image Path'); ?>
+		<?php echo $form->fileField($model,'Image', array('class'=>'input-file')); ?>
+		<?php echo $form->error($model,'Image'); ?>
 	</div>
 	
 	<div class="row">
@@ -238,10 +236,10 @@ if($model->scenario === 'insert')
     </div>
 	
 
-	 <?php if($model->CouponType==='CONVERT_TO_POINTS') { ?>
+	 <?php if($model->CouponType==='CONVERT_TO_POINTS' || $model->CouponType==='EXCHANGE_POINTS_TO_COUPON') { ?>
 		<div class="row">
                 <?php echo $form->labelEx($model,'PointsValue'); ?>
-		<?php echo $form->textField($model,'PointsValue',array('size'=>11, 'style'=> 'width:200px;','maxlength'=>11)); ?>
+		<?php echo $form->textField($model,'PointsValue',array('size'=>30, 'style'=> 'width:400px;','maxlength'=>30)); ?>
 		<?php echo $form->error($model,'PointsValue'); ?>
     		</div>
         <?php } ?>
@@ -276,12 +274,12 @@ $( document ).ready(function() {
 
 		//chk	PointsValue
     		$("#PointsValue_Container").css({"display": "none"});
-		if(choice == 'CONVERT_TO_POINTS')
+		if(choice == 'CONVERT_TO_POINTS' || choice == 'EXCHANGE_POINTS_TO_COUPON')
 		{
     			$("#PointsValue_Container").css({"display": "block"});
 		}
 	});
-	if("<?=$model->CouponType?>" == "CONVERT_TO_POINTS")
+	if("<?=$model->CouponType?>" == "CONVERT_TO_POINTS" || "<?=$model->CouponType?>" == "EXCHANGE_POINTS_TO_COUPON")
 	{
     		$("#PointsValue_Container").css({"display": "block"});
 	}
