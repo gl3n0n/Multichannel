@@ -27,8 +27,8 @@
 	    -o-hyphens:auto; 
 	    word-wrap: break-word;
     	    overflow-wrap: break-word;
-	   text-overflow: ellipsis;
-	   width: 400px; 
+	    text-overflow: ellipsis;
+	    width: 450px; 
 	}
 </style>
 </head>
@@ -66,6 +66,12 @@
 					<option value="/multichannel-api/coupon/list_redeemed_coupon.php">List Redeemed Coupon</option>	
 					<option value="/multichannel-api/coupon/do_redeemed_coupon.php">Do Redeem Coupon</option>	
 					
+					
+					<option value="/multichannel-api/reward/list_of_redeemable_rewards.php">List Redeemable Rewards</option>	
+					<option value="/multichannel-api/reward/list_of_rewards_available.php">List Rewards Available</option>	
+					<option value="/multichannel-api/reward/list_of_redeemed_rewards.php">List Redeemed Reward</option>	
+					<option value="/multichannel-api/reward/do_redeemed_reward.php">Do Redeem Reward</option>	
+
 					
 					
 <!--                    <option value="/multichannel-api/customer/retrieve.php">Retrieve Customer</option>

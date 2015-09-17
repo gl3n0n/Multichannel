@@ -25,11 +25,19 @@ $(function() {
 	
 	params["/multichannel-api/points/list_action_points.php"]             = ["client_id", "customer_id"];
 	params["/multichannel-api/points/gain_points.php"]                    = ["customer_id", "client_id", "brand_id", "campaign_id", "channel_id", "actiontype_id"]; 
+	//params["/multichannel-api/points/gain_points.php"]                    = ["customer_id", "client_id", "actiontype_id"]; 
 	params["/multichannel-api/points/list_customer_points.php"]           = ["client_id", "customer_id"];
 	
 	params["/multichannel-api/coupon/list_available_coupon.php"]          = ["client_id", "customer_id"];
 	params["/multichannel-api/coupon/list_redeemed_coupon.php"]           = ["client_id", "customer_id"];
 	params["/multichannel-api/coupon/do_redeemed_coupon.php"]             = ["client_id", "customer_id", "coupon_id", "code"];
+	
+	
+	params["/multichannel-api/reward/list_of_redeemable_rewards.php"]     = ["client_id", "customer_id"];
+	params["/multichannel-api/reward/list_of_rewards_available.php"]      = ["client_id", "customer_id"];
+	params["/multichannel-api/reward/list_of_redeemed_rewards.php"]       = ["client_id", "customer_id"];
+	params["/multichannel-api/reward/do_redeemed_reward.php"]             = ["client_id", "customer_id","reward_config_id"];
+	
 	
 	$('#cmbAPIType').val(0);
 	$('#tdParams').html('&nbsp');

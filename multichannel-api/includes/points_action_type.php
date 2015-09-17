@@ -23,7 +23,8 @@ class PointsActionType
 
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$query      = "
-			SELECT  DISTINCT
+			SELECT   
+				sub.PointsId,
 				sub.SubscriptionId,
 				typ.ActiontypeId  ,
 				typ.Name as ActionName,
@@ -38,30 +39,49 @@ class PointsActionType
 				cust.Email,
 				cust.FBId,
 				cust.TwitterHandle,
-				pts.Name as PointsName,
+				pts.Name as PointsSystemName,
 				pmap.ClientId ,
-				clnt.CompanyName,
-				pmap.BrandId  ,
-				brnd.BrandName,
+				(
+				 select clnt.CompanyName FROM
+				 clients clnt
+				 where
+				 clnt.ClientId = pmap.ClientId
+				 LIMIT 1  
+				) as CompanyName ,
+				sub.CustomerId ,
+				pmap.BrandId,
+				(
+				 select brnd.BrandName FROM
+				 brands brnd
+				 where
+				 brnd.BrandId = pmap.BrandId
+				 LIMIT 1  
+				) as BrandName,
 				pmap.CampaignId ,
-				camp.CampaignName,
+				(
+				 select camp.CampaignName FROM
+				 campaigns camp
+				 where
+				 camp.CampaignId = pmap.CampaignId
+				 LIMIT 1  
+				) as CampaignName,
 				pmap.ChannelId,
-				chan.ChannelName
-			FROM 
+				(
+				 select chan.ChannelName FROM
+				 channels chan
+				 where
+				 chan.ChannelId = pmap.ChannelId
+				 LIMIT 1  
+				) as ChannelName
+			FROM
 				customer_subscriptions sub,
 				points_mapping pmap,
 				action_type typ,
 				customers  cust,
-				points pts,
-				campaigns  camp,
-				channels   chan,
-				brands     brnd,
-				clients    clnt
+				points pts
 			WHERE   1=1
 				AND sub.ClientId   = '$client_id'
 				AND sub.CustomerId = '$customer_id'
-				AND sub.PointsId   = pmap.PointsId
-				AND sub.ClientId   = pmap.ClientId
 				AND sub.PointsId   = typ.PointsId
 				AND sub.ClientId   = typ.ClientId
 				AND sub.PointsId   = pts.PointsId
@@ -71,13 +91,11 @@ class PointsActionType
 				AND typ.Status     = 'ACTIVE'
 				AND pts.Status     = 'ACTIVE'
 				AND sub.CustomerId = cust.CustomerId
-				AND pmap.ClientId  = clnt.ClientId
-				AND pmap.BrandId   = brnd.BrandId
-				AND pmap.CampaignId= camp.CampaignId
-				AND pmap.ChannelId = chan.ChannelId
+				AND sub.PointsId   = pmap.PointsId
+				AND sub.ClientId   = pmap.ClientId
+				AND sub.BrandId    = pmap.BrandId
+				AND sub.CampaignId = pmap.CampaignId
 			";
-
-
 
 			//run
 			$res = $this->conn->query($query);
@@ -119,7 +137,7 @@ class PointsActionType
 
 			//sql -> CustomerId | ClientId | BrandId | CampaignId | ChannelId |ActiontypeId
 			$query      = "
-			SELECT  
+			SELECT
 				sub.SubscriptionId,
 				typ.ActiontypeId  ,
 				typ.Name as ActionName,
@@ -132,39 +150,94 @@ class PointsActionType
 				date_format(typ.StartDate,'%Y%m%d') as StartDate,
 				date_format(typ.EndDate,  '%Y%m%d') as EndDate,
 				pmap.BrandId  ,
-				brnd.BrandName,
-				date_format(brnd.DurationFrom,'%Y%m%d') as Brand_DurationFrom,
-				date_format(brnd.DurationTo,  '%Y%m%d') as Brand_DurationTo,
-				brnd.Status as Brand_Status,
+				(
+				 select brnd.Status FROM
+				  brands brnd
+				  where
+				  brnd.BrandId = pmap.BrandId
+				  LIMIT 1  
+				) as Brand_Status,
+				(
+				 select date_format(brnd.DurationFrom,'%Y%m%d') FROM
+				  brands brnd
+				  where
+				  brnd.BrandId = pmap.BrandId
+				  LIMIT 1  
+				) as Brand_DurationFrom,
+				(
+				 select date_format(brnd.DurationTo,'%Y%m%d') FROM
+				  brands brnd
+				  where
+				  brnd.BrandId = pmap.BrandId
+				  LIMIT 1  
+				) as Brand_DurationTo,
 				pmap.CampaignId ,
-				camp.CampaignName,
-				date_format(camp.DurationFrom,'%Y%m%d') as Campaign_DurationFrom,
-				date_format(camp.DurationTo,  '%Y%m%d') as Campaign_DurationTo,
-				camp.Status as Campaign_Status,
+				(
+				 select camp.Status FROM
+				  campaigns camp
+				  where
+				  camp.CampaignId = pmap.CampaignId
+				  LIMIT 1  
+				) as Campaign_Status,
+				(
+				 select date_format(camp.DurationFrom,  '%Y%m%d') FROM
+				  campaigns camp
+				  where
+				  camp.CampaignId = pmap.CampaignId
+				  LIMIT 1  
+				) as Campaign_DurationFrom,
+				(
+				 select date_format(camp.DurationTo,  '%Y%m%d') FROM
+				  campaigns camp
+				  where
+				  camp.CampaignId = pmap.CampaignId
+				  LIMIT 1  
+				) as Campaign_DurationTo,
 				pmap.ChannelId,
-				chan.ChannelName,
-				date_format(chan.DurationFrom,'%Y%m%d') as Channel_DurationFrom,
-				date_format(chan.DurationTo,  '%Y%m%d') as Channel_DurationTo,
-				chan.Status as Channel_Status,
-				clnt.Status as Client_Status,
+				(
+				 select chan.Status FROM
+				 channels chan
+				 where
+				 chan.ChannelId = pmap.ChannelId
+				 LIMIT 1
+				) as Channel_Status ,
+				(
+				 select date_format(chan.DurationFrom,  '%Y%m%d') FROM
+				 channels chan
+				 where
+				 chan.ChannelId = pmap.ChannelId
+				 LIMIT 1
+				) as Channel_DurationFrom ,
+				(
+				 select date_format(chan.DurationTo,  '%Y%m%d')  FROM
+				 channels chan
+				 where
+				 chan.ChannelId = pmap.ChannelId
+				 LIMIT 1
+				) as Channel_DurationTo ,
+				(
+				 select clnt.Status FROM
+				 clients clnt
+				 where
+				 clnt.ClientId = pmap.ClientId
+				 LIMIT 1
+				) as Client_Status ,
 				cust.Status as Customer_Status
-			FROM 
+			FROM
 				points pts,
 				points_mapping pmap,
 				customer_subscriptions sub,
 				action_type typ,
-				customers  cust,
-				campaigns  camp,
-				channels   chan,
-				brands     brnd,
-				clients    clnt
+				customers  cust
 			WHERE   1=1
 				AND sub.ClientId     = '$client_id'
 				AND sub.CustomerId   = '$customer_id'
+				AND pmap.BrandId     = sub.BrandId
+				AND pmap.CampaignId  = sub.CampaignId
+				AND typ.ActiontypeId = '$actiontype_id'
 				AND pmap.BrandId     = '$brand_id'
 				AND pmap.CampaignId  = '$campaign_id'
 				AND pmap.ChannelId   = '$channel_id'
-				AND typ.ActiontypeId = '$actiontype_id'
 				AND pmap.PointsId    = sub.PointsId
 				AND pmap.ClientId    = sub.ClientId
 				AND sub.PointsId     = typ.PointsId
@@ -172,13 +245,9 @@ class PointsActionType
 				AND sub.PointsId     = pts.PointsId
 				AND sub.ClientId     = pts.ClientId
 				AND sub.CustomerId   = cust.CustomerId
-				AND pmap.ClientId    = clnt.ClientId
-				AND pmap.BrandId     = brnd.BrandId
-				AND pmap.CampaignId  = camp.CampaignId
-				AND pmap.ChannelId   = chan.ChannelId
-			LIMIT 1
 			";
 
+			$retv["status"]    = 0;
 
 			//run
 			$res = $this->conn->query($query);
@@ -195,7 +264,6 @@ class PointsActionType
 			
 			//set results
 			$retv["totalrows"] = $counter;
-			$retv["status"]    = 0;
 			
 			
 			/*
@@ -347,8 +415,14 @@ class PointsActionType
 			
 			//good
 			//points_log (insert, LogType="POINTS", Value=action_type.Value)
-			$pdata["value"] = $row["value"];
-			$tdata          = $this->save_points_log($pdata);
+			if(0){
+			$pdata["channel_id"]  = $row["channelid"] ;
+			$pdata["brand_id"]    = $row["brandid"]   ;
+			$pdata["campaign_id"] = $row["campaignid"];
+			}
+
+			$pdata["value"]       = $row["value"];
+			$tdata                = $this->save_points_log($pdata);
 			
 			//customer_points (insert/update, SubscriptionId, Balance=Balance + action_type.Value, Total = Total + action_type.Value)
 			$sdata          = $this->save_customer_points($pdata);
@@ -446,6 +520,7 @@ class PointsActionType
 				WHERE
 				1=1
 				AND SubscriptionId= '$subscription_id'
+				AND PointsId      = '$points_id'
 			";
 
 
@@ -468,6 +543,7 @@ class PointsActionType
 				$query      = "
 				INSERT INTO customer_points (
 					SubscriptionId ,
+					PointsId       ,
 					Balance        ,
 					Total          ,
 					CreatedBy      ,
@@ -475,6 +551,7 @@ class PointsActionType
 				)
 				VALUES (
 					'$subscription_id', 
+					'$points_id', 
 					'$value',          
 					'$value',          
 					'$created_by',      
@@ -501,6 +578,7 @@ class PointsActionType
 						DateUpdated    = Now()
 					WHERE
 						SubscriptionId = '$subscription_id'
+						AND PointsId   = '$points_id'
 				";
 				//run
 				$res = $this->conn->exec($query);
@@ -544,7 +622,19 @@ class PointsActionType
 			AND ActiontypeId  = '$actiontype_id'
 			AND SubscriptionId= '$subscription_id'
 		";
-
+		
+		$query      = "
+			SELECT  SUM(IFNULL(Value,0)) as total
+			FROM
+				points_log
+			WHERE
+			1=1
+			AND LogType       = 'POINTS'
+			AND CustomerId    = '$customer_id'
+			AND PointsId      = '$points_id'
+			AND ClientId      = '$client_id'
+			AND ActiontypeId  = '$actiontype_id'
+		";
 
 		//run
 		$res = $this->conn->query($query);
@@ -571,44 +661,78 @@ class PointsActionType
 			$retv["breakdown"]    = array();
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$query      = "
-			SELECT  DISTINCT
-				sub.SubscriptionId,
-				pmap.PointLogId,
-				pmap.Value as total,
-				pmap.ClientId ,
-				clnt.CompanyName,
-				pmap.BrandId  ,
-				brnd.BrandName,
-				pmap.CampaignId ,
-				camp.CampaignName,
-				pmap.ChannelId,
-				chan.ChannelName
+				SELECT  
+					SUM(IFNULL(pmap.Value,0)) as total,
+					sub.PointsId,
+					sub.SubscriptionId,
+					pmap.CustomerId,
+					(
+					  select concat(cust.FirstName,' ',cust.LastName)
+					  from
+					  customers cust
+					  where
+					  cust.CustomerId = pmap.CustomerId
+					) as CustomerName,
+					pmap.ClientId,
+					(
+					 select clnt.CompanyName 
+					 from
+					 clients clnt
+					 where
+					  clnt.ClientId = pmap.ClientId
+					) as ClientName,
+					pts.Name as PointSystemName
 			FROM 
 				customer_subscriptions sub,
 				points_log pmap,
-				customers  cust,
-				campaigns  camp,
-				channels   chan,
-				brands     brnd,
-				clients    clnt
+				points pts
 			WHERE   1=1
 				AND sub.SubscriptionId    = pmap.SubscriptionId
 				AND sub.ClientId    = '$client_id'
 				AND sub.CustomerId  = '$customer_id'
+				AND sub.CustomerId  = pmap.CustomerId 
 				AND sub.PointsId    = pmap.PointsId
-				AND sub.ClientId    = pmap.ClientId
-				AND sub.BrandId     = pmap.BrandId
-				AND sub.CampaignId  = pmap.CampaignId
+				AND pts.PointsId    = pmap.PointsId
 				AND sub.Status      = 'ACTIVE'
-				AND sub.CustomerId  = cust.CustomerId
-				AND pmap.ClientId   = clnt.ClientId
-				AND pmap.BrandId    = brnd.BrandId
-				AND pmap.CampaignId = camp.CampaignId
-				AND pmap.ChannelId  = chan.ChannelId
+			GROUP BY 
+				pmap.PointsId
 			";
 
-
-
+			$query      = "
+				SELECT  
+					SUM(IFNULL(pmap.Balance,0)) as total,
+					sub.PointsId,
+					sub.CustomerId,
+					(
+					select concat(cust.FirstName,' ',cust.LastName)
+					from
+					customers cust
+					where
+					cust.CustomerId = sub.CustomerId
+					) as CustomerName,
+					sub.ClientId,
+					(
+					select clnt.CompanyName 
+					from
+					clients clnt
+					where
+					clnt.ClientId = sub.ClientId
+					) as ClientName,
+					pts.Name as PointSystemName
+				FROM 
+					customer_subscriptions sub,
+					customer_points pmap,
+					points pts
+				WHERE   1=1
+					AND sub.SubscriptionId    = pmap.SubscriptionId
+					AND sub.ClientId    = '$client_id'
+					AND sub.CustomerId  = '$customer_id'
+					AND sub.PointsId    = pmap.PointsId
+					AND pts.PointsId    = pmap.PointsId
+					AND sub.Status      = 'ACTIVE'
+				GROUP BY 
+					sub.PointsId
+			";
 			//run
 			$res = $this->conn->query($query);
 			if (PEAR::isError($res)) {
