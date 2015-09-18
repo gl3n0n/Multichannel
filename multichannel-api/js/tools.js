@@ -28,8 +28,8 @@ $(function() {
 	//params["/multichannel-api/points/gain_points.php"]                    = ["customer_id", "client_id", "actiontype_id"]; 
 	params["/multichannel-api/points/list_customer_points.php"]           = ["client_id", "customer_id"];
 	
-	params["/multichannel-api/coupon/list_available_coupon.php"]          = ["client_id", "customer_id"];
-	params["/multichannel-api/coupon/list_redeemed_coupon.php"]           = ["client_id", "customer_id"];
+	params["/multichannel-api/coupon/list_available_coupon.php"]          = ["client_id", "customer_id", "coupon_id"];
+	params["/multichannel-api/coupon/list_redeemed_coupon.php"]           = ["client_id", "customer_id", "coupon_id"];
 	params["/multichannel-api/coupon/do_redeemed_coupon.php"]             = ["client_id", "customer_id", "coupon_id", "code"];
 	
 	

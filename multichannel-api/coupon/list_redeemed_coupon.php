@@ -8,14 +8,17 @@ require_once('../includes/coupon_list.php');
 //chk params
 $client_id   = trim($_POST['client_id']);
 $customer_id = trim($_POST['customer_id']);
+$coupon_id   = trim($_POST['coupon_id']);
 
 
 //filter
 if (
 ( strlen($client_id)   && ! @preg_match(DIGIT_REGEX, $client_id  ) ) or
+( strlen($coupon_id)   && ! @preg_match(DIGIT_REGEX, $coupon_id  ) ) or
 ( strlen($customer_id) && ! @preg_match(DIGIT_REGEX, $customer_id) ) or
 (                          
 	( strlen($client_id)     <= 0 ) or
+	( strlen($coupon_id)     <= 0 ) or
 	( strlen($customer_id)   <= 0 ) 
 ) 
 )
@@ -33,6 +36,7 @@ $obj      = new CouponList($dbconn);
 $response = $obj->list_of_redeemed_coupon(
 			array(
 				"client_id"   => $client_id,
+				"coupon_id"   => $coupon_id,
 				"customer_id" => $customer_id,
 				"qrlink"      => "http://104.156.53.150/multichannel-api/coupon/qr_codes/coup",
 				)

@@ -16,46 +16,58 @@ class CouponList
 			//fmt
 			$client_id  = addslashes($pdata["client_id"]  );
 			$customer_id= addslashes($pdata["customer_id"]);
+			$coupon_id  = addslashes($pdata["coupon_id"]);
 			$qrlink     = addslashes($pdata["qrlink"]);
 			
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$retv          = array();
 			$retv["coupon"]= array();
 			$retv["status"]= 0;
-			
+			//fmt sql	
 			$query      = "
 			SELECT  DISTINCT gen.GeneratedCouponId,gen.Code,
 			        CONCAT('$qrlink',gen.GeneratedCouponId,'.png') as qr_code,
-				CONCAT(cust.FirstName,' ' ,cust.LastName) as CustomerName,
-				sub.ClientId ,
-				clnt.CompanyName,
-				sub.BrandId  ,
-				brnd.BrandName,
-				sub.CampaignId ,
-				camp.CampaignName,
+				sub.PointsId,
+				(
+					select pts.Name
+					from
+					 points pts
+					where
+					pts.PointsId = sub.PointsId
+					limit 1	
+				) as PointsSystemName,
+				sub.CustomerId,
+				(
+				   select CONCAT(cust.FirstName,' ' ,cust.LastName)
+				   from
+					customers  cust
+				   where
+					cust.CustomerId = sub.CustomerId
+				   limit 1
+				) as CustomerName,
+				sub.ClientId,
+				(
+				   select clnt.CompanyName
+				   from clients clnt
+				   where
+					clnt.ClientId = sub.ClientId
+				   limit 1
+				) as ClientName,
 				gen.CouponId
 			FROM 
 				customer_subscriptions sub,
 				coupon map,
-				generated_coupons gen,
-				customers  cust,
-				campaigns  camp,
-				brands     brnd,
-				clients    clnt
+				generated_coupons gen
 			WHERE   1=1
 				AND sub.ClientId   = '$client_id'
 				AND sub.CustomerId = '$customer_id'
+				AND map.CouponId   = '$coupon_id'
 				AND sub.PointsId   = map.PointsId
 				AND sub.ClientId   = map.ClientId
 				AND sub.Status     = 'ACTIVE'
 				AND gen.Status     = 'PENDING'
 				AND sub.PointsId   = gen.PointsId
 				AND map.CouponId   = gen.CouponId
-				AND sub.CustomerId = cust.CustomerId
-				AND sub.ClientId  = clnt.ClientId
-				AND sub.BrandId   = brnd.BrandId
-				AND sub.CampaignId= camp.CampaignId
-				
 			";
 
 
@@ -89,47 +101,61 @@ class CouponList
 			//fmt
 			$client_id  = addslashes($pdata["client_id"]  );
 			$customer_id= addslashes($pdata["customer_id"]);
+			$coupon_id  = addslashes($pdata["coupon_id"]);
 			$qrlink     = addslashes($pdata["qrlink"]);
 			
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$retv          = array();
 			$retv["coupon"]= array();
 			$retv["status"]= 0;
+
+			//fmt sql	
 			$query      = "
 			SELECT  DISTINCT gen.GeneratedCouponId,gen.Code,
 			        CONCAT('$qrlink',gen.GeneratedCouponId,'.png') as qr_code,
-				CONCAT(cust.FirstName,' ' ,cust.LastName) as CustomerName,
-				sub.ClientId ,
-				clnt.CompanyName,
-				sub.BrandId  ,
-				brnd.BrandName,
-				sub.CampaignId ,
-				camp.CampaignName,
-				gen.CouponId
+				sub.PointsId,
+				(
+					select pts.Name
+					from
+					 points pts
+					where
+					pts.PointsId = sub.PointsId
+					limit 1	
+				) as PointsSystemName,
+				sub.CustomerId,
+				(
+				   select CONCAT(cust.FirstName,' ' ,cust.LastName)
+				   from
+					customers  cust
+				   where
+					cust.CustomerId = sub.CustomerId
+				   limit 1
+				) as CustomerName,
+				sub.ClientId,
+				(
+				   select clnt.CompanyName
+				   from clients clnt
+				   where
+					clnt.ClientId = sub.ClientId
+				   limit 1
+				) as ClientName,
+				gen.CouponId,
+				gen.DateRedeemed
 			FROM 
 				customer_subscriptions sub,
 				coupon map,
-				generated_coupons gen,
-				customers  cust,
-				campaigns  camp,
-				brands     brnd,
-				clients    clnt
+				generated_coupons gen
 			WHERE   1=1
 				AND sub.ClientId   = '$client_id'
 				AND sub.CustomerId = '$customer_id'
+				AND map.CouponId   = '$coupon_id'
 				AND sub.PointsId   = map.PointsId
 				AND sub.ClientId   = map.ClientId
 				AND sub.Status     = 'ACTIVE'
 				AND gen.Status     = 'REDEEMED'
 				AND sub.PointsId   = gen.PointsId
 				AND map.CouponId   = gen.CouponId
-				AND sub.CustomerId = cust.CustomerId
-				AND sub.ClientId  = clnt.ClientId
-				AND sub.BrandId   = brnd.BrandId
-				AND sub.CampaignId= camp.CampaignId
-				
 			";
-
 
 
 			//run
@@ -149,7 +175,7 @@ class CouponList
 			$result_array["totalrows"] = $counter;
 			$result_array["status"]    = (($counter>0)?(1):(0));
 			//give it back
-			return ($counter == 0) ? ($query) : ($result_array);
+			return ($counter == 0) ? (false) : ($result_array);
 	}
 
 
@@ -169,75 +195,176 @@ class CouponList
 			$retv["status"]= 0;
 			
 			$query      = "
-			SELECT  gen.GeneratedCouponId,gen.Code,
-			        CONCAT('$qrlink',gen.GeneratedCouponId,'.png') as qr_code,
-				CONCAT(cust.FirstName,' ' ,cust.LastName) as CustomerName,
-				cust.CustomerId,
-				cust.Status as Customer_Status,
-				sub.ClientId ,
-				clnt.Status as Client_Status,
-				sub.BrandId  ,
-				brnd.BrandName,
-				brnd.Status as Brand_Status,
-				sub.CampaignId ,
-				camp.CampaignName,
-				camp.Status as Campaign_Status,
-				chan.ChannelId ,
-				chan.ChannelName,
-				chan.Status as Channel_Status,
-				gen.CouponId,
-				(curdate() <= map.ExpiryDate ) as coupon_not_expired,
-				gen.Status as Generation_status,
-				map.CouponType,
-				map.Status as Coupon_status,
-				IFNULL(map.PointsValue,0) as PointsValue,
-				map.CouponId,
-				date_format(chan.DurationFrom,'%Y%m%d') as Channel_DurationFrom,
-				date_format(chan.DurationTo,  '%Y%m%d') as Channel_DurationTo,
-				date_format(camp.DurationFrom,'%Y%m%d') as Campaign_DurationFrom,
-				date_format(camp.DurationTo,  '%Y%m%d') as Campaign_DurationTo,
-				date_format(brnd.DurationFrom,'%Y%m%d') as Brand_DurationFrom,
-				date_format(brnd.DurationTo,  '%Y%m%d') as Brand_DurationTo,
-				typ.ActiontypeId,
-				sub.SubscriptionId,
-				sub.PointsId
-			FROM 
-				customer_subscriptions sub,
-				coupon map,
-				generated_coupons gen,
-				points_mapping pmap,
-				action_type typ,
-				customers  cust,
-				channels   chan,
-				campaigns  camp,
-				brands     brnd,
-				clients    clnt
-			WHERE   1=1
-				AND sub.ClientId   = '$client_id'
-				AND sub.CustomerId = '$customer_id'
-				AND sub.PointsId   = map.PointsId
-				AND sub.ClientId   = map.ClientId
-				AND sub.Status     = 'ACTIVE'
-				AND gen.Status     = 'PENDING'
-				AND sub.PointsId   = gen.PointsId
-				AND map.CouponId   = gen.CouponId
-				AND gen.CouponId   = '$coupon_id'
-				AND gen.Code       = '$code'
-				AND sub.CustomerId = cust.CustomerId
-				AND sub.ClientId   = clnt.ClientId
-				AND sub.BrandId    = brnd.BrandId
-				AND sub.CampaignId = camp.CampaignId
-				AND sub.PointsId   = pmap.PointsId
-				AND sub.ClientId   = pmap.ClientId
-				AND sub.BrandId    = pmap.BrandId
-				AND sub.CampaignId = pmap.CampaignId
-				AND chan.ChannelId = pmap.ChannelId
-				AND sub.PointsId   = typ.PointsId
-				AND sub.ClientId   = typ.ClientId
+				SELECT  DISTINCT 
+					gen.GeneratedCouponId,
+					gen.Code,
+					sub.PointsId,
+					map.CouponType,
+					IFNULL(map.PointsValue,0) as PointsValue,
+					gen.CouponId,
+					sub.SubscriptionId,
+					sub.CustomerId,
+					sub.ClientId,
+					(
+					select clnt.Status
+					from clients clnt
+					where
+					clnt.ClientId = sub.ClientId
+					limit 1
+					) as Client_Status,
+					gen.Status as Generation_status,
+					(
+					select cust.Status
+					from
+					customers  cust
+					where
+					cust.CustomerId = sub.CustomerId
+					limit 1
+					) as Customer_Status,
+					map.Status as Coupon_Status,
+					sub.BrandId,
+					sub.CampaignId,
+					(
+					select chan.ChannelId
+					from
+					channels chan
+					where
+					  chan.ClientId     = sub.ClientId 
+					and chan.BrandId    = sub.BrandId 
+					and chan.CampaignId = sub.CampaignId 
+					limit 1
+					) as ChannelId,
+					(
+					select chan.Status
+					from
+					channels chan
+					where
+					  chan.ClientId     = sub.ClientId 
+					and chan.BrandId    = sub.BrandId 
+					and chan.CampaignId = sub.CampaignId 
+					limit 1
+					) as Channel_Status,
+					(
+					select brnd.Status
+					from
+					brands brnd
+					where
+					    brnd.BrandId   = sub.BrandId 
+					limit 1
+					) as Brand_Status,
+					(
+					select camp.Status
+					from
+					campaigns camp
+					where
+					    camp.CampaignId   = sub.CampaignId 
+					limit 1
+					) as Campaign_Status,
+					(
+					select typ.ActiontypeId
+					from
+					action_type typ
+					where
+					  typ.PointsId = map.PointsId
+					and typ.ClientId = sub.ClientId 
+					limit 1
+					) as ActionTypeId,
+					(
+					select date_format(chan.DurationFrom,'%Y%m%d')
+					from
+					channels chan
+					where
+					    chan.ClientId   = sub.ClientId 
+					and chan.BrandId    = sub.BrandId 
+					and chan.CampaignId = sub.CampaignId 
+					limit 1
+					) as Channel_DurationFrom,
+					(
+					select date_format(chan.DurationTo,'%Y%m%d')
+					from
+					channels chan
+					where
+					    chan.ClientId   = sub.ClientId 
+					and chan.BrandId    = sub.BrandId 
+					and chan.CampaignId = sub.CampaignId 
+					limit 1
+					) as Channel_DurationTo,
+					(
+					select date_format(camp.DurationFrom,'%Y%m%d')
+					from
+					campaigns camp
+					where
+					    camp.CampaignId   = sub.CampaignId 
+					limit 1
+					) as Campaign_DurationFrom,
+					(
+					select date_format(camp.DurationTo,'%Y%m%d')
+					from
+					campaigns camp
+					where
+					    camp.CampaignId   = sub.CampaignId 
+					limit 1
+					) as Campaign_DurationTo,
+					(
+					select date_format(brnd.DurationFrom,'%Y%m%d')
+					from
+					brands brnd
+					where
+					    brnd.BrandId   = sub.BrandId 
+					limit 1
+					) as Brand_DurationFrom,
+					(
+					select date_format(brnd.DurationTo,'%Y%m%d')
+					from
+					brands brnd
+					where
+					    brnd.BrandId   = sub.BrandId 
+					limit 1
+					) as Brand_DurationTo,
+					IFNULL((
+					select sum(IFNULL(c.Balance,0))
+					from
+					 customer_points c
+					 where
+					     c.SubscriptionId = sub.SubscriptionId
+					 and c. PointsId      = sub.PointsId
+					),0) as Customer_Points_Balance,
+					IFNULL((
+					select ifnull(d.Value,0) from 
+					coupon_to_points d
+					where 
+					      d.CouponId  = map.CouponId
+					  and d.status    = 'ACTIVE'
+					  and d.ClientId  = sub.ClientId 
+					),0) as Coupon_To_Points_Value,
+					(curdate() <= map.ExpiryDate ) as coupon_not_expired,
+					( (
+						select count(1)
+						from
+						generated_coupons g
+						where 1=1
+						  and g.CouponId   = gen.CouponId
+						  and g.PointsId   = gen.PointsId
+						  and g.CustomerId = sub.CustomerId
+					) < map.LimitPerUser ) as check_history_total
+				FROM 
+					customer_subscriptions sub,
+					coupon map,
+					generated_coupons gen
+				WHERE   1=1
+					AND sub.ClientId   = '$client_id'
+					AND sub.CustomerId = '$customer_id'
+					AND map.CouponId   = '$coupon_id'
+					AND gen.Code       = '$code'
+					AND sub.PointsId   = map.PointsId
+					AND sub.ClientId   = map.ClientId
+					AND sub.Status     = 'ACTIVE'
+					AND gen.Status     = 'PENDING'
+					AND sub.PointsId   = gen.PointsId
+					AND map.CouponId   = gen.CouponId
+					AND map.LimitPerUser > 0
 			LIMIT 1
 			";
-			//run
-			$res = $this->conn->query($query);
 			//run
 			$res = $this->conn->query($query);
 			if (PEAR::isError($res)) {
@@ -351,6 +478,32 @@ class CouponList
 				//give it back
 				return $retv;
 			}
+			//no-balance,Customer_Points_Balance,coupon_to_points_value
+			if(
+			       @preg_match("/^(EXCHANGE_POINTS_TO_COUPON)$/i",$row["coupontype"]) and 
+			       (
+				       (    $row["customer_points_balance"] <  $row["pointsvalue"] and 
+				          ( $row["customer_points_balance"] > 0 and $row["pointsvalue"] > 0 )
+				       ) 
+			       )
+			   )
+			{
+				$retv['result_code'] = 409;
+				$retv['error_txt']   = 'Insufficient Balance.';
+				$retv["result"]      = null;
+				//give it back
+				return $retv;
+			
+			}
+			//redeem coupon limit exceeded.
+			if( @intval($row["check_history_total"])  == 0)
+			{
+				$retv['result_code'] = 410;
+				$retv['error_txt']   = 'Redeem Coupon Limit Exceeded.';
+				$retv["result"]      = null;
+				//give it back
+				return $retv;
+			}
 			
 			//good
 			//generated_coupon (update, status=REDEEMED, CustomerId=customerid WHERE PointsId=? and CouponId=?)
@@ -362,24 +515,53 @@ class CouponList
 			$pdata["channel_id"]          = $row["channelid"];
 			$pdata["brand_id"]            = $row["brandid"];
 			$pdata["campaign_id"]         = $row["campaignid"];
+			$pdata["coupon_type"]         = $row["coupontype"];
+			$pdata["balance"]             = $row["pointsvalue"];
 			
-			
-			//set flag
-			$rdata = array();
-			$rdata = $this->update_redeemed_flag($pdata);
 			
 			//customer_points (insert/update, if coupon.CouponType=CONVERT_TO_POINTS, Balance=Balance + coupon.PointsValue, Total = Total + coupon.PointsValue)
 			//points_log (insert/update, LogType="COUPON_TO_POINTS", Value=coupon.PointsValue)
+			$rdata = array();
 			$sdata = array();
 			$tdata = array();
-			if($row["coupontype"] == 'CONVERT_TO_POINTS')
+			
+			//regular
+			if(@preg_match("/^(REGULAR)$/i",$row["coupontype"]))
 			{
-			    
-			    //points-log
-			    $tdata = $this->save_points_log($pdata);
-			    
-			    //customer-points
-			    $sdata = $this->save_customer_points($pdata);
+				//set flag
+				if($row["coupon_to_points_value"] > 0)
+				{
+					//have-record
+					$pdata["value"]               = $row["coupon_to_points_value"];
+					$pdata["balance"]             = $row["coupon_to_points_value"];
+					$rdata = $this->update_redeemed_flag($pdata,'REDEEMED_AND_CONVERTED');
+				}
+				else
+				{
+					//no-record
+					$rdata = $this->update_redeemed_flag($pdata,'REDEEMED');
+				}
+			}
+			
+			//convert pts
+			if(@preg_match("/^(CONVERT_TO_POINTS)$/i",$row["coupontype"]))
+			{
+				$rdata = $this->update_redeemed_flag($pdata,'REDEEMED_AND_CONVERTED');
+			}
+			
+			//exchange pts
+			if(@preg_match("/^(EXCHANGE_POINTS_TO_COUPON)$/i",$row["coupontype"]))
+			{
+				$rdata = $this->update_redeemed_flag($pdata,'REDEEMED_AND_CONVERTED');
+			}
+			
+			if($pdata["value"]>0)
+			{
+				//points-log
+				$tdata = $this->save_points_log($pdata);
+
+				//customer-points
+				$sdata = $this->save_customer_points($pdata);
 			}
 
 			//nice
@@ -413,7 +595,13 @@ class CouponList
 			$subscription_id = addslashes($pdata["subscription_id"]  );
 			$created_by      = addslashes($pdata["created_by"]  );
 			$value           = addslashes($pdata["value"]  );
+			$coupon_type     = addslashes($pdata["coupon_type"]  );
 			
+			$balstr          = "$value";
+			if(@preg_match("/EXCHANGE_POINTS_TO_COUPON/i",$coupon_type))	
+			{
+				$balstr  = "-$value";
+			}
 			$retv   = array();
 			$retv['save_points_log'] = 0;
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
@@ -441,8 +629,8 @@ class CouponList
 				'$channel_id',      
 				'$points_id',       
 				'$actiontype_id',   
-				'COUPON_TO_POINTS',        
-				'$value',          
+				'$coupon_type',        
+				'$balstr',          
 				'$created_by',      
 				Now()    
 			)
@@ -459,13 +647,16 @@ class CouponList
 	}
 
 
-	public function update_redeemed_flag($pdata=null)
+	public function update_redeemed_flag($pdata=null,$flag='REDEEMED')
 	{
 
 			//fmt
 			$generated_coupon_id = addslashes($pdata["generated_coupon_id"]  );
 			$customer_id         = addslashes($pdata["customer_id"]);
+			$code                = addslashes($pdata["code"]);
+			$points_id           = addslashes($pdata["points_id"]);
 			$created_by          = addslashes($pdata["created_by"]);
+			$flag                = addslashes($flag);
 			
 			$retv   = array();
 			$retv['update_redeemed_flag'] = 0;
@@ -474,12 +665,13 @@ class CouponList
 			UPDATE generated_coupons
 			SET
 					CustomerId   = '$customer_id',
-					Status       = 'REDEEMED',
+					Status       = '$flag',
 					UpdatedBy    = '$created_by',
 					DateRedeemed = Now(),
 					DateUpdated  = Now()
 			WHERE 
 				GeneratedCouponId    = '$generated_coupon_id'
+				LIMIT 1
 			";
 
 			//run
@@ -506,6 +698,8 @@ class CouponList
 			$subscription_id = addslashes($pdata["subscription_id"]  );
 			$created_by      = addslashes($pdata["created_by"]  );
 			$value           = addslashes($pdata["value"]  );
+			$balance         = addslashes($pdata["balance"]  );
+			$coupon_type     = addslashes($pdata["coupon_type"]  );
 			
 			
 			$data       = array();
@@ -516,7 +710,8 @@ class CouponList
 					customer_points
 				WHERE
 				1=1
-				AND SubscriptionId= '$subscription_id'
+				AND SubscriptionId = '$subscription_id'
+				AND PointsId       = '$points_id'
 			";
 
 
@@ -532,21 +727,35 @@ class CouponList
 			$subid   = $row["customerpointid"];
 			$data['save_customer_points'] = 0 ;
 			
-			
+			//pts
+			$usedcol = '';
+			$usedval = '';
+			$balstr  = "$balance";
+			$valsql  = " Total = (Total    + '$balance'), ";
+			if(@preg_match("/EXCHANGE_POINTS_TO_COUPON/i",$coupon_type))	
+			{
+				$balstr  = "-$balance";
+				$balsql  = " Used = (Used    + '$balance'), ";
+				$usedcol = " Used,         ";
+				$usedval = " '$balance',   ";
+				$valsql  = '';
+			}
 			if($subid <= 0)
 			{
 				//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 				$query      = "
 				INSERT INTO customer_points (
 					SubscriptionId ,
-					Balance        ,
+					PointsId       ,
+					Balance        ,$usedcol
 					Total          ,
 					CreatedBy      ,
 					DateCreated 
 				)
 				VALUES (
 					'$subscription_id', 
-					'$value',          
+					'$points_id', 
+					'$balstr'   ,$usedval          
 					'$value',          
 					'$created_by',      
 					Now()    
@@ -566,12 +775,12 @@ class CouponList
 					UPDATE 
 						customer_points 
 					SET
-						Balance        = (Balance + '$value'),
-						Total          = (Total   + '$value'),
-						UpdatedBy      = '$created_by',
+						Balance        = (Balance + '$balstr'), $balsql
+						UpdatedBy      = '$created_by', $valsql
 						DateUpdated    = Now()
 					WHERE
 						SubscriptionId = '$subscription_id'
+					    AND PointsId       = '$points_id'
 				";
 				//run
 				$res = $this->conn->exec($query);

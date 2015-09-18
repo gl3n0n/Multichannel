@@ -633,7 +633,7 @@ class RewardList
 				}
 				//chk if done?
 				$total_pts -= $pts;
-				if($total_pts>=0)
+				if($pts > 0)
 				{
 					//update it
 					$this->save_customer_points(
