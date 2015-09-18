@@ -105,7 +105,11 @@ return array(
 		'uploadImageDir'  => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
 					('C:\wamp\www\Multichannel\images'.DIRECTORY_SEPARATOR):
 				        ('/var/www/html/multichannel/images'.DIRECTORY_SEPARATOR)),
-		'baseUploadUrl' => 'http://104.156.53.150/multichannel/images/',
+		//'baseUploadUrl'   => 'http://104.156.53.150/multichannel/images/',
+		'baseUploadUrl'   => (((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'))?
+				       ('http://localhost/Multichannel/images/'):
+				       ('http://104.156.53.150/multichannel/images/')),
+		
 		'updatePoints'  => 'http://104.156.53.150/multichannel-api/points/update.php',
 		'jQueryInclude' => '<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>',
 		'reportPfx'     => 'Cust-Rpt',
@@ -117,6 +121,7 @@ return array(
 				     ('/var/www/html/multichannel/protected/uploads/coupons')),
 		'api-url'       => array(
 					'update_coupon' => 'http://104.156.53.150/multichannel-api/coupon/generate.php',
+					'update_edit_coupon' => 'http://104.156.53.150/multichannel-api/coupon/regenerate.php',
 					'update_raffle' => 'http://104.156.53.150/multichannel-api/raffle_engine/update.php',
 					'get_qrcode'    => 'http://104.156.53.150/multichannel-api/coupon/retrieve_qr.php',
 					'link_qrcode'   => 'http://104.156.53.150/multichannel-api/coupon/qr_codes',

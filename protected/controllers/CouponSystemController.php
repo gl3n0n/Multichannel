@@ -253,6 +253,14 @@ class CouponSystemController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
+		if(0)
+		{
+			echo "<pre>" . @var_export($model,1)."</pre>";
+			echo "<hr><pre>" . @var_export($_POST,1)."</pre>";
+			echo "<hr><pre>" . @var_export($currentImage,1)."</pre>";
+			exit;
+		}
+
 		if(isset($_POST['CouponSystem']))
 		{
 			$couponUploadFile = CUploadedFile::getInstance($model,'File');
@@ -274,7 +282,13 @@ class CouponSystemController extends Controller
 				}
 			}
 
+
+			if(empty($_POST['CouponSystem']['Image']) or trim($_POST['CouponSystem']['Image'])==""){
+				$model->setAttribute("Image", $currentImage);
+			}
+
 			$UploadFile = CUploadedFile::getInstance($model,'Image');
+
 
 			if ($UploadFile !== null) {
 				$imageFilename = md5(uniqid()) . '_' . $UploadFile->name;
@@ -297,6 +311,15 @@ class CouponSystemController extends Controller
 			{
 				//$model->addError('Image', 'File cannot be empty.');
 				$model->setAttribute("Image", $currentImage);
+				$model->Image = $currentImage;
+			}
+
+			if(0){
+				
+			echo "<hr><pre>" . @var_export($currentImage,1)."</pre>";
+			echo "<hr><pre>" . @var_export($UploadFile,1)."</pre>";
+			echo "<hr><pre>" . @var_export($model->Image,1)."</pre>";
+				exit;
 			}
 
 			$model->ExpiryDate = $_POST['CouponSystem']['ExpiryDate'];
@@ -314,6 +337,9 @@ class CouponSystemController extends Controller
 				$transaction = Yii::app()->db->beginTransaction();
 
 				try {
+					//echo '<pre>';
+					//print_r($model->attributes);
+					//exit();
 					if($model->save()) {
 						if($model->CouponMode==='user') {
 							try {
@@ -544,7 +570,7 @@ class CouponSystemController extends Controller
 						        'update_edit_coupon' => true,
 						        'client_id'          => Yii::app()->user->ClientId
 						        ),
-					'url'  => Yii::app()->params['api-url']['update_coupon'],
+					'url'  => Yii::app()->params['api-url']['update_edit_coupon'],
 				      );
 			$ret   = $apiUtils->send2Api($api);
 
