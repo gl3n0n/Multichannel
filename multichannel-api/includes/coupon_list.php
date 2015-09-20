@@ -18,7 +18,13 @@ class CouponList
 			$customer_id= addslashes($pdata["customer_id"]);
 			$coupon_id  = addslashes($pdata["coupon_id"]);
 			$qrlink     = addslashes($pdata["qrlink"]);
-			
+
+			//try			
+			$coupon_sql = '';
+			if($coupon_id > 0)
+			{
+				$coupon_sql = " AND map.CouponId   = '$coupon_id' ";
+			}
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$retv          = array();
 			$retv["coupon"]= array();
@@ -60,8 +66,7 @@ class CouponList
 				generated_coupons gen
 			WHERE   1=1
 				AND sub.ClientId   = '$client_id'
-				AND sub.CustomerId = '$customer_id'
-				AND map.CouponId   = '$coupon_id'
+				AND sub.CustomerId = '$customer_id' $coupon_sql
 				AND sub.PointsId   = map.PointsId
 				AND sub.ClientId   = map.ClientId
 				AND sub.Status     = 'ACTIVE'
@@ -103,6 +108,13 @@ class CouponList
 			$customer_id= addslashes($pdata["customer_id"]);
 			$coupon_id  = addslashes($pdata["coupon_id"]);
 			$qrlink     = addslashes($pdata["qrlink"]);
+
+			//try			
+			$coupon_sql = '';
+			if($coupon_id > 0)
+			{
+				$coupon_sql = " AND map.CouponId   = '$coupon_id' ";
+			}
 			
 			//sql -> PointsId | ClientId | BrandId | CampaignId | ChannelId
 			$retv          = array();
@@ -147,8 +159,7 @@ class CouponList
 				generated_coupons gen
 			WHERE   1=1
 				AND sub.ClientId   = '$client_id'
-				AND sub.CustomerId = '$customer_id'
-				AND map.CouponId   = '$coupon_id'
+				AND sub.CustomerId = '$customer_id' $coupon_sql
 				AND sub.PointsId   = map.PointsId
 				AND sub.ClientId   = map.ClientId
 				AND sub.Status     = 'ACTIVE'

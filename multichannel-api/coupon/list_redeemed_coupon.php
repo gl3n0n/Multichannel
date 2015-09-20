@@ -14,11 +14,10 @@ $coupon_id   = trim($_POST['coupon_id']);
 //filter
 if (
 ( strlen($client_id)   && ! @preg_match(DIGIT_REGEX, $client_id  ) ) or
-( strlen($coupon_id)   && ! @preg_match(DIGIT_REGEX, $coupon_id  ) ) or
 ( strlen($customer_id) && ! @preg_match(DIGIT_REGEX, $customer_id) ) or
+( strlen($coupon_id)   && ! @preg_match(DIGIT_REGEX, $coupon_id  ) ) or
 (                          
 	( strlen($client_id)     <= 0 ) or
-	( strlen($coupon_id)     <= 0 ) or
 	( strlen($customer_id)   <= 0 ) 
 ) 
 )

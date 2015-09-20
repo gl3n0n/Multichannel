@@ -18,7 +18,6 @@ if (
 ( strlen($coupon_id)   && ! @preg_match(DIGIT_REGEX, $coupon_id  ) ) or
 (                          
 	( strlen($client_id)     <= 0 ) or
-	( strlen($coupon_id)     <= 0 ) or
 	( strlen($customer_id)   <= 0 ) 
 ) 
 )
