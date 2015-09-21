@@ -204,7 +204,7 @@ if(!empty($downloadCSV))
 	'PointsId',
 	array(
 		'name' => 'Points Earned',
-		'value'=> 0,
+		'value'=> '($data->pointlogActiontype != null)?($data->pointlogActiontype->Value):(0)',
 	),
 	'DateCreated',
     ),
