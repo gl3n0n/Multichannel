@@ -81,7 +81,6 @@ class ReportsController extends Controller
 				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
 				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
 				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
-				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
 				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
 
 			);
@@ -96,7 +95,6 @@ class ReportsController extends Controller
 				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
 				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
 				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
-				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
 				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
 			);
 			$criteria->addCondition(" pointlogCampaigns.CampaignName LIKE '%".addslashes($byCampaign)."%' ");
@@ -109,7 +107,6 @@ class ReportsController extends Controller
 			$criteria->with = array(
 				'pointlogChannels'  => array('joinType'=>'LEFT JOIN'),
 				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
-				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
 				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
 				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
 
@@ -124,7 +121,6 @@ class ReportsController extends Controller
 			$criteria->with = array(
 				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
 				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
-				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
 				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
 				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
 
@@ -148,11 +144,13 @@ class ReportsController extends Controller
                 if('sortby' == 'sortby')
                 {
                         $criteria->with = array(
-                                'pointlogChannels'  => array('joinType'=>'LEFT JOIN'),
-                                'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
-                                'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
-                                'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
-                                'pointlogCustomers' => array('joinType'=>'LEFT JOIN'),
+                                'pointlogActiontype' => array('joinType'=>'LEFT JOIN'),
+                                'pointlogChannels'   => array('joinType'=>'LEFT JOIN'),
+                                'pointlogCampaigns'  => array('joinType'=>'LEFT JOIN'),
+                                'pointlogBrands'     => array('joinType'=>'LEFT JOIN'),
+                                'pointlogCustomers'  => array('joinType'=>'LEFT JOIN'),
+                                
+                                
                         );
                         // set sort options
                         $sort = new CSort;
@@ -200,7 +198,7 @@ class ReportsController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=PointsLog::model()->findByPk($id);
+		$model=Reports::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -283,8 +281,7 @@ class ReportsController extends Controller
 		    $by        = ($row->pointlogCreateUsers != null)?($row->pointlogCreateUsers->Username):("");
 		    
 		    //pts
-		    $tpts      = ($row->pointlogPoints != null)?($row->pointlogPoints->Value):(0);
-		    
+		    $tpts      = ($row->pointlogActiontype != null)?($row->pointlogActiontype->Value):(0);
 		    //hdr
 		    $str = sprintf('="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="",',
 					$custuid,
@@ -505,7 +502,7 @@ class ReportsController extends Controller
 			      b.CustomerId, 
 			      b.BrandId, 
 			      b.CampaignId, 
-			      b.ChannelId, 
+			      j.ChannelId, 
 			      b.Status, 
 			      f.CampaignName, 
 			      g.CompanyName, 
@@ -514,10 +511,11 @@ class ReportsController extends Controller
 			FROM customer_points a
 			join customer_subscriptions b on a.SubscriptionId = b.SubscriptionId 
 			join brands d on b.BrandId       = d.BrandId
-			join channels e on b.ChannelId   = e.ChannelId
 			join campaigns f on b.CampaignId = f.CampaignId
 			join clients g on b.ClientId     = g.ClientId
 			join customers h on b.CustomerId = h.CustomerId
+                        join points_mapping j on a.PointsId = j.PointsId 
+                        join channels e on j.ChannelId   = e.ChannelId
 			WHERE b.Status = 'ACTIVE' $xfilter $yfilter
 			";
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
@@ -779,7 +777,7 @@ class ReportsController extends Controller
 				       a.ClientId, 
 				       a.BrandId, 
 				       a.CampaignId, 
-				       a.ChannelId, 
+				       j.ChannelId, 
 				       a.status SubsriptionStatus,
 				       b.Balance, 
 				       b.Used, 
@@ -790,14 +788,18 @@ class ReportsController extends Controller
 				       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
 				from  customer_subscriptions a, 
 				      customer_points b,
-				      customers e,clients f,brands g,campaigns h,channels i
+				      customers e,clients f,brands g,campaigns h,channels i,points_mapping j
 				where 1=1
 				and   a.SubscriptionId = b.SubscriptionId			
 				and   a.CustomerId     = e.CustomerId
 				and   a.ClientId       = f.ClientId
 				and   a.BrandId        = g.BrandId
 				and   a.CampaignId     = h.CampaignId
-				and   a.ChannelId      = i.ChannelId
+				and   j.ChannelId      = i.ChannelId
+            and   a.PointsId       = j.PointsId
+            and   a.ClientId       = j.ClientId
+            and   a.BrandId        = j.BrandId
+            and   a.CampaignId     = j.CampaignId
 				$xtra
 				$vxtra
 				$filter
@@ -884,17 +886,18 @@ class ReportsController extends Controller
 				       a.ChannelId, 
 					   a.DateCreated,
 				       a.PointsId, 
-				       b.Value Points,
+				       k.Value Points,
 				       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
 				from  points_log a, 
 				      points b,
-				      customers e,clients f,brands g,campaigns h,channels i
+				      customers e,clients f,brands g,campaigns h,channels i, action_type k
 				where   a.PointsId = b.PointsId
 					and   a.CustomerId     = e.CustomerId
 					and   a.ClientId       = f.ClientId
 					and   a.BrandId        = g.BrandId
 					and   a.CampaignId     = h.CampaignId
-					and   a.ChannelId      = i.ChannelId $xtra $vxtra $filter
+					and   a.ChannelId      = i.ChannelId
+					and   a.ActiontypeId   = k.ActiontypeId $xtra $vxtra $filter
 				union all
 					select a.PointLogId,
 					       a.CustomerId, 
@@ -904,7 +907,7 @@ class ReportsController extends Controller
 					       a.CampaignId, 
 					       a.ChannelId, 
 						   a.DateCreated,
-					       ifnull(a.PointsId,0), a.Points Points,
+					       ifnull(a.PointsId,0), a.Value Points,
 					       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
 					from  points_log a,
 					      customers e,clients f,brands g,campaigns h,channels i
@@ -1090,7 +1093,6 @@ class ReportsController extends Controller
 						b.Status
 					FROM customer_subscriptions b
 						join brands d on b.BrandId = d.BrandId
-						join channels e on b.ChannelId = e.ChannelId
 						join campaigns f on b.CampaignId = f.CampaignId
 						join clients g on b.ClientId = g.ClientId
 						join customers h on b.CustomerId = h.CustomerId

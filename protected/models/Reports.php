@@ -47,11 +47,14 @@ class Reports extends CActiveRecord
 			'pointlogBrands'=>array(self::BELONGS_TO, 'Brands', 'BrandId'),
 			'pointlogCampaigns'=>array(self::BELONGS_TO, 'Campaigns', 'CampaignId'),
 			'pointlogChannels'=>array(self::BELONGS_TO, 'Channels', 'ChannelId'),
+			'pointlogCustSub'=>array(self::BELONGS_TO,  'CustomerSubscriptions', 'SubscriptionId'),
 			'pointlogCustomers'=>array(self::BELONGS_TO, 'Customers', 'CustomerId'),
 			'pointlogPoints'=>array(self::BELONGS_TO, 'Points', 'PointsId'),
+			'pointlogActiontype'=>array(self::BELONGS_TO,  'ActionType', 'ActiontypeId'),
 			'pointlogCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
 			'pointlogUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
-
+			
+			
 		);
 	}
 	
@@ -78,12 +81,15 @@ class Reports extends CActiveRecord
 			'CustomerId' => 'Customer Name',
 			'Email'      => 'Email',
 			'SubscriptionId' => 'Subscription',
-			'ClientId' => 'Client Name',
-			'BrandId' => 'Brand Name',
-			'CampaignId' => 'Campaign Name',
-			'ChannelId' => 'Channel Name',
+			'ClientId'    => 'Client Name',
+			'BrandId'     => 'Brand Name',
+			'CampaignId'  => 'Campaign Name',
+			'ChannelId'   => 'Channel Name',
 			'PointAction' => 'Point Action',
-			'Points'    => 'Points Value',
+			'Points'      => 'Points Value',
+			'ActiontypeId'    => 'Action Type',
+			'LogType'     => 'Log Type',
+			'Value'       => 'Value',
 		);
 	}
 
@@ -112,6 +118,7 @@ class Reports extends CActiveRecord
 		$criteria->compare('CampaignId',$this->CampaignId,true);
 		$criteria->compare('ChannelId',$this->ChannelId,true);
 		$criteria->compare('PointsId',$this->PointsId,true);
+		$criteria->compare('ActiontypeId',$this->ActiontypeId,true);
 		$criteria->compare('DateCreated',$this->DateCreated,true);
 		$criteria->compare('CreatedBy',$this->CreatedBy);
 

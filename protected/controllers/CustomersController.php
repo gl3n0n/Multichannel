@@ -68,19 +68,20 @@ class CustomersController extends Controller
 		if(1){
 		$rawSql   = "
 			select sum(Points) from (
-			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, a.status SubsriptionStatus,
+			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.status SubsriptionStatus,
 			       b.Balance, b.Used, b.Total,
-			       c.PointsId, d.Value Points
-			from  customer_subscriptions a, customer_points b, points_log c, points d  
+			       c.PointsId, e.Value Points
+			from  customer_subscriptions a, customer_points b, points_log c, points d, action_type e
 			where a.CustomerId = '$custId'
 			and   a.SubscriptionId = b.SubscriptionId
 			and   a.SubscriptionId = c.SubscriptionId
 			and   a.CustomerId = c.CustomerId
 			and   c.PointsId = d.PointsId
+			and   c.ActiontypeId = e.ActiontypeId
 			union all
-			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, a.status SubsriptionStatus,
+			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.status SubsriptionStatus,
 			       b.Balance, b.Used, b.Total,
-			       ifnull(c.PointsId,0), c.Points Points
+			       ifnull(c.PointsId,0), c.Value Points
 			from  customer_subscriptions a, customer_points b, points_log c
 			where a.CustomerId = '$custId'
 			and   a.SubscriptionId = b.SubscriptionId
