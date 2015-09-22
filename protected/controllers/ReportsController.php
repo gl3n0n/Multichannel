@@ -884,20 +884,19 @@ class ReportsController extends Controller
 				       a.BrandId, 
 				       a.CampaignId, 
 				       a.ChannelId, 
-					   a.DateCreated,
+				       a.DateCreated,
 				       a.PointsId, 
-				       k.Value Points,
+				       a.Value Points,
 				       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
 				from  points_log a, 
 				      points b,
-				      customers e,clients f,brands g,campaigns h,channels i, action_type k
+				      customers e,clients f,brands g,campaigns h, channels i
 				where   a.PointsId = b.PointsId
 					and   a.CustomerId     = e.CustomerId
 					and   a.ClientId       = f.ClientId
 					and   a.BrandId        = g.BrandId
 					and   a.CampaignId     = h.CampaignId
-					and   a.ChannelId      = i.ChannelId
-					and   a.ActiontypeId   = k.ActiontypeId $xtra $vxtra $filter
+					and   a.ChannelId      = i.ChannelId $xtra $vxtra $filter
 				union all
 					select a.PointLogId,
 					       a.CustomerId, 
@@ -906,7 +905,7 @@ class ReportsController extends Controller
 					       a.BrandId, 
 					       a.CampaignId, 
 					       a.ChannelId, 
-						   a.DateCreated,
+					       a.DateCreated,
 					       ifnull(a.PointsId,0), a.Value Points,
 					       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
 					from  points_log a,

@@ -70,14 +70,12 @@ class CustomersController extends Controller
 			select sum(Points) from (
 			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.status SubsriptionStatus,
 			       b.Balance, b.Used, b.Total,
-			       c.PointsId, e.Value Points
-			from  customer_subscriptions a, customer_points b, points_log c, points d, action_type e
+			       c.PointsId, c.Value Points
+			from  customer_subscriptions a, customer_points b, points_log c
 			where a.CustomerId = '$custId'
 			and   a.SubscriptionId = b.SubscriptionId
 			and   a.SubscriptionId = c.SubscriptionId
 			and   a.CustomerId = c.CustomerId
-			and   c.PointsId = d.PointsId
-			and   c.ActiontypeId = e.ActiontypeId
 			union all
 			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.status SubsriptionStatus,
 			       b.Balance, b.Used, b.Total,
