@@ -849,7 +849,7 @@ class RewardList
 				'$channel_id',      
 				'$points_id',       
 				'$actiontype_id',   
-				'POINTS',        
+				'REDEEMED_REWARD',        
 				'-$value',          
 				'$created_by',      
 				Now()    

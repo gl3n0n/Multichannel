@@ -163,7 +163,7 @@ class CouponList
 				AND sub.PointsId   = map.PointsId
 				AND sub.ClientId   = map.ClientId
 				AND sub.Status     = 'ACTIVE'
-				AND gen.Status     = 'REDEEMED'
+				AND gen.Status     != 'PENDING'
 				AND sub.PointsId   = gen.PointsId
 				AND map.CouponId   = gen.CouponId
 			";
