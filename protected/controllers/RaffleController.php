@@ -76,9 +76,9 @@ class RaffleController extends Controller
 		
 		
 		if(Yii::app()->user->AccessType === "SUPERADMIN") {
-			$_coupon = Coupon::model()->findAll();
+			$_coupon = CouponSystem::model()->findAll();
 		} else {
-			$_coupon = Coupon::model()->thisClient()->findAll();
+			$_coupon = CouponSystem::model()->thisClient()->findAll();
 		}
 		$coupons = array();
 		foreach($_coupon as $row) {
@@ -123,10 +123,10 @@ class RaffleController extends Controller
 		// $this->performAjaxValidation($model);
 		
 
-		$_coupon = Coupon::model()->findAll();
+		$_coupon = CouponSystem::model()->findAll();
 		$coupons = array();
 		foreach($_coupon as $row) {
-			$coupons[$row->CouponId] = $row->CouponId;
+			$coupons[$row->CouponId] = $row->CouponName;
 
 		}
 

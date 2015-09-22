@@ -622,7 +622,6 @@ class CouponSystemController extends Controller
 					join points on points.PointsId = GC.PointsId 
 					join coupon on coupon.CouponId = GC.CouponId
 				    WHERE GC.CouponId = '$uid'
-					AND   GC.Status IN ('PENDING')
 					";
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count

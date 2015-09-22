@@ -51,7 +51,9 @@ _init
 #move 2 parent'shouse
 cd $ROOTD
 
-[[ ! -d "${ROOTD}/log" ]] && mkdir -p ${ROOTD}/log 2>/dev/null
+[[ ! -d "${ROOTD}/log" ]] && {
+	mkdir -p ${ROOTD}/log 2>/dev/null
+}
 timeStamp "start"
 timeStamp "==================================="
 

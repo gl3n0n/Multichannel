@@ -33,9 +33,8 @@ class Utils extends CApplicationComponent
 		return $retv;
 	}
 
-	public function saveAuditLogs()
+	public function saveAuditLogs($mod=null)
 	{
-		
 		$model = new AuditLogs;
 		$vPost = @var_export($_POST,true);
 		$vGet  = @var_export($_GET, true);
@@ -56,7 +55,18 @@ class Utils extends CApplicationComponent
 		} else {
 		    $vIP = $_SERVER['REMOTE_ADDR'];
 		}
-		
+
+		$errCtr = 0;
+		foreach(Yii::app()->user->getFlashes() as $KK => $message) {
+			if(@preg_match("/(error|notice)/i",$KK))
+				$errCtr++;
+		}
+		//chk
+		if($mod != null)
+		{
+			if( $mod > 0)
+			    $errCtr++;
+		}
 		// [ AuditId,ClientId,UserId,GetPost,UserType,UserAgent,IPAddr,UrlData,UrlQry,CreatedBy,DateCreated,]
 		//put more attrs
 		$model->setAttribute("UserId",    Yii::app()->user->id);
@@ -65,26 +75,19 @@ class Utils extends CApplicationComponent
 		$model->setAttribute("UserType",  Yii::app()->user->AccessType);
 		$model->setAttribute("UserAgent", $vAgent);
 		$model->setAttribute("IPAddr",    $vIP);
-		$model->setAttribute("UrlData",   sprintf("URL:\n%s\nREQ:%s\n",$vUrls,$vReq));
+		$model->setAttribute("UrlData",   sprintf("URL:\n%s\nREQ:\n%s\n%s",$vUrls,$vReq,$mod));
 		$model->setAttribute("UrlQry",    $vQry);
 
 		$model->setAttribute("ModPage",   $vPage);
 		$model->setAttribute("ModAction", $vAct);
 		$model->setAttribute("LogDate", new CDbExpression('NOW()'));
-		if(@preg_match("/(LOG|GEN|RAFFLE|INSERT|CREATE|UPDATE|DELETE|APPROVE|GENERATE|NEW|CHANGE)/i",$vAct))
+		$reqCtr = (@count($_REQUEST)) ? (1) : (0);
+		if(@preg_match("/(INSERT|CREATE|UPDATE|DELETE|APPROVE|GENERATE|NEW|CHANGE)/i",$vAct))
                 {
-                	if(@preg_match("/(CHANGEPASS)/i",$vAct))
-                	{
-                		if(isset($_REQUEST['Users']))
-                		{
-					$uReq['Password']         = md5($_REQUEST['Users']['Password']);
-					$uReq['ConfirmPassword']  = md5($_REQUEST['Users']['ConfirmPassword']);
-					$vReq  = @var_export($uReq,true);
-                		}
-                		$model->setAttribute("UrlData",   sprintf("URL:\n%s\nREQ:%s\n",$vUrls,$vReq));
-                	}
-                      	$model->save();
+		      if($errCtr <= 0 && $reqCtr>0)
+                     	 $model->save();
                 }
+		
 	}
 }
 ?>

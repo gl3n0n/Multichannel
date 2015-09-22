@@ -1,28 +1,34 @@
 <?php
 
 /**
- * This is the model class for table "points_log".
+ * This is the model class for table "points".
  *
- * The followings are the available columns in table 'points_log':
- * @property string $PointLogId
- * @property string $CustomerId
- * @property integer $SubscriptionId
+ * The followings are the available columns in table 'points':
+ * @property string $PointsId
  * @property string $ClientId
  * @property string $BrandId
  * @property string $CampaignId
  * @property string $ChannelId
- * @property string $PointsId
+ * @property string $From
+ * @property string $To
+ * @property string $Value
+ * @property string $PointAction
+ * @property string $PointCapping
+ * @property string $PointsLimit
+ * @property string $Status
  * @property string $DateCreated
  * @property integer $CreatedBy
+ * @property string $DateUpdated
+ * @property integer $UpdatedBy
  */
-class PointsLog extends CActiveRecord
+class Points extends CActiveRecord
 {
 	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
 	{
-		return 'points_log';
+		return 'points';
 	}
 
 	/**
@@ -33,17 +39,15 @@ class PointsLog extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('SubscriptionId', 'required'),
-			array('SubscriptionId, CreatedBy', 'numerical', 'integerOnly'=>true),
-			array('DateCreated', 'safe'),
-			array('CustomerId, ClientId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
-			array('Points', 'match', 'pattern'=>'/^(-)?[0-9]+$/'),
+			//array('BrandId, CampaignId, ChannelId, Value, PointAction, PointCapping, From, To, PointsLimit', 'required'),
+			array('Name, BrandId, CampaignId, ChannelId', 'required'),
+			array('PointsLimit, CreatedBy, UpdatedBy, BrandId, ClientId, Value', 'numerical', 'integerOnly'=>true),
+			array('ClientId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
+			array('Status', 'length', 'max'=>8),
+			array('Status, DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
-			//array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
-			array('BrandId, CampaignId, ChannelId, DateCreated,CustomerId', 'safe', 'on'=>'searchi'),
-			// array('BrandId, CampaignId, ChannelId, DateCreated', 'safe', 'on'=>'searchi'),
+			array('PointsId, ClientId, Name, BrandId, CampaignId, ChannelId, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy,Name', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -55,16 +59,12 @@ class PointsLog extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'pointlogClients'=>array(self::BELONGS_TO, 'Clients', 'ClientId'),
-			'pointlogBrands'=>array(self::BELONGS_TO, 'Brands', 'BrandId'),
-			'pointlogCampaigns'=>array(self::BELONGS_TO, 'Campaigns', 'CampaignId'),
-			'pointlogChannels'=>array(self::BELONGS_TO, 'Channels', 'ChannelId'),
-			'pointlogCustomers'=>array(self::BELONGS_TO, 'Customers', 'CustomerId'),
-			'pointlogPoints'=>array(self::BELONGS_TO, 'Points', 'PointsId'),
-			'pointlogActiontype'=>array(self::BELONGS_TO,  'ActionType', 'ActiontypeId'),
-			'pointlogCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
-			'pointlogUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
-
+			'pointClients'=>array(self::BELONGS_TO, 'Clients', 'ClientId'),
+			'pointBrands'=>array(self::BELONGS_TO, 'Brands', 'BrandId'),
+			'pointCampaigns'=>array(self::BELONGS_TO, 'Campaigns', 'CampaignId'),
+			'pointChannels'=>array(self::BELONGS_TO, 'Channels', 'ChannelId'),
+			'pointCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
+			'pointUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
 		);
 	}
 	
@@ -87,14 +87,14 @@ class PointsLog extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'PointLogId' => 'Point Log ID',
-			'CustomerId' => 'Customer Name',
-			'SubscriptionId' => 'Subscription',
+			'PointsId' => 'Points ID',
 			'ClientId' => 'Client Name',
-			'BrandId' => 'Brand Name',
-			'CampaignId' => 'Campaign Name',
-			'ChannelId' => 'Channel Name',
-			'Points'    => 'Points Value',
+			'Name' => 'Point System Name',
+			'Status' => 'Status',
+			'DateCreated' => 'Date Created',
+			'CreatedBy' => 'Created By',
+			'DateUpdated' => 'Date Updated',
+			'UpdatedBy' => 'Updated By',
 		);
 	}
 
@@ -116,15 +116,23 @@ class PointsLog extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('PointLogId',$this->PointLogId,true);
-		$criteria->compare('CustomerId',$this->CustomerId,true);
-		$criteria->compare('SubscriptionId',$this->SubscriptionId);
+		$criteria->compare('PointsId',$this->PointsId,true);
+		$criteria->compare('Name',$this->Name,true);
+		$criteria->compare('ClientId',$this->ClientId,true);
 		$criteria->compare('BrandId',$this->BrandId,true);
 		$criteria->compare('CampaignId',$this->CampaignId,true);
 		$criteria->compare('ChannelId',$this->ChannelId,true);
-		$criteria->compare('PointsId',$this->PointsId,true);
+		$criteria->compare('From',$this->From,true);
+		$criteria->compare('To',$this->To,true);
+		$criteria->compare('Value',$this->Value,true);
+		$criteria->compare('PointAction',$this->PointAction,true);
+		$criteria->compare('PointCapping',$this->PointCapping,true);
+		$criteria->compare('PointsLimit',$this->PointsLimit,true);
+		$criteria->compare('Status',$this->Status,true);
 		$criteria->compare('DateCreated',$this->DateCreated,true);
 		$criteria->compare('CreatedBy',$this->CreatedBy);
+		$criteria->compare('DateUpdated',$this->DateUpdated,true);
+		$criteria->compare('UpdatedBy',$this->UpdatedBy);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -135,7 +143,7 @@ class PointsLog extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return PointsLog the static model class
+	 * @return Points the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
