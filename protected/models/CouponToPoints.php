@@ -6,15 +6,11 @@
  * The followings are the available columns in table 'points':
  * @property string $CouponToPointsId
  * @property string $ClientId
- * @property string $BrandId
- * @property string $CampaignId
- * @property string $ChannelId
- * @property string $From
- * @property string $To
+ * @property string $CouponId
+ * @property string $StartDate
+ * @property string $EndDate
+ * @property string $Name
  * @property string $Value
- * @property string $PointAction
- * @property string $PointCapping
- * @property string $CouponToPointsLimit
  * @property string $Status
  * @property string $DateCreated
  * @property integer $CreatedBy
@@ -46,7 +42,7 @@ class CouponToPoints extends CActiveRecord
 			array('Value',  'moreThanZero'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('CtpId,ClientId,CouponId,Value,Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('CtpId,ClientId,CouponId,Value,Status,StartDate,EndDate,DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -95,6 +91,8 @@ class CouponToPoints extends CActiveRecord
 			'CouponId'    => 'Coupon Id',
 			'Value'       => 'Coupon Value',
 			'Name'        => 'Coupon Name',
+			'StartDate'   => 'Start Date',
+			'EndDate'     => 'End Date',
 			'Status'      => 'Status',
 			'DateCreated' => 'Date Created',
 			'CreatedBy'   => 'Created By',
@@ -126,6 +124,8 @@ class CouponToPoints extends CActiveRecord
 		$criteria->compare('ClientId',   $this->ClientId,true);
 		$criteria->compare('Value',      $this->Value,true);
 		$criteria->compare('Name',       $this->Name,true);
+		$criteria->compare('StartDate',  $this->StartDate,true);
+		$criteria->compare('EndDate',    $this->EndDate,true);
 		$criteria->compare('Status',     $this->Status,true);
 		$criteria->compare('DateCreated',$this->DateCreated,true);
 		$criteria->compare('CreatedBy',  $this->CreatedBy);

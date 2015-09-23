@@ -19,7 +19,7 @@ echo Yii::app()->params['jQueryInclude'];
 
 	<?php echo $form->errorSummary($model); ?>
 
-    
+    <?php if($model->scenario === 'insert'): ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'Coupon Name'); ?>
 		<?php echo $form->dropDownList($model,'CouponId',$coupon_list,
@@ -30,6 +30,20 @@ echo Yii::app()->params['jQueryInclude'];
         	?>
 		<?php echo $form->error($model,'CouponId'); ?>
 	</div>
+	
+	<?php else: ?>
+	
+	<div class="row">
+		<?php echo $form->labelEx($model,'CouponId'); ?>
+        <?php echo $form->textField($model,'CodeLength',array('size'=>20,
+        		'maxlength'=>20,
+        		'disabled'=>true, 
+        		'value'=>$model->byCoupon->CouponName,
+        		'style' => 'width:200px;')); ?>
+        <?php echo $form->error($model,'CouponId'); ?>
+	  </div>
+	  
+	<?php endif; ?>
 	
  
 
@@ -52,6 +66,52 @@ echo Yii::app()->params['jQueryInclude'];
 		?>
 		<?php echo $form->error($model,'Value'); ?>
 	</div>
+
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'StartDate'); ?>
+		<?php
+			$this->widget('zii.widgets.jui.CJuiDatePicker', array(
+           'name' => 'StartDate',
+		   'model'=>$model,
+			'attribute'=>'StartDate',
+           // additional javascript options for the date picker plugin
+           'options' => array(
+               'showAnim' => "slideDown",
+               'changeMonth' => true,
+               'numberOfMonths' => 1,
+               'showOn' => "button",
+               'buttonImageOnly' => false,
+               'dateFormat' => "yy-mm-dd",
+               'showButtonPanel' => true,
+               'onClose' => 'js:function(selectedDate) { $("#EndDate").datepicker("option", "minDate", selectedDate); }',            
+           )
+       ));	?>
+		<?php echo $form->error($model,'StartDate'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'EndDate'); ?>
+		<?php
+			 $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+           'name' => 'EndDate',
+		   'model'=>$model,
+			'attribute'=>'EndDate',
+           // additional javascript options for the date picker plugin
+           'options' => array(
+               'showAnim' => "slideDown",
+               'changeMonth' => true,
+               'numberOfMonths' => 1,
+               'showOn' => "button",
+               'buttonImageOnly' => false,
+               'dateFormat' => "yy-mm-dd",
+               'showButtonPanel' => true,
+               'onClose' => 'js:function(selectedDate) { $("#StartDate").datepicker("option", "maxDate", selectedDate); }',
+           )
+       ));	?>
+		<?php echo $form->error($model,'EndDate'); ?>
+	</div>
+
 	
 	<div class="row">
 	 <?php echo $form->labelEx($model,'Status'); ?>

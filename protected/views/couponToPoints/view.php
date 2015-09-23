@@ -34,6 +34,8 @@ $this->menu=array(
 	),
 	'Name',
 	'Value',
+	'StartDate',
+	'EndDate',
 	'Status',
 	'DateCreated',
 	array(

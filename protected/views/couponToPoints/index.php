@@ -50,6 +50,8 @@ if(0)
 	),
 	'Name',
 	'Value',
+	'StartDate',
+	'EndDate',
 	'Status',
 	'DateCreated',
 	array(

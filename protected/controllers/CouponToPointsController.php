@@ -77,11 +77,19 @@ class CouponToPointsController extends Controller
 			list($CouponId, $ClientId) = @explode('-',$_POST['CouponToPoints']['CouponId']);
 			
 			// check if couponid has already record
-			$hasrecord = CouponToPoints::model()->findByPk($CouponId);
+			// $hasrecord = CouponToPoints::model()->findByPk($CouponId);
+			
+			$hasrecord=CouponToPoints::model()->findAll(array(
+				'condition'=>'CouponId=:couponid AND Status=:status',
+				'params'=>array(':couponid'=>$CouponId, ':status'=>'ACTIVE'),
+			));
+			
 			if (!$hasrecord)
 			{
 				$model->setAttribute("ClientId",$ClientId);
 				$model->setAttribute("CouponId",$CouponId);
+				$model->setAttribute("StartDate",$_POST['CouponToPoints']['StartDate']);
+				$model->setAttribute("EndDate",$_POST['CouponToPoints']['EndDate']);
 				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 				$model->setAttribute("CreatedBy",   Yii::app()->user->id);
 				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
@@ -122,6 +130,8 @@ class CouponToPointsController extends Controller
 			$model->attributes=$_POST['CouponToPoints'];
 			list($CouponId, $ClientId) = @explode('-',$_POST['CouponToPoints']['CouponId']);
 			$model->setAttribute("ClientId",$ClientId);
+			$model->setAttribute("StartDate",$_POST['CouponToPoints']['StartDate']);
+			$model->setAttribute("EndDate",$_POST['CouponToPoints']['EndDate']);
 			$model->setAttribute("CouponId",$CouponId);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
