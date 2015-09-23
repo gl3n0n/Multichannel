@@ -75,18 +75,28 @@ class CouponToPointsController extends Controller
 			$model->attributes=$_POST['CouponToPoints'];
 			//$row->CouponId ,$row->ClientId 
 			list($CouponId, $ClientId) = @explode('-',$_POST['CouponToPoints']['CouponId']);
-			$model->setAttribute("ClientId",$ClientId);
-			$model->setAttribute("CouponId",$CouponId);
-			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-			$model->setAttribute("CreatedBy",   Yii::app()->user->id);
-			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
-			if($model->save())
+			
+			// check if couponid has already record
+			$hasrecord = CouponToPoints::model()->findByPk($CouponId);
+			if (!$hasrecord)
 			{
-				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
+				$model->setAttribute("ClientId",$ClientId);
+				$model->setAttribute("CouponId",$CouponId);
+				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+				$model->setAttribute("CreatedBy",   Yii::app()->user->id);
+				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+				$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
+				if($model->save())
+				{
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs();
 
-				$this->redirect(array('view','id'=>$model->CtpId));
+					$this->redirect(array('view','id'=>$model->CtpId));
+				}
+			}
+			else
+			{
+				$model->addError('CouponId', 'Coupon Name already used.');
 			}
 		}
 
@@ -229,7 +239,7 @@ class CouponToPointsController extends Controller
 		if(Yii::app()->user->AccessType !== "SUPERADMIN") {
 			$xmore = " AND t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
 		}
-		$criteria->addCondition(" t.status='ACTIVE' $xmore ");
+		$criteria->addCondition(" t.status='ACTIVE' AND t.CouponType='REGULAR' $xmore ");
 		$_list = CouponSystem::model()->with('byClients')->findAll($criteria);
 		$data  = array();
 		foreach($_list as $row) {

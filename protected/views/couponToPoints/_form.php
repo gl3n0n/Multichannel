@@ -21,7 +21,7 @@ echo Yii::app()->params['jQueryInclude'];
 
     
 	<div class="row">
-		<?php echo $form->labelEx($model,'CouponId'); ?>
+		<?php echo $form->labelEx($model,'Coupon Name'); ?>
 		<?php echo $form->dropDownList($model,'CouponId',$coupon_list,
 		array(
         	    'style'   => 'width:200px;',
