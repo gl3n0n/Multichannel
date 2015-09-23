@@ -21,6 +21,7 @@
  * @property string $LimitPerUser
  * @property string $File
  * @property string $ImagePath
+ * @property string $ImagePath
  * @property string $edit_flag
  */
 class CouponSystem extends CActiveRecord
@@ -71,7 +72,7 @@ class CouponSystem extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CouponName,PointsId,ClientId,Type,LimitPerUser,ExpiryDate', 'required'),
+			array('CouponName,PointsId,ClientId,Type,LimitPerUser,ExpiryDate,CouponUrl', 'required'),
 			array('File',       'checkCouponMode'),
 			array('CouponMode', 'checkPointsValue'),
 			array('ClientId,PointsId,CodeLength,PointsValue, Quantity, LimitPerUser, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
@@ -87,7 +88,7 @@ class CouponSystem extends CActiveRecord
 			array('DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('CouponId,ClientId,PointsId,Code,CouponName,Type,TypeId,Source,ExpiryDate, CodeLength, CouponType,PointsValue,Status,Image,Quantity,LimitPerUser,File,ImagePath,edit_flag,DateCreated,CreatedBy,DateUpdated,UpdatedBy', 'safe', 'on'=>'search'),
+			array('CouponId,ClientId,PointsId,Code,CouponName,Type,TypeId,Source,ExpiryDate, CodeLength, CouponType,PointsValue,Status,Image,Quantity,LimitPerUser,File,ImagePath,CouponUrl,edit_flag,DateCreated,CreatedBy,DateUpdated,UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 	
@@ -176,6 +177,7 @@ class CouponSystem extends CActiveRecord
 			'LimitPerUser' => 'Limit Per User',
 			'File'         => 'File',
 			'ImagePath'    => 'Image Path',
+			'CouponUrl'    => 'QrCode Url',
 			'edit_flag'    => 'Edit Flag',
 			'DateCreated'  => 'Date Created',
 			'CreatedBy'    => 'Created By',

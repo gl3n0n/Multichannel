@@ -64,6 +64,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 			  'CHtml::image($data->Image,"",array("width"=>"120px","height"=>"120px"))'.
 			  ',$data->Image)',
 	),
+	'CouponUrl',
 	'Quantity',
 	'LimitPerUser',
        ),

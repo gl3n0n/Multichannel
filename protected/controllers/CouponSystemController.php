@@ -138,6 +138,7 @@ class CouponSystemController extends Controller
 				$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
 				$model->setAttribute("CouponType",  trim($params["CouponType"]));
 				$model->setAttribute("PointsValue", trim($params["PointsValue"]));
+				$model->setAttribute("CouponUrl", trim($params["CouponUrl"]));
 
 				// var_dump($model->TypeId); exit;
 				$transaction = Yii::app()->db->beginTransaction();

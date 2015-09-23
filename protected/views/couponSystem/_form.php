@@ -51,6 +51,19 @@ if($model->scenario === 'insert')
 	<?php echo $form->error($model,'PointsId'); ?>
 	</div>
 	
+	<div class="row">
+		<?php echo $form->labelEx($model,'Image Path'); ?>
+		<?php echo $form->fileField($model,'Image', array('class'=>'input-file')); ?>
+		<?php echo $form->error($model,'Image'); ?>
+	</div>
+	
+	<div class="row">
+		<?php echo $form->labelEx($model,'QRCode Url'); ?>
+		<?php echo $form->textField($model,'CouponUrl',array('size'=>255,
+					 'style'    => 'width:300px;','maxlength'=>255)); ?>
+		<?php echo $form->error($model,'CouponUrl'); ?>
+	</div>
+	
 
 <?php endif; // End Create scenario ?>
 
@@ -76,11 +89,6 @@ if($model->scenario === 'insert')
 		<?php echo $form->error($model,'ExpiryDate'); ?>
 	</div>
 	
-	<div class="row">
-		<?php echo $form->labelEx($model,'Image Path'); ?>
-		<?php echo $form->fileField($model,'Image', array('class'=>'input-file')); ?>
-		<?php echo $form->error($model,'Image'); ?>
-	</div>
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'LimitPerUser'); ?>
@@ -229,6 +237,12 @@ if($model->scenario === 'insert')
     <?php } ?>
 <?php endif; ?>
 <?php if($model->scenario==='update'): ?>
+	<div class="row">
+        <?php echo $form->labelEx($model,'CouponUrl'); ?>
+        <?php echo $form->textField($model,'CouponUrl',array('size'=>255, 'style'=> 'width:300px;','maxlength'=>255,'disabled'=>true)); ?>
+        <?php echo $form->error($model,'CouponUrl'); ?>
+    </div>
+	
 	<div class="row">
         <?php echo $form->labelEx($model,'CouponType'); ?>
         <?php echo $form->textField($model,'CouponType',array('size'=>11, 'style'=> 'width:200px;','maxlength'=>11,'disabled'=>true)); ?>

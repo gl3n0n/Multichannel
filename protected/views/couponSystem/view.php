@@ -41,6 +41,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 		'CodeLength',
 		'CouponType',
 		'PointsValue',
+		'CouponUrl',
 		'Status',
 		array(
 		'name'  => 'ClientId',
