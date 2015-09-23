@@ -232,18 +232,27 @@ $flag = 1;
 			$query_keys = array();
 
 			if (!empty($generated_coupon_id))
-				$query_keys[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+				$query_keys[] = 'g.GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
 			
 			if (sizeof($query_keys) == 0)
 				$query_string = null;
 			else
 				$query_string = implode(' AND ', $query_keys);
 				
-			$res = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
-			
+			//$res   = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
+			$query = "SELECT g.*,
+					 c.CouponUrl
+				   FROM
+				   generated_coupons g,
+				   coupon c
+			WHERE  g.CouponId          = c.CouponId AND
+			       g.GeneratedCouponId = '$generated_coupon_id' LIMIT 1";
+			       
+			$res   = $this->conn->query($query);
+				
 			if (PEAR::isError($res)) {
-                return false;
-            }
+            		    	return false;
+            		}
 
 			$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
 			if (sizeof($row) == 0)
@@ -272,7 +281,8 @@ $flag = 1;
 				
 			$query_string = $query_string . " ORDER BY GeneratedCouponId ASC";
 
-			$res = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
+			//$res = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
+			
 			//var_dump($res);
 			if (PEAR::isError($res)) {
                 return false;

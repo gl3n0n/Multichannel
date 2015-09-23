@@ -123,7 +123,7 @@ class CouponList
 
 			//fmt sql	
 			$query      = "
-			SELECT  DISTINCT gen.GeneratedCouponId,gen.Code,gen.Status, 
+			SELECT  DISTINCT gen.GeneratedCouponId,gen.Code,
 			        CONCAT('$qrlink',gen.GeneratedCouponId,'.png') as qr_code,
 				sub.PointsId,
 				(

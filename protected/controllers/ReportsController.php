@@ -603,41 +603,92 @@ class ReportsController extends Controller
 		$xtra   = '';
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
 		{
-			$xtra   = " AND coupon_mapping.ClientId = '$clid'  ";
+			$xtra   = " AND sub.ClientId = '$clid'  ";
 		}
 		$filter = '';
 		if(strlen($search)) 
-		    $filter = " AND generated_coupons.Code LIKE '%".addslashes($search)."%' ";
+		    $filter = " AND gen.Code LIKE '%".addslashes($search)."%' ";
 		
 		if(1){
 		$rawSql   = "
-				SELECT 
-					FirstName, 
-					MiddleName, LastName, Email,BrandName, 
-					generated_coupons.GeneratedCouponId, 
-					generated_coupons.CustomerId as CustomerId, 
-					generated_coupons.CouponId as CouponId, 
-					generated_coupons.Code as Code, 
-					coupon.Type, TypeId, Source, ExpiryDate, 
-					coupon.Status, coupon_mapping.ClientId, 
-					coupon_mapping.BrandId, 
-					coupon_mapping.ChannelId, 
-					coupon_mapping.CampaignId, 
-					campaigns.CampaignName as CampaignName, 
-					channels.ChannelName as ChannelName, 
-					DateRedeemed 
-				FROM 
-				coupon join generated_coupons on coupon.CouponId = generated_coupons.CouponId 
-				       join coupon_mapping on coupon_mapping.CouponMappingId = generated_coupons.CouponMappingId 
-				       join brands on coupon_mapping.BrandId = brands.BrandId 
-				       join customers on customers.CustomerId = generated_coupons.CustomerId 
-				       join campaigns on campaigns.CampaignId = coupon_mapping.CampaignId 
-				       join channels on channels.ChannelId = coupon_mapping.ChannelId
-				WHERE 1=1
-				AND generated_coupons.Status IN ('REDEEMED')
+			SELECT  DISTINCT 
+				gen.GeneratedCouponId,
+				gen.Code,
+			        sub.PointsId,
+				(
+					select pts.Name
+					from
+					 points pts
+					where
+					pts.PointsId = sub.PointsId
+					limit 1	
+				) as PointsSystemName,
+				sub.CustomerId,
+				(
+				   select CONCAT(cust.FirstName,' ' ,cust.LastName)
+				   from
+					customers  cust
+				   where
+					cust.CustomerId = sub.CustomerId
+				   limit 1
+				) as CustomerName,
+				(
+				   select cust.Email
+				   from
+					customers  cust
+				   where
+					cust.CustomerId = sub.CustomerId
+				   limit 1
+				) as Email,
+				sub.ClientId,
+				(
+				   select clnt.CompanyName
+				   from clients clnt
+				   where
+					clnt.ClientId = sub.ClientId
+				   limit 1
+				) as ClientName,
+				(
+				   select brnd.BrandName
+				   from brands brnd
+				   where
+					brnd.BrandId = sub.BrandId
+				   limit 1
+				) as BrandName,
+				(
+				   select camp.CampaignName
+				   from campaigns camp
+				   where
+					camp.CampaignId = sub.CampaignId
+				   limit 1
+				) as CampaignName,
+				(
+				   select chan.ChannelName
+				   from channels chan
+				   where
+					chan.ClientId    = sub.ClientId
+					and
+					chan.BrandId     = sub.BrandId
+					and
+					chan.CampaignId  = sub.CampaignId
+				   limit 1
+				) as ChannelName,
+				gen.CouponId,
+				gen.DateRedeemed
+			FROM 
+				customer_subscriptions sub,
+				coupon map,
+				generated_coupons gen
+			WHERE   1=1
+				AND sub.PointsId   = map.PointsId
+				AND sub.ClientId   = map.ClientId
+				AND sub.Status     = 'ACTIVE'
+				AND gen.Status     != 'PENDING'
+				AND sub.PointsId   = gen.PointsId
+				AND map.CouponId   = gen.CouponId
 				$xtra
 				$filter
-		";
+		";		
 		$rawData  = Yii::app()->db->createCommand($rawSql); 
 		$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
 		$dataProvider    = new CSqlDataProvider($rawData, array(
@@ -713,64 +764,6 @@ class ReportsController extends Controller
 		    
 		
 		if(1){
-		$rawSql   = " /**
-				select
-				      a.CustomerId, 
-				      e.Email,
-				      e.FirstName,
-				      e.LastName,
-				      a.SubscriptionId, 
-				      a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, 
-				      f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName, 
-				      a.status SubsriptionStatus,
-				      b.Balance, 
-				      b.Used, 
-				      b.Total,
-				      c.PointsId, 
-				      d.Value Points
-				from  customer_subscriptions a, 
-				      customer_points b, 
-				      points_log c, 
-				      points d,
-				      customers e, 
-				      clients f,
-				      brands g,
-				      campaigns h,
-				      channels i
-				where a.SubscriptionId = b.SubscriptionId
-				and   a.SubscriptionId = c.SubscriptionId
-				and   a.CustomerId     = c.CustomerId
-				and   a.CustomerId     = e.CustomerId
-				and   a.ClientId       = f.ClientId
-				and   a.BrandId        = g.BrandId
-				and   a.CampaignId     = h.CampaignId
-				and   a.ChannelId      = i.ChannelId
-				and   c.PointsId       = d.PointsId $xtra $vxtra $filter
-				union all
-				select  a.CustomerId, 
-				        e.Email,
-				        e.FirstName,
-				        e.LastName,
-					a.SubscriptionId, 
-					a.ClientId, a.BrandId, a.CampaignId, a.ChannelId, 
-					f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName, 
-					a.status SubsriptionStatus,
-				        b.Balance, b.Used, b.Total,
-				       ifnull(c.PointsId,0), c.Points Points
-				from  customer_subscriptions a, 
-				      customer_points b, 
-				      points_log c, 
-				      customers e,clients f,brands g,campaigns h,channels i
-				where a.SubscriptionId = b.SubscriptionId
-				and   a.SubscriptionId = c.SubscriptionId
-				and   a.CustomerId     = c.CustomerId
-				and   a.CustomerId     = e.CustomerId
-				and   a.ClientId       = f.ClientId
-				and   a.BrandId        = g.BrandId
-				and   a.CampaignId     = h.CampaignId
-				and   a.ChannelId      = i.ChannelId
-				and   (c.PointsId      = 0 or c.PointsId is null)**/";
-				
 			$rawSql = "
 				select a.CustomerId, 
 				       a.SubscriptionId, 
@@ -789,20 +782,20 @@ class ReportsController extends Controller
 				from  customer_subscriptions a, 
 				      customer_points b,
 				      customers e,clients f,brands g,campaigns h,channels i,points_mapping j
-				where 1=1
-				and   a.SubscriptionId = b.SubscriptionId			
-				and   a.CustomerId     = e.CustomerId
-				and   a.ClientId       = f.ClientId
-				and   a.BrandId        = g.BrandId
-				and   a.CampaignId     = h.CampaignId
-				and   j.ChannelId      = i.ChannelId
-            and   a.PointsId       = j.PointsId
-            and   a.ClientId       = j.ClientId
-            and   a.BrandId        = j.BrandId
-            and   a.CampaignId     = j.CampaignId
-				$xtra
-				$vxtra
-				$filter
+				WHERE 1=1
+					and   a.SubscriptionId = b.SubscriptionId			
+					and   a.CustomerId     = e.CustomerId
+					and   a.ClientId       = f.ClientId
+					and   a.BrandId        = g.BrandId
+					and   a.CampaignId     = h.CampaignId
+					and   j.ChannelId      = i.ChannelId
+					and   a.PointsId       = j.PointsId
+					and   a.ClientId       = j.ClientId
+					and   a.BrandId        = j.BrandId
+					and   a.CampaignId     = j.CampaignId
+					$xtra
+					$vxtra
+					$filter
 				";
 		
 		
@@ -971,50 +964,122 @@ class ReportsController extends Controller
 			$xtra   = '';
 			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
 			{
-				$xtra   = " AND a.ClientId = '$clid'  ";
+				$xtra   = " AND cust.ClientId = '$clid'  ";
 			}
 			
 			$filter = '';
 			if(strlen($search) > 0) 
 			{
 				$srch   = addslashes($search);
-				$filter = " AND  (
-							f.ChannelName  LIKE '%$srch%'   
-				                 ) ";
+				$filter = " AND EXISTS (
+							 select 1
+							   from channels chan
+							 where
+								chan.ClientId    = cust.ClientId
+								and
+								chan.BrandId     = cust.BrandId
+								and
+								chan.CampaignId  = cust.CampaignId
+								and
+								chan.ChannelName LIKE '%$srch%'
+							 limit 1
+				                    ) ";
 			}
 			    
 			
 			if(1){
 				$rawSql = "
-					select a.RedeemedId, 
-					       a.RewardId,    
-					       b.Title,    
-					       b.Description,    
-					       b.Value,    
-					       a.UserId,      
-					       a.Source,      
-					       a.Action,      
-					       a.ClientId,    
-					       a.BrandId,     
-					       a.CampaignId,  
-					       a.ChannelId,   
-					       a.DateRedeemed, 
-					       c.CompanyName,
-					       d.BrandName, 
-					       e.CampaignName,
-					       f.ChannelName,
-						   h.Value as Pts,
-					       CONCAT(g.FirstName, ' ' , g.LastName) as Email
-					from redeemed_reward a
-					join rewards_list b on b.RewardId = a.RewardId
-					join reward_details h on h.RewardId = a.RewardId
-					join clients c on c.ClientId     = a.ClientId
-					join brands d on d.BrandId       = a.BrandId
-					join campaigns e on e.CampaignId = a.CampaignId
-					join channels f on f.ChannelId   = a.ChannelId
-					join customers g on g.CustomerId   = a.UserId
-					WHERE 1=1
-					$xtra  $filter
+					SELECT  DISTINCT
+						cust.PointsId,
+						cust.CustomerId ,
+						cust.ClientId   ,
+						(
+							select clnt.CompanyName
+							from
+								clients clnt
+							where
+								clnt.ClientId = cust.ClientId
+							LIMIT 1
+						) as CompanyName ,
+						rlist.RewardId  ,
+						rlist.Title     ,
+						rlist.Description     ,
+						rlist.Image,
+						(
+							SELECT pts.Name 
+							From points pts
+							Where pts.PointsId = cust.PointsId
+							LIMIT 1
+						) as PointsSystemName,
+						rdm.DateRedeemed,
+						(
+							select dtls.Value
+							from
+							reward_details dtls
+							where
+							  dtls.RewardId = rlist.RewardId 
+							  and
+							  dtls.ClientId = cust.ClientId
+							  and
+							  dtls.PointsId = cust.PointsId
+							limit 1
+						) as Pts,
+						(
+						   select CONCAT(custm.FirstName,' ' ,custm.LastName)
+						   from
+							customers  custm
+						   where
+							custm.CustomerId = cust.CustomerId
+						   limit 1
+						) as CustomerName,
+						(
+						   select custm.Email
+						   from
+							customers  custm
+						   where
+							custm.CustomerId = cust.CustomerId
+						   limit 1
+						) as Email,
+						(
+						   select brnd.BrandName
+						   from brands brnd
+						   where
+							brnd.BrandId = cust.BrandId
+						   limit 1
+						) as BrandName,
+						(
+						   select camp.CampaignName
+						   from campaigns camp
+						   where
+							camp.CampaignId = cust.CampaignId
+						   limit 1
+						) as CampaignName,
+						(
+						   select chan.ChannelName
+						   from channels chan
+						   where
+							chan.ClientId    = cust.ClientId
+							and
+							chan.BrandId     = cust.BrandId
+							and
+							chan.CampaignId  = cust.CampaignId
+						   limit 1
+						) as ChannelName,
+						rdm.RedeemedId
+					FROM
+						customer_subscriptions cust,
+						rewards_list rlist,
+						redeemed_reward rdm
+					WHERE
+					1=1
+						AND cust.ClientId   = rlist.ClientId
+						AND cust.ClientId   = rdm.ClientId
+						AND rdm.UserId      = cust.CustomerId
+						AND rlist.Status  IN ('ACTIVE')
+						AND cust.Status   IN ('ACTIVE')
+						AND rlist.RewardId  = rdm.RewardId
+						AND rdm.PointsId    = cust.PointsId
+						$xtra  $filter
 					";
 			
 			

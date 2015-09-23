@@ -40,15 +40,15 @@
     {
 		$result = $response[0];
 		//print_r($result);
-		$coupon2 = new Coupon($dbconn, $result['couponid']);
-		$response2 = $coupon2->retrieve(null, null, null, null, null);
+		$coupon2     = new Coupon($dbconn, $result['couponid']);
+		$response2   = $coupon2->retrieve(null, null, null, null, null);
 
-		$name = '/var/www/html/multichannel-api/coupon/qr_codes/coup' . $result['generatedcouponid'] . '.png';
-		$url_to_call = "http://104.156.53.150/multichannel-api/coupon/redeem?generated_coupon_id=" . $result['generatedcouponid'];
+		//fmt
+		$name        = '/var/www/html/multichannel-api/coupon/qr_codes/coup' . $result['generatedcouponid'] . '.png';
+		$url         = sprintf("%s/redeem?generated_coupon_id=%s",$result['couponurl'],$result['generatedcouponid']);
+		
 		//echo $url_to_call;
-
-		QRcode::png($url_to_call, $name);
-
+		QRcode::png($url,$name);
 		$fp = fopen($name, 'rb');
 		header("Content-Type: image/png");
 		header("Content-Length: " . filesize($name));
