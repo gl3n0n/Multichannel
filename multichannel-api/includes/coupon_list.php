@@ -338,7 +338,7 @@ class CouponList
 					 customer_points c
 					 where
 					     c.SubscriptionId = sub.SubscriptionId
-					 and c. PointsId      = sub.PointsId
+					 and c.PointsId       = sub.PointsId
 					),0) as Customer_Points_Balance,
 					IFNULL((
 					select ifnull(d.Value,0) from 

@@ -72,6 +72,7 @@
 					<option value="/multichannel-api/reward/list_of_redeemed_rewards.php">List Redeemed Reward</option>	
 					<option value="/multichannel-api/reward/do_redeemed_reward.php">Do Redeem Reward</option>	
 
+					<option value="/multichannel-api/points/update_points.php">Manual Add/Deduct Customer Points (Per subscription)</option>
 					
 					
 <!--                    <option value="/multichannel-api/customer/retrieve.php">Retrieve Customer</option>

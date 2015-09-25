@@ -38,6 +38,7 @@ $(function() {
 	params["/multichannel-api/reward/list_of_redeemed_rewards.php"]       = ["client_id", "customer_id"];
 	params["/multichannel-api/reward/do_redeemed_reward.php"]             = ["client_id", "customer_id","reward_config_id"];
 	
+	params["/multichannel-api/points/update_points.php"]                  = ["customer_id", "client_id", "brand_id", "campaign_id", "points_id", "value", "action"]; 
 	
 	$('#cmbAPIType').val(0);
 	$('#tdParams').html('&nbsp');
