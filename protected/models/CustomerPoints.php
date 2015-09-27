@@ -34,7 +34,7 @@ class CustomerPoints extends CActiveRecord
 		return array(
 			array('SubscriptionId, Balance, Used, Total', 'required'),
 			array('SubscriptionId, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
-			array('Balance, Used, Total', 'length', 'max'=>11),
+			//array('Balance, Used, Total', 'length', 'max'=>11),
 			array('DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

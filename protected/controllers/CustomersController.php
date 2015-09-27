@@ -5,6 +5,8 @@ class CustomersController extends Controller
 	public $extraJS;
 	public $mainDivClass;
 	public $modals;
+	public $errorMessage;
+	
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
@@ -35,7 +37,7 @@ class CustomersController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('update'),
+				'actions'=>array('update','addsub'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -65,6 +67,15 @@ class CustomersController extends Controller
 	protected function getSummaryPts($custId=0)
 	{
 		$rawCount = 0;
+		
+
+		$more = '';
+		if(Yii::app()->user->AccessType !== "SUPERADMIN" ) {
+			$cid  = addslashes(Yii::app()->user->ClientId);
+			$more = " and a.ClientId = '$cid' ";
+			
+		}
+		
 		if(1){
 		$rawSql   = "
 			select sum(Points) from (
@@ -72,20 +83,20 @@ class CustomersController extends Controller
 			       b.Balance, b.Used, b.Total,
 			       c.PointsId, c.Value Points
 			from  customer_subscriptions a, customer_points b, points_log c
-			where a.CustomerId = '$custId'
+			where a.CustomerId     = '$custId'
 			and   a.SubscriptionId = b.SubscriptionId
 			and   a.SubscriptionId = c.SubscriptionId
-			and   a.CustomerId = c.CustomerId
+			and   a.CustomerId     = c.CustomerId     $more
 			union all
 			select a.CustomerId, a.SubscriptionId, a.ClientId, a.BrandId, a.CampaignId, a.status SubsriptionStatus,
 			       b.Balance, b.Used, b.Total,
 			       ifnull(c.PointsId,0), c.Value Points
 			from  customer_subscriptions a, customer_points b, points_log c
-			where a.CustomerId = '$custId'
+			where a.CustomerId     = '$custId'
 			and   a.SubscriptionId = b.SubscriptionId
 			and   a.SubscriptionId = c.SubscriptionId
-			and   a.CustomerId = c.CustomerId
-			and   (c.PointsId = 0 or c.PointsId is null)
+			and   a.CustomerId     = c.CustomerId
+			and   (c.PointsId = 0 or c.PointsId is null) $more
 			) as count_alias
 		";
 		$rawCount = Yii::app()->db->createCommand(" $rawSql ")->queryScalar(); //the count
@@ -238,4 +249,468 @@ class CustomersController extends Controller
 			Yii::app()->end();
 		}
 	}
+	
+	public function actionAddSub($id)
+	{
+		$xmore = '';
+		$ymore = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			$cid   = addslashes(Yii::app()->user->ClientId); 
+			$xmore = " AND t.ClientId = '$cid' ";
+		}		
+		if($id > 0)
+		{
+			$cid   = addslashes($id); 
+			$ymore = " AND t.CustomerId = '$cid' ";
+		}
+
+		//chk
+		$model = new CustomerSubscriptions;
+		if(isset($_POST['CustomerSubscriptions']))
+		{
+			$model->attributes=$_POST['CustomerSubscriptions'];
+			
+			if(Yii::app()->user->AccessType !== "SUPERADMIN" ) {
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			}
+			
+			if(0)
+			{
+				echo "<pre>$id=OKS# " .@var_export($_POST,1)."</pre><hr>";
+				echo "<pre>$id=OKS# " .@var_export($model,1)."</pre><hr>";
+				exit;
+			}
+			
+			//add-claim
+			$modeType = 'ADD';
+			if(!empty($_POST['btnSub']))
+			{
+				$modeType = 'CLAIM';
+			}
+			
+			//pre-checking
+			if(Yii::app()->user->AccessType == "SUPERADMIN" ){
+				$ClientId = trim($_POST['CustomerSubscriptions']['ClientId']);
+				if($ClientId <= 0 )
+					$model->addError('ClientId', 'ClientId cannot be blank.');
+			}
+			
+			$CustomerId = trim($_POST['CustomerSubscriptions']['CustomerId']);
+			if($CustomerId <= 0 )
+				$model->addError('CustomerId', 'CustomerId cannot be blank.');
+			
+			$BrandId    = trim($_POST['CustomerSubscriptions']['BrandId']);
+			if($BrandId <= 0 )
+				$model->addError('BrandId',  'Brand cannot be blank.');
+			
+			$CampaignId = trim($_POST['CustomerSubscriptions']['CampaignId']);
+			if($CampaignId <= 0 )
+				$model->addError('CampaignId', 'Campaign cannot be blank.');
+			
+			$PointsIds = trim($_POST['CustomerSubscriptions']['PointsId']);
+			if(!@preg_match("/^[0-9]+\-[0-9]+$/i",$PointsIds)) 
+				$model->addError('PointsId', 'PointsId cannot be blank.');
+			
+			$PointsValue = trim($_POST['CustomerSubscriptions']['PointsValue']);
+			if( $PointsValue <= 0 or ! @preg_match("/^\d{1,}$/", $PointsValue)  )
+				$model->addError('PointsValue', 'Value cannot be blank/must be an integer.aaaa>'.$PointsValue);
+				
+			if(!$model->hasErrors())
+			{	
+				//fmt
+				list($ActionTypeId,$PointsId ) = @explode('-',$PointsIds);
+				
+				//double-chk
+				if($ActionTypeId <= 0 or $PointsId <= 0 ) 
+					$model->addError('PointsId', 'PointsId cannot be blank.');
+				//fmt
+				$BrandId     = trim($_POST['CustomerSubscriptions']['BrandId']);
+				$CampaignId  = trim($_POST['CustomerSubscriptions']['CampaignId']);
+				$sqlwhere    = ' ';
+				if(Yii::app()->user->AccessType !== "SUPERADMIN" )
+				{
+					$cid       = addslashes(Yii::app()->user->ClientId); 
+					$sqlwhere .= " AND t.ClientId = '$cid' ";
+				}
+				
+				//customer
+				$cid       = addslashes($CustomerId);
+				$sqlwhere .=  " AND t.CustomerId = '$cid' ";
+				//brand
+				$cid       = addslashes($BrandId);
+				$sqlwhere .=  " AND t.BrandId    = '$cid' ";
+				//campaign
+				$cid       = addslashes($CampaignId);
+				$sqlwhere .=  " AND t.CampaignId = '$cid' ";
+				//pointsid				
+				$cid       = addslashes($PointsId);
+				$sqlwhere .=  " AND t.PointsId   = '$cid' ";
+				
+				//chk if exists
+				$cust_subs = CustomerSubscriptions::model()->findAll(array(
+						'select'    => '*', 
+						'condition' => " Status='ACTIVE' $sqlwhere "
+						));
+			
+				//init
+				$pts_bal        = 0;
+				$cust_pts       = null;
+				$SubscriptionId = 0;
+				$CustomerPointId= 0;
+				$is_cust_pts    = 0;
+				
+				
+
+				//chk points
+				if($cust_subs and @count($cust_subs)>0)
+				{
+					
+					//get subscriptionid
+					$SubscriptionId = $cust_subs[0]->SubscriptionId;
+					$model = CustomerSubscriptions::model()->findByPk($SubscriptionId);
+					
+					
+					$sqlwhere  = ' 1=1 ';
+					//subscriptionid				
+					$cid       = addslashes($SubscriptionId);
+					$sqlwhere .=  " AND t.SubscriptionId   = '$cid' ";
+					//pointsid				
+					$cid       = addslashes($PointsId);
+					$sqlwhere .=  " AND t.PointsId   = '$cid' ";					
+					
+					//chk if exists
+					$cust_pts = CustomerPoints::model()->findAll(array(
+						'select'    => '*', 
+						'condition' => " $sqlwhere "
+					));
+
+					//chk balance
+					if($cust_pts and @count($cust_pts)>0)
+					{
+						$pts_bal         = $cust_pts[0]->Balance;
+						$CustomerPointId = $cust_pts[0]->CustomerPointId;
+						$is_cust_pts++;
+					}
+				}
+				
+				
+				//deduct
+				if( 
+				    ( @preg_match("/^(CLAIM)$/i",$modeType) and $pts_bal     <= $PointsValue ) or
+				    ( @preg_match("/^(CLAIM)$/i",$modeType) and $pts_bal     <= 0 ) or
+				    ( @preg_match("/^(CLAIM)$/i",$modeType) and $is_cust_pts <= 0 ) 
+				  )
+				{
+					$model->addError('PointsValue',  'Balance is less than the PointsValue.22222');
+				}
+				
+				//save
+				$model->attributes=$_POST['CustomerSubscriptions'];
+				$model->setAttribute("Status",     'ACTIVE');
+				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+				$model->setAttribute("CreatedBy",   Yii::app()->user->id);
+				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+				$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
+
+				//chk it again
+				if(!$model->hasErrors())
+				{
+					if($model->save())
+					{	
+					     $SubscriptionId = $model->primaryKey;	
+					     $pmodel = new CustomerPoints;
+					     
+
+					     //add customer_points
+			     		     if($CustomerPointId <= 0)
+			     		     {
+	     					//new
+						$pmodel->setAttribute("DateCreated", new CDbExpression('NOW()'));
+						
+	     					$pmodel->setAttribute("Balance",     $PointsValue);
+			     		     }
+			     		     else
+			     		     {
+			     		     	//reload
+			     			$pmodel = CustomerPoints::model()->findByPk($CustomerPointId);     	
+			     		     	//update
+						$pmodel->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+						
+	     					
+			     		     }
+			     		     
+					     //deduct
+					     if( @preg_match("/^(CLAIM)$/i",$modeType) )
+					     {
+						   $pmodel->setAttribute("Balance",  new CDbExpression("Balance - $PointsValue"));
+						   $pmodel->setAttribute("Used",     new CDbExpression("Used + $PointsValue"));
+					     }
+					     else
+					     {
+						   $pmodel->setAttribute("Total",    new CDbExpression("Total + $PointsValue"));
+						   $pmodel->setAttribute("Balance",  new CDbExpression("Balance + $PointsValue"));
+					     }
+
+					     $pmodel->setAttribute("UpdatedBy",   Yii::app()->user->id);
+					     $pmodel->setAttribute("CreatedBy",   Yii::app()->user->id);
+					     $pmodel->setAttribute("PointsId",      $PointsId);
+					     $pmodel->setAttribute("SubscriptionId",$SubscriptionId);
+
+					     if(0)
+					     {
+							echo "<pre>$id=OKS# " .@var_export($_POST,1)."</pre><hr>";
+							echo "<pre>$id=OKS#$modeType# " .@var_export($pmodel,1)."</pre><hr>";
+
+					     }
+
+
+			     		     //pts
+			     		     if(!$pmodel->save())
+			     		     {
+			     		     	     //oops
+			     		     	     $this->errorMessage = 'Add/Deduct Points failed.';
+						     $pmodel->addError('error', $this->errorMessage);
+			     		     }
+			     		     else
+			     		     {
+						     //good	
+						     Yii::app()->user->setFlash('success', 'Add/Deduct Points is successful.');
+
+
+						    //get it
+						    $cmodel = Channels::model()->findAll(array(
+									'select'    => 'ChannelId',  
+									'condition' => " BrandId = '$BrandId' AND CampaignId = '$CampaignId' AND ClientId = '$ClientId'"
+									));
+						     
+						     $ChannelId = (($cmodel and @count($cmodel)>0)) ? ($cmodel[0]->ChannelId) : (0);
+						     
+						     //pts log
+						     $vmodel = new PointsLog;
+						     $vmodel->setAttribute('CustomerId',$CustomerId);     
+						     $vmodel->setAttribute('SubscriptionId',$SubscriptionId); 
+						     $vmodel->setAttribute('ClientId',  $ClientId);       
+						     $vmodel->setAttribute('BrandId',   $BrandId);        
+						     $vmodel->setAttribute('CampaignId',$CampaignId);     
+						     $vmodel->setAttribute('ChannelId', $ChannelId);      
+						     $vmodel->setAttribute('PointsId',  $PointsId);       
+						     $vmodel->setAttribute('ActiontypeId',$ActionTypeId);   
+						     $vmodel->setAttribute('LogType',"MANUAL-$modeType");        
+						     $vmodel->setAttribute('Value',     ((( @preg_match("/^(CLAIM)$/i",$modeType) ))?("-$PointsValue"):($PointsValue)));          
+						     $vmodel->setAttribute("DateCreated", new CDbExpression('NOW()'));
+						     $vmodel->setAttribute("CreatedBy",   Yii::app()->user->id);
+						     $vmodel->save();
+						     
+						     //log
+						     $utilLog = new Utils;
+						     $utilLog->saveAuditLogs();
+						     $this->redirect(array('view','id'=>$model->CustomerId));
+						     return;
+					     }
+					}//cust-subsc-saved	
+					else
+					{
+						$this->errorMessage = 'Add/Deduct Points failed.';
+						$model->addError('error', $this->errorMessage);
+					}
+				}//no-errors 1 more
+			}//no-errors			
+			
+		} // post
+
+		
+		//generic
+		if(0)
+		{
+			echo "<pre>$id=OKS# " .@var_export($model,1)."</pre>";
+			exit;
+		}
+		$this->render('addsub',array(
+			'model'         => $model,
+			'CustomerId'    => $id,
+			'brand_list'    => $this->getBrandList(),
+			'campaign_list' => $this->getCampaignList(),
+			'point_list'    => $this->getActionTypeList(),
+			'client_list'   => $this->getClientsList(),
+			'error_msgs'    => $this->errorMessage,
+		));
+	}
+	
+	
+	protected function getCustomerList()
+	{
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+
+		$list  = array();
+
+		if(1){
+
+			$rawSql = "
+				SELECT  t.*
+				FROM customers t
+				WHERE 1=1 
+					$xtra1 
+					$xtra2
+					$xtra3
+					$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField' => 'CustomerId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+
+		$res = array();
+		foreach($dataProvider->getData() as $row)
+		{
+			$res[$row["CustomerId"]] = sprintf("%s %s - %s",
+							$row["FirstName"],
+							$row["LastName"],
+							$row["Email"]);
+		}
+		//give
+		return $res;
+	}
+	
+	protected function getClientsList()
+	{
+
+		$xtra1  = ''; 
+		$xtra2  = '';
+		$xtra3  = '';
+		$xtra4  = '';
+
+		//clientid
+		if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+		{
+			$tid   = addslashes(Yii::app()->user->ClientId);
+			$xtra1 = " AND t.ClientId = '$tid' ";
+		}
+
+		
+
+		if(1){
+
+			$rawSql = "
+				SELECT  t.*
+				FROM clients t
+				WHERE 1=1 
+					$xtra1 
+					$xtra2
+					$xtra3
+					$xtra4
+			";
+
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField'       => 'ClientId',
+				    'totalItemCount' => $rawCount,
+				    )
+				);
+
+		}
+		
+		$res = array();
+		foreach($dataProvider->getData() as $row)
+		{
+			$res[$row["ClientId"]] = trim($row["CompanyName"]);
+						
+		}
+		//give
+		return $res;
+	}
+
+	protected function getBrandList()
+	{
+	
+		$xmore = '';
+		$ymore = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			$cid   = addslashes(Yii::app()->user->ClientId); 
+			$xmore = " AND t.ClientId = '$cid' ";
+		}		
+
+		//get it
+		$model = Brands::model()->findAll(array(
+				'select'=>'*',  'condition' => " status = 'ACTIVE' $xmore $ymore "));
+
+		$res   = array();
+		foreach($model as $row) 
+		{
+			$res[$row->BrandId] = $row->BrandName;
+		}
+		//give it back
+		return $res;
+	}
+	protected function getCampaignList()
+	{
+	
+		$xmore = '';
+		$ymore = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			$cid   = addslashes(Yii::app()->user->ClientId); 
+			$xmore = " AND t.ClientId = '$cid' ";
+		}		
+
+		//get it
+		$model = Campaigns::model()->findAll(array(
+				'select' => '*',  'condition' => " status = 'ACTIVE' $xmore $ymore "));
+
+		$res   = array();
+		foreach($model as $row) 
+		{
+			$res[$row->CampaignId] = $row->CampaignName;
+		}
+		
+		//give it back
+		return $res;
+	}
+	
+	protected function getActionTypeList()
+	{
+	
+		$xmore = '';
+		$ymore = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			$cid   = addslashes(Yii::app()->user->ClientId); 
+			$xmore = " AND t.ClientId = '$cid' ";
+		}		
+
+		//get it
+		$model = ActionType::model()->findAll(array(
+				'select' => '*',  'condition' => " status = 'ACTIVE' $xmore $ymore "));
+
+		$res   = array();
+		foreach($model as $row) 
+		{
+			$kk = sprintf("%s-%s",$row->ActiontypeId,$row->PointsId);
+			$res[$kk] = $row->Name;
+		}
+		
+		//give it back
+		return $res;
+	}	
+	
+	
 }

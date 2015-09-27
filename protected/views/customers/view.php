@@ -8,8 +8,10 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	// array('label'=>'List Redeemed Coupons', 'url'=>array('/GeneratedCoupons/?customer_id=' . $model->CustomerId)),
-	// array('label'=>'List Redeemed Rewards', 'url'=>array('index')),
+	array('label'=>'Add/Deduct Points', 'url'=>array('addsub', 'id'=>$model->CustomerId)),
+	//array('label'=>'Add/Deduct Points', 'url'=>array('/GeneratedCoupons/?customer_id=' . $model->CustomerId)),
+	//array('label'=>'List Redeemed Coupons', 'url'=>array('/GeneratedCoupons/?customer_id=' . $model->CustomerId)),
+	//array('label'=>'List Redeemed Rewards', 'url'=>array('index')),
 	//array('label'=>'Create Customers', 'url'=>array('create')),
 	//array('label'=>'Update Customers', 'url'=>array('update', 'id'=>$model->CustomerId)),
 	//array('label'=>'Delete Customers', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->CustomerId),'confirm'=>'Are you sure you want to delete this item?')),

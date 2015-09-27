@@ -34,13 +34,14 @@ class CustomerSubscriptions extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
+			array('ClientId, CustomerId, BrandId, CampaignId,PointsId', 'required'),
 			array('ClientId, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
-			array('CustomerId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
+			array('CustomerId, BrandId, CampaignId,PointsId', 'length', 'max'=>11),
 			array('Status', 'length', 'max'=>8),
 			array('DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('SubscriptionId, CustomerId, ClientId, BrandId, CampaignId, ChannelId, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
+			array('SubscriptionId, CustomerId, ClientId, BrandId, CampaignId, PointsId, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -83,16 +84,17 @@ class CustomerSubscriptions extends CActiveRecord
 	{
 		return array(
 			'SubscriptionId' => 'Subscription',
-			'CustomerId' => 'Customer',
-			'ClientId' => 'Client',
-			'BrandId' => 'Brand',
-			'CampaignId' => 'Campaign',
-			'ChannelId' => 'Channel',
-			'Status' => 'Status',
+			'CustomerId'  => 'Customer',
+			'ClientId'    => 'Client',
+			'BrandId'     => 'Brand',
+			'CampaignId'  => 'Campaign',
+			'PointsId'    => 'Action Type',
+			'PointsValue' => 'Value',
+			'Status'      => 'Status',
 			'DateCreated' => 'Date Created',
-			'CreatedBy' => 'Created By',
+			'CreatedBy'   => 'Created By',
 			'DateUpdated' => 'Date Updated',
-			'UpdatedBy' => 'Updated By',
+			'UpdatedBy'   => 'Updated By',
 		);
 	}
 
@@ -119,7 +121,7 @@ class CustomerSubscriptions extends CActiveRecord
 		$criteria->compare('ClientId',$this->ClientId);
 		$criteria->compare('BrandId',$this->BrandId,true);
 		$criteria->compare('CampaignId',$this->CampaignId,true);
-		$criteria->compare('ChannelId',$this->ChannelId,true);
+		$criteria->compare('PointsId',$this->PointsId,true);
 		$criteria->compare('Status',$this->Status,true);
 		$criteria->compare('DateCreated',$this->DateCreated,true);
 		$criteria->compare('CreatedBy',$this->CreatedBy);

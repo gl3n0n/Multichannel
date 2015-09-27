@@ -37,7 +37,7 @@ class PointsLog extends CActiveRecord
 			array('SubscriptionId, CreatedBy', 'numerical', 'integerOnly'=>true),
 			array('DateCreated', 'safe'),
 			array('CustomerId, ClientId, BrandId, CampaignId, ChannelId', 'length', 'max'=>11),
-			array('Points', 'match', 'pattern'=>'/^(-)?[0-9]+$/'),
+			//array('Points', 'match', 'pattern'=>'/^(-)?[0-9]+$/'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('PointLogId, CustomerId, SubscriptionId, ClientId, BrandId, CampaignId, ChannelId, DateCreated, CreatedBy', 'safe', 'on'=>'search'),
