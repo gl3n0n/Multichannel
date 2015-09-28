@@ -25,22 +25,7 @@ echo Yii::app()->params['jQueryInclude'];
 	echo CHtml::hiddenField('CustomerSubscriptions[CustomerId]', ( $CustomerId!=null ? $CustomerId : 0 ), array('id'=>'CustomerSubscriptions[CustomerId]'));
 	?>
 
-	    <?php if(Yii::app()->user->AccessType === 'SUPERADMIN' ){ ?>
-	    <div class="row">
-		<?php echo $form->labelEx($model,'ClientId'); ?>
-		<?php echo $form->dropDownList($model,'ClientId',$client_list?$client_list:array(),
-			array(
-			    'style'     => 'width:200px;',
-			    'onChange'  => 'loadBrandsList()',
-			    'prompt'    => '-- Pls Select --',
-			),
-			array('empty' => '-- Pls Select --')); 
-			?>
-		<?php echo $form->error($model,'ClientId'); ?>
-	    </div>
-	    <?php } ?>
-
-
+	
 	<div class="row">
 		<?php echo $form->labelEx($model,'BrandId'); ?>
 		<?php echo $form->dropDownList($model,'BrandId',$brand_list?$brand_list:array(),

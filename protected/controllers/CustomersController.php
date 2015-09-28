@@ -37,11 +37,11 @@ class CustomersController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('update','addsub'),
+				'actions'=>array('index','view','update','addsub'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+				'actions'=>array('admin','delete','addsub'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -254,6 +254,8 @@ class CustomersController extends Controller
 	{
 		$xmore = '';
 		$ymore = '';
+
+
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
 		{
 			$cid   = addslashes(Yii::app()->user->ClientId); 
@@ -290,12 +292,6 @@ class CustomersController extends Controller
 			}
 			
 			//pre-checking
-			if(Yii::app()->user->AccessType == "SUPERADMIN" ){
-				$ClientId = trim($_POST['CustomerSubscriptions']['ClientId']);
-				if($ClientId <= 0 )
-					$model->addError('ClientId', 'ClientId cannot be blank.');
-			}
-			
 			$CustomerId = trim($_POST['CustomerSubscriptions']['CustomerId']);
 			if($CustomerId <= 0 )
 				$model->addError('CustomerId', 'CustomerId cannot be blank.');
@@ -316,6 +312,22 @@ class CustomersController extends Controller
 			if( $PointsValue <= 0 or ! @preg_match("/^\d{1,}$/", $PointsValue)  )
 				$model->addError('PointsValue', 'Value cannot be blank/must be an integer.aaaa>'.$PointsValue);
 				
+
+			//chk if exists
+			$ClientId = 0;
+			$cid      = addslashes($CustomerId);
+			$cusm     = Customers::model()->findAll(array(
+				'select'    => '*', 
+				'condition' => " CustomerId = '$cid'  "
+			));
+			if($cusm and @count($cusm)>0)
+			{
+				$ClientId = $cusm[0]->ClientId;
+			}
+			if($ClientId <= 0 )
+				$model->addError('ClientId', 'ClientId cannot be blank.');
+
+
 			if(!$model->hasErrors())
 			{	
 				//fmt
@@ -328,12 +340,9 @@ class CustomersController extends Controller
 				$BrandId     = trim($_POST['CustomerSubscriptions']['BrandId']);
 				$CampaignId  = trim($_POST['CustomerSubscriptions']['CampaignId']);
 				$sqlwhere    = ' ';
-				if(Yii::app()->user->AccessType !== "SUPERADMIN" )
-				{
-					$cid       = addslashes(Yii::app()->user->ClientId); 
-					$sqlwhere .= " AND t.ClientId = '$cid' ";
-				}
-				
+				//client
+				$cid       = addslashes(Yii::app()->user->ClientId); 
+				$sqlwhere .= " AND t.ClientId = '$cid' ";
 				//customer
 				$cid       = addslashes($CustomerId);
 				$sqlwhere .=  " AND t.CustomerId = '$cid' ";
@@ -402,7 +411,15 @@ class CustomersController extends Controller
 				    ( @preg_match("/^(CLAIM)$/i",$modeType) and $is_cust_pts <= 0 ) 
 				  )
 				{
-					$model->addError('PointsValue',  'Balance is less than the PointsValue.22222');
+
+					if(0)
+					{
+						echo "<pre>$id=OKS#client=$ClientId# " .@var_export($_POST,1)."</pre><hr>";
+						echo "<pre>$id=OKS#$modeType# " .@var_export($cust_subs,1)."</pre><hr>";
+						echo "<pre>$id=OKS#$modeType# " .@var_export($cust_pts,1)."</pre><hr>";
+
+					}
+					$model->addError('PointsValue',  'Balance is less than the PointsValue');
 				}
 				
 				//save
@@ -520,18 +537,32 @@ class CustomersController extends Controller
 		} // post
 
 		
+
 		//generic
 		if(0)
 		{
 			echo "<pre>$id=OKS# " .@var_export($model,1)."</pre>";
 			exit;
 		}
+
+		//chk if exists
+		$ClientId = 0;
+		$cid      = addslashes($id);
+		$cusm     = Customers::model()->findAll(array(
+					'select'    => '*', 
+					'condition' => " CustomerId = '$cid'  "
+					));
+		if($cusm and @count($cusm)>0)
+		{
+			$ClientId = $cusm[0]->ClientId;
+		}
+
 		$this->render('addsub',array(
 			'model'         => $model,
 			'CustomerId'    => $id,
-			'brand_list'    => $this->getBrandList(),
-			'campaign_list' => $this->getCampaignList(),
-			'point_list'    => $this->getActionTypeList(),
+			'brand_list'    => $this->getBrandList($ClientId),
+			'campaign_list' => $this->getCampaignList($ClientId),
+			'point_list'    => $this->getActionTypeList($ClientId),
 			'client_list'   => $this->getClientsList(),
 			'error_msgs'    => $this->errorMessage,
 		));
@@ -638,16 +669,14 @@ class CustomersController extends Controller
 		return $res;
 	}
 
-	protected function getBrandList()
+	protected function getBrandList($cid=0)
 	{
 	
 		$xmore = '';
 		$ymore = '';
-		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
-		{
-			$cid   = addslashes(Yii::app()->user->ClientId); 
-			$xmore = " AND t.ClientId = '$cid' ";
-		}		
+
+		$cid   = addslashes($cid); 
+		$xmore = " AND t.ClientId = '$cid' ";
 
 		//get it
 		$model = Brands::model()->findAll(array(
@@ -661,16 +690,16 @@ class CustomersController extends Controller
 		//give it back
 		return $res;
 	}
-	protected function getCampaignList()
+
+	protected function getCampaignList($cid=0)
 	{
 	
 		$xmore = '';
 		$ymore = '';
-		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
-		{
-			$cid   = addslashes(Yii::app()->user->ClientId); 
-			$xmore = " AND t.ClientId = '$cid' ";
-		}		
+
+		$cid   = addslashes($cid); 
+		$xmore = " AND t.ClientId = '$cid' ";
+
 
 		//get it
 		$model = Campaigns::model()->findAll(array(
@@ -686,16 +715,15 @@ class CustomersController extends Controller
 		return $res;
 	}
 	
-	protected function getActionTypeList()
+	protected function getActionTypeList($cid=0)
 	{
 	
 		$xmore = '';
 		$ymore = '';
-		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
-		{
-			$cid   = addslashes(Yii::app()->user->ClientId); 
-			$xmore = " AND t.ClientId = '$cid' ";
-		}		
+
+		$cid   = addslashes($cid); 
+		$xmore = " AND t.ClientId = '$cid' ";
+
 
 		//get it
 		$model = ActionType::model()->findAll(array(

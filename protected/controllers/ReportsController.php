@@ -770,7 +770,6 @@ class ReportsController extends Controller
 				       a.ClientId, 
 				       a.BrandId, 
 				       a.CampaignId, 
-				       j.ChannelId, 
 				       a.status SubsriptionStatus,
 				       b.Balance, 
 				       b.Used, 
@@ -778,21 +777,34 @@ class ReportsController extends Controller
 				       e.Email,
 				       e.FirstName,
 				       e.LastName,
-				       f.CompanyName, g.BrandName, h.CampaignName, i.ChannelName
+				       f.CompanyName, g.BrandName, h.CampaignName,
+				       (
+					   select c.ChannelId
+					   from channels c
+						where  1=1
+						and c.ClientId   = a.ClientId
+						and c.BrandId    = a.BrandId
+						and c.CampaignId = a.CampaignId
+					   limit 1
+				       ) as ChannelId,
+				       (
+					   select c.ChannelName
+					   from channels c
+						where  1=1
+						and c.ClientId   = a.ClientId
+						and c.BrandId    = a.BrandId
+						and c.CampaignId = a.CampaignId
+					   limit 1
+					) as ChannelName
 				from  customer_subscriptions a, 
 				      customer_points b,
-				      customers e,clients f,brands g,campaigns h,channels i,points_mapping j
+				      customers e,clients f,brands g,campaigns h
 				WHERE 1=1
 					and   a.SubscriptionId = b.SubscriptionId			
 					and   a.CustomerId     = e.CustomerId
 					and   a.ClientId       = f.ClientId
 					and   a.BrandId        = g.BrandId
 					and   a.CampaignId     = h.CampaignId
-					and   j.ChannelId      = i.ChannelId
-					and   a.PointsId       = j.PointsId
-					and   a.ClientId       = j.ClientId
-					and   a.BrandId        = j.BrandId
-					and   a.CampaignId     = j.CampaignId
 					$xtra
 					$vxtra
 					$filter
@@ -810,6 +822,7 @@ class ReportsController extends Controller
 		}
 		if(0){
     		
+    			echo '<hr><hr>'.@var_export($rawSql,true);
     		//echo '<hr><hr>'.@var_export($criteria,true);
     		//echo '<hr><hr>'.@var_export($dataProvider,true);
     		foreach($dataProvider->getData() as $row)
