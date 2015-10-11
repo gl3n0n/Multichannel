@@ -81,8 +81,9 @@
 	<div class="row">
 		<?php echo $form->labelEx($model,'Status'); ?>
 		<?php echo CHtml::dropDownList('Raffle[Status]', 
-			$model->scenario === 'update' ? $model->Status : 'ACTIVE', 
-			ZHtml::enumItem($model, 'Status')); 
+			$model->scenario !== 'update' ? $model->Status : 'PENDING', 
+			ZHtml::enumItem($model, 'Status'),
+			array('disabled' => ($model->scenario==='update') ? true: false)); 
 		?>
 		<?php echo $form->error($model,'Status'); ?>
 	</div>
