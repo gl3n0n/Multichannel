@@ -88,6 +88,22 @@ class RaffleController extends Controller
 
 		if(isset($_POST['Raffle']))
 		{
+
+			$cid   = 0;
+			$ctype = 0;
+			$more  = '';
+			if(1){
+				foreach($_coupon as $row) {
+					if($row->CouponId == $_POST['Raffle']['CouponId'])
+					{
+						$cid = $row->ClientId;
+						if(@preg_match("/^(REGULAR)$/i",$row->CouponType))
+							$ctype++;
+						$more = sprintf("%s - %s",$row->CouponType,$row->CouponName);
+						break;
+					}
+				}
+			}
 			$model->attributes=$_POST['Raffle'];
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
@@ -96,10 +112,21 @@ class RaffleController extends Controller
 			if(Yii::app()->user->AccessType !== "SUPERADMIN" && $model->scenario === 'insert') {
 				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			}
-			if($model->save()){
-				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
-				$this->redirect(array('view','id'=>$model->RaffleId));
+			if(Yii::app()->user->AccessType == "SUPERADMIN" && $model->scenario === 'insert') {
+				$model->setAttribute("ClientId", $cid);
+			}
+
+			if(! $ctype)
+			{
+				$model->addError('CouponId', 'Allowed Coupon Type is REGULAR only.');
+			}
+			else
+			{
+				if($model->save()){
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs();
+					$this->redirect(array('view','id'=>$model->RaffleId));
+				}
 			}
 		}
 

@@ -12,7 +12,7 @@ $this->menu=array(
 );
 
 //overwrite
-if(Yii::app()->user->AccessType === "SUPERADMIN")
+if(Yii::app()->user->AccessType === "SUPERADMIN" or Yii::app()->user->AccessType === "ADMIN")
 {
 	$this->menu=array(
 	array('label'=>'Create Raffle',   'url'=>array('create')),
