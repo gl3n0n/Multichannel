@@ -1,6 +1,6 @@
 <?php
 
-class ReportsController extends Controller
+class ReportsListController extends Controller
 {
 	public $extraJS;
 	public $mainDivClass;
@@ -74,93 +74,65 @@ class ReportsController extends Controller
 		
 		//channel-name
 		$byChannel   = trim(Yii::app()->request->getParam('byChannel'));
+		$ofilter     = '';
 		if(strlen($byChannel))
 		{
 			$filterSrch++;
-			$criteria->with = array(
-				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
-				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
-				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
-				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
+			$ofilter = " AND chan.ChannelName LIKE '%".addslashes($byChannel)."%' ";
 
-			);
-			$criteria->addCondition(" pointlogChannels.ChannelName LIKE '%".addslashes($byChannel)."%' ");
 		}
 		//campaign
 		$byCampaign   = trim(Yii::app()->request->getParam('byCampaign'));
+		$pfilter     = '';
 		if(strlen($byCampaign))
 		{
 			$filterSrch++;
-			$criteria->with = array(
-				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
-				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
-				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
-				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
-			);
-			$criteria->addCondition(" pointlogCampaigns.CampaignName LIKE '%".addslashes($byCampaign)."%' ");
+			$pfilter = " AND camp.CampaignName LIKE '%".addslashes($byCampaign)."%' ";
 		}
 		//brand
 		$byBrand   = trim(Yii::app()->request->getParam('byBrand'));
+		$qfilter     = '';
 		if(strlen($byBrand))
 		{
 			$filterSrch++;
-			$criteria->with = array(
-				'pointlogChannels'  => array('joinType'=>'LEFT JOIN'),
-				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
-				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
-				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
-
-			);
-			$criteria->addCondition(" pointlogBrands.BrandName LIKE '%".addslashes($byBrand)."%' ");
+			$qfilter = " AND brnd.BrandName LIKE '%".addslashes($byBrand)."%' ";
 		}
 		//customer
 		$byCustomerName   = trim(Yii::app()->request->getParam('byCustomerName'));
+		$rfilter     = '';
 		if(strlen($byCustomerName))
 		{
 			$filterSrch++;
-			$criteria->with = array(
-				'byClients' => array('joinType'=>'LEFT JOIN'),
-			);
-			$criteria->addCondition(" (
-						 pointlogCustomers.Email     LIKE '%".addslashes($byCustomerName)."%' OR
-						 pointlogCustomers.FirstName LIKE '%".addslashes($byCustomerName)."%' 
-						 ) ");
+			$rfilter = " AND (
+						 cust.Email     LIKE '%".addslashes($byCustomerName)."%' OR
+						 cust.FirstName LIKE '%".addslashes($byCustomerName)."%' 
+				     ) ";
 		}
 
 		
 		//no-filter
+		$sfilter     = '';
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
 		{
-			$criteria->addCondition('t.ClientId = :clientId');
-			$criteria->params = array(':clientId' => Yii::app()->user->ClientId);
+			$qid     =  addslashes(Yii::app()->user->ClientId);
+			$sfilter = " AND ptslog.ClientId = '$qid' ";
 		}
 
 
                 //email + cust-name + etc
                 if('sortby' == 'sortby')
                 {
-                        $criteria->with = array(
-                                'pointlogActiontype' => array('joinType'=>'LEFT JOIN'),
-                                'pointlogChannels'   => array('joinType'=>'LEFT JOIN'),
-                                'pointlogCampaigns'  => array('joinType'=>'LEFT JOIN'),
-                                'pointlogBrands'     => array('joinType'=>'LEFT JOIN'),
-                                'pointlogCustomers'  => array('joinType'=>'LEFT JOIN'),
-                                
-                                
-                        );
                         // set sort options
                         $sort = new CSort;
                         $sort->attributes = array(
                                         'EmailAdd'       => array(
-                                                'asc'    =>'pointlogCustomers.Email',
-                                                'desc'   =>'pointlogCustomers.Email DESC',
+                                                'asc'    =>'cust.Email',
+                                                'desc'   =>'cust.Email DESC',
                                                 'label'  =>'Email',
                                         ),
                                         'CustomerNm'  => array(
-                                                //'asc'    =>'pointlogCustomers.FirstName,pointlogCustomers.LastName',
-                                                //'desc'   =>'pointlogCustomers.FirstName,pointlogCustomers.LastName DESC',
-                                                'asc'    =>'pointlogCustomers.LastName',
-                                                'desc'   =>'pointlogCustomers.LastName DESC',
+                                                'asc'    =>'cust.LastName',
+                                                'desc'   =>'cust.LastName DESC',
                                                 'label'  =>'Customer Name',
                                         ),
                                         '*',
@@ -171,17 +143,84 @@ class ReportsController extends Controller
 
 		$dataProvider = new CActiveDataProvider('Reports', array(
 				'criteria'=> $criteria,
-				'sort'    => $sort,
+				
 				));
+
+
+		if(1){
+		$rawSql   = "
+			SELECT
+				ptslog.PointLogId     ,
+				ptslog.CustomerId     ,
+				ptslog.SubscriptionId ,
+				ptslog.ClientId       ,
+				clnt.CompanyName      ,
+				ptslog.BrandId        ,
+				brnd.BrandName        ,
+				ptslog.CampaignId     ,
+				camp.CampaignName     ,
+				ptslog.ChannelId      ,
+				chan.ChannelName      ,
+				ptslog.PointsId       ,
+				pts.Name as PointsName,
+				ptslog.ActiontypeId   ,
+				act.Name as ActionTypeName,
+				act.Value as ActionTypeValue,
+				ptslog.LogType        ,
+				ptslog.Value          ,
+				ptslog.DateCreated    ,
+				ptslog.CreatedBy      ,
+				cust.BirthDate        ,
+				cust.FirstName        ,
+				cust.LastName         ,
+				cust.Email            
+			FROM
+				points_log ptslog,
+				customers cust,
+				clients   clnt,
+				brands    brnd,
+				campaigns camp,
+				channels  chan,
+				customer_subscriptions sub,
+				action_type act,
+				points pts
+				
+			WHERE
+				    1=1
+			        AND ptslog.CustomerId     = cust.CustomerId
+			        AND ptslog.ClientId       = clnt.ClientId
+			        AND ptslog.BrandId        = brnd.BrandId
+			        AND ptslog.CampaignId     = camp.CampaignId
+			        AND ptslog.ChannelId      = chan.ChannelId
+			        AND ptslog.SubscriptionId = sub.SubscriptionId
+			        AND ptslog.ActiontypeId   = act.ActiontypeId
+			        AND ptslog.PointsId       = pts.PointsId
+			        AND pts.PointsId          = act.PointsId
+			$ofilter 
+			$pfilter 
+			$qfilter 
+			$rfilter 
+			$sfilter 
+			";
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField'       => 'PointLogId',
+				    'totalItemCount' => $rawCount,
+				    'sort'           => $sort,
+				    )
+			);
+
+		}
 		
 		//get csv
-		$csv = $this->formatCsv($criteria);
+		$csv = $this->formatCsv($rawSql,$criteria,$sort);
 		
 		//exit;
 		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-			'model'=>$model,
-			'downloadCSV'=> (@intval($csv['total'])>0)?($csv['fn']):(''),
+			'dataProvider' => $dataProvider,
+			'model'        => $model,
+			'downloadCSV'  => (@intval($csv['total'])>0)?($csv['fn']):(''),
 		));
 	}
 
@@ -194,7 +233,7 @@ class ReportsController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=Reports::model()->findByPk($id);
+		$model = ReportsList::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -217,18 +256,14 @@ class ReportsController extends Controller
 	{
 		$fn   = trim(Yii::app()->request->getParam('fn'));
 		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
-		header('Content-Description: File Transfer');
-		header('Content-Type: application/msexcel');
-		header('Content-Disposition: attachment; filename='.basename($csv));
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate');
-		header('Pragma: public');
-		header('Content-Length: '. filesize($csv));
-		@flush();
-		readfile($csv);
+		
+		//download
+		$utils= new Utils;
+		$utils->push_xls_download($csv);
+		
 	}	
 
-	protected function formatCsv($criteria)
+	protected function formatCsv($rawSql, $criteria, $sort)
 	{
 		$fn   = sprintf("%s-%s-%s-%s.csv",Yii::app()->params['reportPfx'],@date("YmdHis"),uniqid(),md5(uniqid()));
 		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
@@ -237,64 +272,95 @@ class ReportsController extends Controller
 		if (!@file_exists(Yii::app()->params['reportCsv'])) {
 		    @mkdir(Yii::app()->params['reportCsv'], 0777, true);
 		}
-		//get it
-		$csvs = new CActiveDataProvider('Reports', array(
-			'criteria'=>$criteria,
-		));
 		
+		//fmt it her		
+		$rawData       = Yii::app()->db->createCommand($rawSql); 
+		$rawCount      = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dbprovider    = new CSqlDataProvider($rawData, array(
+				    'keyField'       => 'PointLogId',
+				    'totalItemCount' => $rawCount,
+				    'sort'           => $sort,
+				    )
+		);
+
 		//set
-		$csvs->setPagination(false);
+		$dbprovider->setPagination(false);
 		$total = 0;
 		
-
-
 		//hdr
-		$hdr = sprintf('="CUSTOMER ID",="CUSTOMER NAME",="CUSTOMER EMAIL",="CUSTOMER BDAY",="COMPANY NAME",="BRAND NAME",="CAMPAIGN NAME",="CHANNEL NAME",="CREATED BY",="POINTS",="",');
-		$this->io_save($csv, str_replace("\n",'', $hdr)."\n",'a');
-		//get csv
-		foreach($csvs->getData() as $row) 
-		{
-		    $total++;
-		    //customer
-		    $custmail = $row->pointlogCustomers->Email;
-		    $custuid  = $row->pointlogCustomers->CustomerId;
-		    $custbday = $row->pointlogCustomers->BirthDate;
-		    $custname = sprintf("%s %s",$row->pointlogCustomers->FirstName,$row->pointlogCustomers->LastName );
-		    
-		    //comp
-		    $compname  = $row->pointlogClients->CompanyName;
-		    
-		    //brand
-		    $brandname = $row->pointlogBrands->BrandName;
-		    
-		    //campaign
-		    $cmpgnname = $row->pointlogCampaigns->CampaignName;
-		    
-		    //channel
-		    $chnlname  = $row->pointlogChannels->ChannelName;
-		    
-		    //by
-		    $by        = ($row->pointlogCreateUsers != null)?($row->pointlogCreateUsers->Username):("");
-		    
-		    //pts
-		    $tpts      = ($row->pointlogActiontype != null)?($row->pointlogActiontype->Value):(0);
-		    //hdr
-		    $str = sprintf('="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="%s",="",',
-					$custuid,
-					$custname,
-					$custmail,
-					$custbday,
-					$compname,
-					$brandname,
-					$cmpgnname,
-					$chnlname,
-					$by,
-					$tpts);
-		    $this->io_save($csv, str_replace("\n",'', $str)."\n",'a');
+		$hdr_ttl = array("SEQ. NO.",
+				 "CUSTOMER ID",
+				 "CUSTOMER NAME",
+				 "CUSTOMER EMAIL",
+				 "CUSTOMER BDAY",
+				 "COMPANY NAME",
+				 "BRAND NAME",
+				 "CAMPAIGN NAME",
+				 "CHANNEL NAME",
+				 "CREATED BY",
+				 "POINTS",
+				 "POINTS-TYPE",
+				 "DATE CREATED",
+			 );
 
+		$utils = new Utils;
+		$hdr   = $utils->fmt_csv($hdr_ttl);
+		
+		$utils->io_save($csv, str_replace("\n",'', $hdr)."\n",'a');
+		$total = 0;
+		//get csv
+		foreach($dbprovider->getData() as $row) 
+		{
+			
+			$total++;
+			//customer
+			$custmail = $row["Email"];
+			$custuid  = $row["CustomerId"];
+			$custbday = $row["BirthDate"];
+			$custname = sprintf("%s %s",$row["FirstName"],$row["LastName"] );
+
+			//comp
+			$compname  = $row["CompanyName"];
+
+			//brand
+			$brandname = $row["BrandName"];
+
+			//campaign
+			$cmpgnname = $row["CampaignName"];
+
+			//channel
+			$chnlname  = $row["ChannelName"];
+
+			//by
+			$by        = $row["CreatedBy"];
+
+			//pts
+			$tpts      = $row["ActionTypeValue"];
+
+			//hdr
+			$typ       = $row["LogType"];
+						           
+
+			//fmt
+			$udata   = array();
+			$udata[] = trim($total     );
+			$udata[] = trim($custuid   );
+			$udata[] = trim($custname  );
+			$udata[] = trim($custmail  );
+			$udata[] = trim($custbday  );
+			$udata[] = trim($compname  );
+			$udata[] = trim($brandname );
+			$udata[] = trim($cmpgnname );
+			$udata[] = trim($chnlname  );
+			$udata[] = trim($by        );
+			$udata[] = trim($tpts      );   
+			$udata[] = trim($typ       );  
+			$udata[] = trim($row["DateCreated"] );  
+			//fmt
+			$str   = $utils->fmt_csv($udata);
+
+			$utils->io_save($csv, str_replace("\n",'', $str)."\n",'a');
 		}
-		
-		
 		
 		//give it back
 		return array(
@@ -302,27 +368,6 @@ class ReportsController extends Controller
 			'fn'    => $fn
 		);
 	}
-	
-	protected function io_save($fname='', $body='', $mode = 'w')
-	{
-		//mode of fopen
-		$mode  = @preg_match("/^(a|append)$/i", $mode) ? ('a') :  ('w');
-		
-		//open it
-		$fh = fopen($fname, $mode);
-		if($fh)
-		{
-			fwrite($fh, $body);
-			fclose($fh); 
-			$is_ok  = true;
-			
-		}
-		
-		//give it back ;-)
-		return $is_ok;
-		 
-	}
-
 
 	//more reports
 	public function actionPointsgain()
@@ -343,7 +388,7 @@ class ReportsController extends Controller
 		//important
 		//brands		
 		$_brands = Brands::model()->findAll(array(
-				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE '"));
+				'select'=>'BrandId, BrandName', 'condition' =>" status='ACTIVE '"));
 		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
 
 		//campaigns
@@ -409,63 +454,6 @@ class ReportsController extends Controller
 		));
 	}
 
-	public function actionCampaignPartXXXX()
-	{
-		$search      = trim(Yii::app()->request->getParam('search'));
-		$customer_id = trim(Yii::app()->user->id);
-		$criteria = new CDbCriteria;
-		
-		$criteria->addCondition(" t.Status     = 'ACTIVE' ");
-		
-		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
-		{
-			$clid   = addslashes(Yii::app()->user->ClientId);
-			$criteria->addCondition(" t.ClientId = '$clid' ");
-		}
-		
-		if(strlen($search))
-		{
-			$criteria->with = array(
-				'subsChannels' => array('joinType'=>'LEFT JOIN'),
-			);
-			$criteria->addCondition(" subsChannels.ChannelName LIKE '%".addslashes($search)."%' ");
-		}
-		$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
-			'criteria'=> $criteria,
-		));
-
-
-		$this->render('campaignpart',array(
-			'dataProvider'=>$dataProvider,
-		));
-
-	}
-	
-	public function actionRedeemrewardsXXXX()
-	{
-		$search      = trim(Yii::app()->request->getParam('search'));
-		$customer_id = trim(Yii::app()->user->id);
-		$criteria = new CDbCriteria;
-		$criteria->addCondition('UserId = :customer_id');
-		$criteria->params = array(':customer_id' => $customer_id);
-		if(strlen($search))
-		{
-			$criteria->with = array(
-				'rewardChannels' => array('joinType'=>'LEFT JOIN'),
-			);
-			$criteria->addCondition(" rewardChannels.ChannelName LIKE '%".addslashes($search)."%' ");
-		}
-		$dataProvider = new CActiveDataProvider('RewardsRedeem', array(
-			'criteria'=> $criteria,
-		));
-
-
-		$this->render('redeemrewards',array(
-			'dataProvider'=>$dataProvider,
-		));
-
-	}
-
 	
 	public function actionPointsgainbal()
 	{
@@ -498,21 +486,47 @@ class ReportsController extends Controller
 			      b.CustomerId, 
 			      b.BrandId, 
 			      b.CampaignId, 
-			      j.ChannelId, 
 			      b.Status, 
 			      f.CampaignName, 
 			      g.CompanyName, 
 			      d.BrandName, 
-			      e.ChannelName
-			FROM customer_points a
-			join customer_subscriptions b on a.SubscriptionId = b.SubscriptionId 
-			join brands d on b.BrandId       = d.BrandId
-			join campaigns f on b.CampaignId = f.CampaignId
-			join clients g on b.ClientId     = g.ClientId
-			join customers h on b.CustomerId = h.CustomerId
-                        join points_mapping j on a.PointsId = j.PointsId 
-                        join channels e on j.ChannelId   = e.ChannelId
-			WHERE b.Status = 'ACTIVE' $xfilter $yfilter
+			      (
+				   select chan.ChannelName
+				   from channels chan
+				   where
+					chan.ClientId    = b.ClientId
+					and
+					chan.BrandId     = b.BrandId
+					and
+					chan.CampaignId  = b.CampaignId
+				   limit 1
+			       ) as ChannelName,
+			      (
+				   select chan.ChannelId
+				   from channels chan
+				   where
+					chan.ClientId    = b.ClientId
+					and
+					chan.BrandId     = b.BrandId
+					and
+					chan.CampaignId  = b.CampaignId
+				   limit 1
+			       ) as ChannelId
+			FROM customer_points a,
+			     customer_subscriptions b,
+			     brands d,
+			     campaigns f,
+			     clients g,
+			     customers h
+			WHERE   1=1
+				AND b.Status         = 'ACTIVE' 
+				AND a.SubscriptionId = b.SubscriptionId 
+				AND b.BrandId      = d.BrandId
+				AND b.CampaignId   = f.CampaignId
+				AND b.ClientId     = g.ClientId
+				AND b.CustomerId   = h.CustomerId
+                        	$xfilter 
+                        	$yfilter
 			";
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
@@ -541,28 +555,35 @@ class ReportsController extends Controller
 	public function getMoreLists()
 	{
 
+		$yfilter='';
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
+		{
+			$cid    = addslashes(Yii::app()->user->ClientId);
+			$yfilter= " AND ClientId = '$cid' ";
+		}
+
 		//brands		
 		$_brands = Brands::model()->findAll(array(
-				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE'"));
+				'select'=>'BrandId, BrandName', 'condition'=>" status='ACTIVE' $yfilter"));
 		$brands = CHtml::listData($_brands, 'BrandId', 'BrandName');
 
 		//campaigns
 		$_campaigns = Campaigns::model()->findAll(array(
-			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE'"));
+			     'select'=>'CampaignId, CampaignName', 'condition'=>" status='ACTIVE' $yfilter"));
 		$campaigns  = CHtml::listData($_campaigns, 'CampaignId', 'CampaignName');
 
 		//clients		
 		$_clients   = Clients::model()->findAll(array(
-				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE'"));
+				'select'=>'ClientId, CompanyName', 'condition'=>" status='ACTIVE' $yfilter"));
 		$clients    = CHtml::listData($_clients, 'ClientId',  'CompanyName');
 
 		//channels
 		$_channels   = Channels::model()->findAll(array(
-				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE' $yfilter"));
 		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
 
 		$_channels   = Channels::model()->findAll(array(
-				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE'"));
+				'select'=>'ChannelId, ChannelName', 'condition'=>" status='ACTIVE' $yfilter"));
 		$channels    = CHtml::listData($_channels, 'ChannelId',  'ChannelName');
 
 
@@ -570,8 +591,8 @@ class ReportsController extends Controller
 		$clid   = addslashes(Yii::app()->user->ClientId);
 		$cand   = (Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  ? (" AND ClientId='$clid' ") : ('');
 		$_customers = Customers::model()->findAll(array(
-				'select'=>'CustomerId, Email', 'condition'=>" status='ACTIVE' $cand "));
-		$customers = CHtml::listData($_customers, 'CustomerId', 'Email');
+				'select'=>'CustomerId, Email', 'condition'=> " status = 'ACTIVE' $cand "));
+		$customers  = CHtml::listData($_customers, 'CustomerId', 'Email');
 		
 		//give mapping
 		return array(
@@ -582,7 +603,9 @@ class ReportsController extends Controller
 			'custList'     => $customers
 			);
 	 }
-/**
+	
+	
+	/**
 	 * Manages all models.
 	 */
 	public function actionRedeemcoupons()
@@ -1101,20 +1124,22 @@ class ReportsController extends Controller
 				);
 			
 			}
+
+
 			if(0){
-	    		
-	    		//echo '<hr><hr>'.@var_export($criteria,true);
-	    		//echo '<hr><hr>'.@var_export($dataProvider,true);
-	    		foreach($dataProvider->getData() as $row)
-	    		{
-	    			echo '<hr><hr>'.@var_export($row,true);
-	    		}
-	    		
-	    		echo '<hr><hr>'.@var_export($brands,true);
-	    		echo '<hr><hr>'.@var_export($campaigns,true);
-	    		echo '<hr><hr>'.@var_export($clients,true);
-	    		echo '<hr><hr>'.@var_export($channels,true);
-	    		exit;
+
+				//echo '<hr><hr>'.@var_export($criteria,true);
+				//echo '<hr><hr>'.@var_export($dataProvider,true);
+				foreach($dataProvider->getData() as $row)
+				{
+					echo '<hr><hr>'.@var_export($row,true);
+				}
+
+				echo '<hr><hr>'.@var_export($brands,true);
+				echo '<hr><hr>'.@var_export($campaigns,true);
+				echo '<hr><hr>'.@var_export($clients,true);
+				echo '<hr><hr>'.@var_export($channels,true);
+				exit;
 	    		}
 	    		
 	    		
@@ -1190,20 +1215,22 @@ class ReportsController extends Controller
 				);
 			
 			}
+
+
 			if(0){
 	    		
-	    		//echo '<hr><hr>'.@var_export($criteria,true);
-	    		//echo '<hr><hr>'.@var_export($dataProvider,true);
-	    		foreach($dataProvider->getData() as $row)
-	    		{
-	    			echo '<hr><hr>'.@var_export($row,true);
-	    		}
-	    		
-	    		echo '<hr><hr>'.@var_export($brands,true);
-	    		echo '<hr><hr>'.@var_export($campaigns,true);
-	    		echo '<hr><hr>'.@var_export($clients,true);
-	    		echo '<hr><hr>'.@var_export($channels,true);
-	    		exit;
+				//echo '<hr><hr>'.@var_export($criteria,true);
+				//echo '<hr><hr>'.@var_export($dataProvider,true);
+				foreach($dataProvider->getData() as $row)
+				{
+					echo '<hr><hr>'.@var_export($row,true);
+				}
+
+				echo '<hr><hr>'.@var_export($brands,true);
+				echo '<hr><hr>'.@var_export($campaigns,true);
+				echo '<hr><hr>'.@var_export($clients,true);
+				echo '<hr><hr>'.@var_export($channels,true);
+				exit;
 	    		}
 	    		
 	    		

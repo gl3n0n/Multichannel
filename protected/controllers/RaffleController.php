@@ -317,8 +317,12 @@ class RaffleController extends Controller
 		    }
 		}
 		
+		//all-pending
 		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
-		
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+		}		
 		//provider
     		$dataProvider = new CActiveDataProvider('Raffle', array(
 				'criteria'  =>$criteria ,
@@ -472,9 +476,9 @@ class RaffleController extends Controller
 		//chk
 		if(Yii::app()->user->AccessType !== "SUPERADMIN")
 		{
-		    $this->statusMsg = Yii::app()->params['notAllowedStatus'];
+		    $this->statusMsg = '';//Yii::app()->params['notAllowedStatus'];
 		}
-		else
+		if(1)
 		{
 		    
 		    $api   = array(
@@ -520,7 +524,12 @@ class RaffleController extends Controller
 			}
 		}
 		
+		//all-pending
 		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+		}
 		
 		//provider
     		$dataProvider = new CActiveDataProvider('Raffle', array(

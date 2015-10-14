@@ -221,8 +221,8 @@ class RewardDetailsController extends Controller
 		
 		//get params
 		//list($RewardId, $ClientId ) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
-		//list($ClientId, $RewardId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
-		list($RewardId, $ClientId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		list($ClientId, $RewardId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		//list($RewardId, $ClientId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
 		
 		// Uncomment the following line if AJAX validation is needed
 		$xmore = " AND t.ClientId = '".addslashes($ClientId)."' ";

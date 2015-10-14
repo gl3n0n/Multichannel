@@ -83,7 +83,7 @@
 		<?php echo CHtml::dropDownList('Raffle[Status]', 
 			$model->scenario !== 'update' ? $model->Status : 'PENDING', 
 			ZHtml::enumItem($model, 'Status'),
-			array('disabled' => ($model->scenario==='update') ? true: false)); 
+			array('disabled' => true)); 
 		?>
 		<?php echo $form->error($model,'Status'); ?>
 	</div>

@@ -408,24 +408,63 @@ class CouponSystemController extends Controller
 		if($search) $criteria->compare('Source', $search, true);
 
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')
-                {
-                        //relations
-                        $criteria->condition =  " t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
-                }
+		{
+				//relations
+				$criteria->condition =  " t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
+		}
 
+		//get 
+		if(Yii::app()->utils->getUserInfo('AccessType') == 'SUPERADMIN')
+		{
+				$criteria->with = array(
+				'byClients'  => array('joinType'=>'LEFT JOIN'),
+				);
+				//byClient
+				$byClient      = trim(Yii::app()->request->getParam('byClient'));
+				if(strlen($byClient))
+				{
+					$byClient = addslashes($byClient);
+					$criteria->addCondition(" ( byClients.CompanyName  LIKE '%$byClient%' ) ");
+				}
+				//byExpiryDate
+				$byExpiryDateFr  = trim(Yii::app()->request->getParam('byExpiryDateFr'));
+				if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byExpiryDateFr))
+				{
+					$dt = addslashes($byExpiryDateFr);
+					$criteria->condition =  " ( t.ExpiryDate >= '$dt' ) ";
+				}
+				$byExpiryDateTo  = trim(Yii::app()->request->getParam('byExpiryDateTo'));
+				if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byExpiryDateTo))
+				{
+					$dt = addslashes($byExpiryDateTo);
+					$criteria->condition =  " ( t.ExpiryDate <= '$dt' ) ";
+				}
+				
+				//byCouponType
+				$byCouponType  = trim(Yii::app()->request->getParam('byCouponType'));
+				if(strlen($byCouponType))
+				{
+					$dt = addslashes($byCouponType);
+					$criteria->condition =  " ( t.CouponType IN ('$dt') ) ";	
+				}
+			
+		}
 		//create data
 		$dataProvider = new CActiveDataProvider('CouponSystem', array(
 					'criteria'=>$criteria ,
 					));
 
 		if(0){
-			echo "####<hr>".@var_dump($dataProvider->getData(),true);
+			echo "####<hr>".@var_dump($criteria,true);
+			//echo "####<hr>".@var_dump($dataProvider->getData(),true);
 			exit;
 		}
-
+	
+		$model=new CouponSystem('search');
 
 		$this->render('index',array(
 					'dataProvider'=>$dataProvider,
+					'model' => $model,
 					));
 	}
 

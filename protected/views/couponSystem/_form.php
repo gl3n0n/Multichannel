@@ -175,7 +175,7 @@ if($model->scenario === 'insert')
 		    'id'   =>'CouponType',
 		    'name' =>'CouponSystem[CouponType]',
 		    'options' => array("$model->CouponType" => array('selected'=>true)),
-		    'style'=> 'width:200px;',
+		    'style'   => 'width:200px;',
 		)); ?>
 		<?php echo $form->error($model,'CouponType'); ?>
 	</div>

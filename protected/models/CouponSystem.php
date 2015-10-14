@@ -144,6 +144,7 @@ class CouponSystem extends CActiveRecord
                 				'coupon_mapping(CouponMappingId,ClientId)',
                 				'through' => 'couponMap'),
 			'byClients'        =>array(self::BELONGS_TO, 'Clients',       'ClientId'),                				
+			'byPoints'         =>array(self::BELONGS_TO, 'PointsSystem',  'PointsId'),    
 		);
 	}
 
