@@ -52,20 +52,19 @@ if($model->scenario === 'insert')
 	</div>
 	
 	<div class="row">
-		<?php echo $form->labelEx($model,'Image Path'); ?>
-		<?php echo $form->fileField($model,'Image', array('class'=>'input-file')); ?>
-		<?php echo $form->error($model,'Image'); ?>
-	</div>
-	
-	<div class="row">
 		<?php echo $form->labelEx($model,'QRCode Url'); ?>
-		<?php echo $form->textField($model,'CouponUrl',array('size'=>255,
+		<?php echo $form->textField($model,'CouponUrl',array('placeholder'=>'ex: http://coupon.multichannel.com/refcode=','size'=>255,
 					 'style'    => 'width:300px;','maxlength'=>255)); ?>
 		<?php echo $form->error($model,'CouponUrl'); ?>
 	</div>
 	
 
 <?php endif; // End Create scenario ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'Image Path'); ?>
+		<?php echo $form->fileField($model,'Image', array('class'=>'input-file')); ?>
+		<?php echo $form->error($model,'Image'); ?>
+	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'ExpiryDate'); ?>
@@ -175,7 +174,7 @@ if($model->scenario === 'insert')
 		    'id'   =>'CouponType',
 		    'name' =>'CouponSystem[CouponType]',
 		    'options' => array("$model->CouponType" => array('selected'=>true)),
-		    'style'   => 'width:200px;',
+		    'style'=> 'width:200px;',
 		)); ?>
 		<?php echo $form->error($model,'CouponType'); ?>
 	</div>

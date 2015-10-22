@@ -72,7 +72,7 @@ class CouponSystem extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CouponName,PointsId,ClientId,Type,LimitPerUser,ExpiryDate,CouponUrl', 'required'),
+			array('CouponName,PointsId,ClientId,Type,LimitPerUser,ExpiryDate', 'required'),
 			array('File',       'checkCouponMode'),
 			array('CouponMode', 'checkPointsValue'),
 			array('ClientId,PointsId,CodeLength,PointsValue, Quantity, LimitPerUser, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
@@ -81,10 +81,12 @@ class CouponSystem extends CActiveRecord
 			array('Quantity, LimitPerUser', 'length', 'max'=>11),
 			array('Image, File, ImagePath', 'length', 'max'=>200),
 			array('File', 'file', 'types'=>'csv', 'safe'=>true, 'allowEmpty'=>true),
+			/*
 			array('Image','file', 'types'=>'gif, png, jpg, jpeg', 'safe'=>true, 'allowEmpty'=>true, 'maxSize'=>5242880,
 				"tooLarge"   =>"Please choose a file with size up to 5MB",
 				"wrongType"  =>"Your photo must be a jpg,gif or png .",
 				"allowEmpty" => true,),
+				*/
 			array('DateCreated, DateUpdated', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

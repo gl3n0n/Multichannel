@@ -35,7 +35,7 @@ class RewardDetailsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','getPointSystemlist','getRewardslist'),
+				'actions'=>array('create','update','getPointSystemlist','getRewardslist','getPointSystemlist2'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -93,39 +93,50 @@ class RewardDetailsController extends Controller
 			$model->setAttribute("Status", 'ACTIVE');
 			if(Yii::app()->user->AccessType !== "SUPERADMIN") {
 				$model->setAttribute("ClientId",    Yii::app()->user->ClientId);
-			}		
-			//get points id
-			$RewardId = '';
-			$ClientIda= '';
-			$PointsId = '';
-			$ClientId = '';
-			if(!empty($_POST['RewardDetails']['RewardId']))
-			//list($ClientIda, $RewardId)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
-			list($RewardId, $ClientIda)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
-			if(!empty($_POST['RewardDetails']['PointsId']))
-			list($PointsId, $ClientId  ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
-			
-			//save it
-			$model->setAttribute("RewardId",    $RewardId);
-			$model->setAttribute("PointsId",    $PointsId);
-			$model->setAttribute("ClientId",    $ClientId);
-			$model->setAttribute("StartDate",   substr($_POST['RewardDetails']['StartDate'],0,10));
-			$model->setAttribute("EndDate",     substr($_POST['RewardDetails']['EndDate']  ,0,10));
-			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
-			$model->setAttribute("CreatedBy",   Yii::app()->user->id);
-			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
-			
-			if($model->save())
+			}	
+
+			// check if inventory is greater than 0
+
+			if ($model->attributes['Inventory'] >= 0)
 			{
-				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
-				$this->redirect(array('view','id'=>$model->RewardConfigId));
+				//get points id
+				$RewardId = '';
+				$ClientIda= '';
+				$PointsId = '';
+				$ClientId = '';
+				if(!empty($_POST['RewardDetails']['RewardId']))
+				//list($ClientIda, $RewardId)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
+				list($RewardId, $ClientIda)  = @explode('-',trim($_POST['RewardDetails']['RewardId']));
+				if(!empty($_POST['RewardDetails']['PointsId']))
+				list($PointsId, $ClientId  ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
+				
+				//save it
+				$model->setAttribute("RewardId",    $RewardId);
+				$model->setAttribute("PointsId",    $PointsId);
+				$model->setAttribute("ClientId",    $ClientId);
+				$model->setAttribute("StartDate",   substr($_POST['RewardDetails']['StartDate'],0,10));
+				$model->setAttribute("EndDate",     substr($_POST['RewardDetails']['EndDate']  ,0,10));
+				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
+				$model->setAttribute("CreatedBy",   Yii::app()->user->id);
+				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+				$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
+				
+				if($model->save())
+				{
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs();
+					$this->redirect(array('view','id'=>$model->RewardConfigId));
+				}
+				else
+				{
+					Yii::app()->user->setFlash('error', 'An unexpected error occured.');
+				}
 			}
 			else
 			{
-				Yii::app()->user->setFlash('error', 'An unexpected error occured.');
+				$model->addError('Inventory', 'Please enter greater than or equal to zero.');
 			}
+			
 		}
 		
 		$get_active_clause='Status=\'ACTIVE\'';
@@ -206,7 +217,8 @@ class RewardDetailsController extends Controller
 		$_list = RewardsList::model()->with('rewardClients')->findAll($criteria);
 		$data  = array();
 		foreach($_list as $row) {
-			$vkey = sprintf("%s-%s",$row->ClientId, $row->RewardId );
+			$vkey = sprintf("%s-%s",$row->RewardId ,$row->ClientId);
+			if(@preg_match("/^(ACTIVE)$/i",$row->Status))
 			$data["$vkey"] = sprintf("%s ( %s )",$row->Title,($row->rewardClients!=null ? ($row->rewardClients->CompanyName) : ("")));
 
 		}
@@ -221,8 +233,8 @@ class RewardDetailsController extends Controller
 		
 		//get params
 		//list($RewardId, $ClientId ) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
-		list($ClientId, $RewardId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
-		//list($RewardId, $ClientId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		//list($ClientId, $RewardId)  = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+	    list($RewardId, $ClientId)    = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
 		
 		// Uncomment the following line if AJAX validation is needed
 		$xmore = " AND t.ClientId = '".addslashes($ClientId)."' ";
@@ -231,12 +243,39 @@ class RewardDetailsController extends Controller
 		$data  = array();
 		foreach($_list as $row) {
 			$vkey = sprintf("%s-%s",$row->PointsId ,$row->ClientId );
+			if(@preg_match("/^(ACTIVE)$/i",$row->Status))
 			$data["$vkey"] = sprintf("%s ( %s )",$row->Name,($row->byClients!=null ? ($row->byClients->CompanyName) : ("")));
 
 		}
 		//give it back
 		Yii::app()->utils->sendJSONResponse($data);
 	}
+
+	public function actionGetPointSystemlist2()
+	{
+		//give
+		$criteria = new CDbCriteria;
+		
+		//get params
+		//list($RewardId, $ClientId ) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		//list($ClientId, $RewardId)  = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+	       list($RewardId, $ClientId) = @explode('-',trim(Yii::app()->request->getParam('RewardId')));
+		
+		// Uncomment the following line if AJAX validation is needed
+		$xmore = " AND t.ClientId = '".addslashes($ClientId)."' ";
+		$criteria->addCondition(" t.status='ACTIVE' $xmore ");
+		$_list = PointsSystem::model()->with('byClients')->findAll($criteria);
+		$data  = array();
+		foreach($_list as $row) {
+			$vkey = sprintf("%s-%s",$row->PointsId ,$row->ClientId );
+			if(@preg_match("/^(ACTIVE)$/i",$row->Status))
+			$data["$vkey"] = sprintf("%s ( %s )",$row->Name,($row->byClients!=null ? ($row->byClients->CompanyName) : ("")));
+
+		}
+		//give it back
+		Yii::app()->utils->sendJSONResponse($data);
+	}
+
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
@@ -249,26 +288,54 @@ class RewardDetailsController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
+		$clientsID = Users::model()->findByPk(Yii::app()->user->id)->ClientId;
+		
+		if(Yii::app()->user->AccessType === "SUPERADMIN" && $model->scenario === 'insert') {
+			$_clients = Clients::model()->active()->findAll();
+		} else {
+			$_clients = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>'ClientId='.$clientsID.''));
+		}
+		
+		$clients = array();
+		foreach($_clients as $row) {
+			$clients[$row->ClientId] = $row->CompanyName;
+
+		}
+
 		if(isset($_POST['RewardDetails']))
 		{
+			$old_attrs = @var_export($model->attributes,1);
+			
 			$model->attributes=$_POST['RewardDetails'];
-			
-			
-			//get points id
-	
-			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			
-			if($model->save())
+			// check if inventory is greater than 0
+
+			if ($model->attributes['Inventory'] >= 0)
 			{
-				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
-				$this->redirect(array('view','id'=>$model->RewardConfigId));
+				//get points id
+				$new_attrs = @var_export($model->attributes,1);
+				$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
+				
+				
+				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+				$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+				
+				if($model->save())
+				{
+					$utilLog = new Utils;
+					$utilLog->saveAuditLogs(null,$audit_logs);
+					$this->redirect(array('view','id'=>$model->RewardConfigId));
+				}
+			}
+			else
+			{
+				$model->addError('Inventory', 'Please enter greater than or equal to zero.');
 			}
 		}
 
 		$this->render('update',array(
 			'model'=>$model,
+			'client_list'  => $clients,
 		));
 	}
 

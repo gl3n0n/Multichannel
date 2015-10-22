@@ -45,10 +45,22 @@
 
 		//fmt
 		$name        = '/var/www/html/multichannel-api/coupon/qr_codes/coup' . $result['generatedcouponid'] . '.png';
-		$url         = sprintf("%s/redeem?generated_coupon_id=%s",$result['couponurl'],$result['generatedcouponid']);
-		
+		if ($result['couponurl'] != '')
+		{
+			$url1        = "http://104.156.53.150/multichannel-api/coupon/redeem?generated_coupon_id=" . $result['generatedcouponid'];
+			$url2        = sprintf("%s/%s",$result['couponurl'],$result['generatedcouponid']);
+			// $url_to_call = (strlen(trim($result['couponurl']))>0) ? ($url2): ($url1);
+		}
+		else
+		{
+			$url2 = $result['code'];
+		}
+		// echo '<pre>';
+		// print_R($result);
+		// echo "URL:: ". $url2;
+		// exit();
 		//echo $url_to_call;
-		QRcode::png($url,$name);
+		QRcode::png($url2,$name);
 		$fp = fopen($name, 'rb');
 		header("Content-Type: image/png");
 		header("Content-Length: " . filesize($name));
