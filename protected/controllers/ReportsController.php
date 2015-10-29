@@ -119,7 +119,11 @@ class ReportsController extends Controller
 		{
 			$filterSrch++;
 			$criteria->with = array(
-				'byClients' => array('joinType'=>'LEFT JOIN'),
+				'pointlogChannels' => array('joinType'=>'LEFT JOIN'),
+				'pointlogCampaigns' => array('joinType'=>'LEFT JOIN'),
+				'pointlogBrands'    => array('joinType'=>'LEFT JOIN'),
+				'pointlogCustomers'    => array('joinType'=>'LEFT JOIN'),
+
 			);
 			$criteria->addCondition(" (
 						 pointlogCustomers.Email     LIKE '%".addslashes($byCustomerName)."%' OR

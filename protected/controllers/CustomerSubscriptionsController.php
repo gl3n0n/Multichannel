@@ -159,7 +159,7 @@ class CustomerSubscriptionsController extends Controller
 				$criteria->with = array(
 					'subsChannels' => array('joinType'=>'LEFT JOIN'),
 				);
-				$criteria->addCondition(" subsChannels.ChannelName LIKE '%".addslashes($search)."%' ");
+				// $criteria->addCondition(" subsChannels.ChannelName LIKE '%".addslashes($search)."%' ");
 			}
 
 			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 

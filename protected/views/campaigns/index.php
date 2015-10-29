@@ -31,25 +31,34 @@ $this->menu=array(
 	'columns'=>array(
 	'CampaignId',
 	//'ClientId',
-	array(
-	'name' => 'ClientId',
-	'value'=> '$data->campaignClients->CompanyName',
-	),
+	
 	//'BrandId',
 	array(
-	'name' => 'BrandId',
+	'name' => 'Brand Name',
 	'value'=> '$data->campaignBrands->BrandName',
 	),
 	//'CampaignName',
 	array(
-	'name'  => 'CampaignName',
+	'name'  => 'Campaign Name',
 	'value' => 'CHtml::link($data->CampaignName,Yii::app()->createUrl("campaigns/update",array("id"=>$data->primaryKey)))',
 	'type'  => 'raw',
 	),	
-	'Description',
-	'DurationFrom',
-	'DurationTo',
-	'Type',
+	array(
+	'name' => 'Campaign Description',
+	'value'=> '$data->Description',
+	),
+	array(
+	'name' => 'Client Name',
+	'value'=> '$data->campaignClients->CompanyName',
+	),
+	array(
+	'name' => 'Start Date',
+	'value'=> '$data->DurationFrom',
+	),
+	array(
+	'name' => 'End Date',
+	'value'=> '$data->DurationTo',
+	),
 	'Status',
 	'DateCreated',
 	//'CreatedBy',

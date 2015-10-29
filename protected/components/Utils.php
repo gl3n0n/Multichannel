@@ -33,7 +33,7 @@ class Utils extends CApplicationComponent
 		return $retv;
 	}
 
-	public function saveAuditLogs($mod=null)
+	public function saveAuditLogs($mod=null,$attrs=null)
 	{
 		$model = new AuditLogs;
 		$vPost = @var_export($_POST,true);
@@ -76,7 +76,7 @@ class Utils extends CApplicationComponent
 		$model->setAttribute("UserAgent", $vAgent);
 		$model->setAttribute("IPAddr",    $vIP);
 		$model->setAttribute("UrlData",   sprintf("URL:\n%s\nREQ:\n%s\n%s",$vUrls,$vReq,$mod));
-		$model->setAttribute("UrlQry",    $vQry);
+		$model->setAttribute("UrlQry",    $attrs);
 
 		$model->setAttribute("ModPage",   $vPage);
 		$model->setAttribute("ModAction", $vAct);
@@ -89,5 +89,47 @@ class Utils extends CApplicationComponent
                 }
 		
 	}
+	
+	public function fmt_csv($cols=array())
+	{
+		//$hdr = sprintf('="CUSTOMER ID",="POINTS",="",');
+		return sprintf('="%s",="",',join('",="',$cols));
+	}
+	
+	public function push_xls_download($csv='')
+	{
+		//throw csv as download			
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/msexcel');
+		header('Content-Disposition: attachment; filename='.basename($csv));
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		header('Content-Length: '. filesize($csv));
+		@flush();
+		readfile($csv);
+	
+	}
+
+	public function io_save($fname='', $body='', $mode = 'w')
+	{
+		//mode of fopen
+		$mode  = @preg_match("/^(a|append)$/i", $mode) ? ('a') :  ('w');
+
+		//open it
+		$fh = fopen($fname, $mode);
+		if($fh)
+		{
+			fwrite($fh, $body);
+			fclose($fh); 
+			$is_ok  = true;
+
+		}
+
+		//give it back ;-)
+		return $is_ok;
+
+	}
+
 }
 ?>

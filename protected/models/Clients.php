@@ -42,7 +42,7 @@ class Clients extends CActiveRecord
 			array('CompanyName', 'length', 'max'=>32),
 			array('Address', 'length', 'max'=>255),
 			array('Email', 'length', 'max'=>50),
-			//array('Landline', 'length', 'max'=>30),
+			array('Landline', 'length', 'max'=>30),
 			array('Status', 'length', 'max'=>8),
 			array('Status', 'in', 'range'=>array(
 				self::STATUS_ACTIVE, 

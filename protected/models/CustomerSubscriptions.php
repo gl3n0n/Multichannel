@@ -61,6 +61,7 @@ class CustomerSubscriptions extends CActiveRecord
 			'subsUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
 			'subsCustomers'=>array(self::BELONGS_TO, 'Customers', 'CustomerId'),
 			'subsCustPoints'=>array(self::BELONGS_TO, 'CustomerPoints', 'SubscriptionId'),
+			'subsPoints'=>array(self::BELONGS_TO, 'PointsSystem', 'PointsId'),
 		);
 	}
 	

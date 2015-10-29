@@ -27,7 +27,7 @@ $this->menu=array(
 		array(
 			'name'=>'Image',
 			'type'=>'raw',
-			'value'=> CHtml::image($model->Image),
+			'value'=> CHtml::image($model->Image,'Rewards List',array('border'=>'0px','width'=>'200px','height'=>'200px')),
 			),
 		array(
 			'name' => 'ClientId',

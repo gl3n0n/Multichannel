@@ -77,8 +77,9 @@ class ReportsList extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'PointLogId' => 'Point Log ID',
-			'CustomerId' => 'Customer Name',
+			'PointLogId'   => 'Point Log Id',
+			'CustomerName' => 'Customer Name',
+			'CustomerId' => 'Customer Id',
 			'Email'      => 'Email',
 			'SubscriptionId' => 'Subscription',
 			'ClientId'    => 'Client Name',

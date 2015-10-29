@@ -17,12 +17,19 @@ $this->menu=array(
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("RewardDetails/index"),
 	'method'=>'get',
-)); ?>
-	<fieldset>
-		<legend>Search Name</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Name" title="Search Name">
-		<button type="submit">Search</button>
-	</fieldset>
+)); 
+
+
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-byname-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-from-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-to-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bystatus-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+
+
+?>
+
 <?php $this->endWidget(); ?>
 </div>
 
@@ -36,10 +43,6 @@ $this->menu=array(
 		),
 		'Name',
 		array(
-			'name' => 'RewardId',
-			'value'=> '$data->byRewards!=null?($data->byRewards->Title):("")',
-			),
-		array(
 			'name' => 'PointsId',
 			'value'=> '$data->byPointsSystem!=null?($data->byPointsSystem->Name):("")',
 			),
@@ -47,9 +50,13 @@ $this->menu=array(
 			'name' => 'ClientId',
 			'value'=> '$data->byClients!=null?($data->byClients->CompanyName):("")',
 			),
+		array(
+			'name' => 'RewardId',
+			'value'=> '$data->byRewards!=null?($data->byRewards->Title):("")',
+			),
 		'Inventory',
-		'Limitations',
 		'Value',
+		'Limitations',
 		'StartDate',
 		'EndDate',
 		'Status',

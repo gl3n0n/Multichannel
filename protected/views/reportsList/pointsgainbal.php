@@ -18,6 +18,29 @@ if(1)
 	);
 }
 ?>
+<script>
+function downloadCSV(csvPath) 
+{
+	var iframe;
+	iframe = document.getElementById("csvdownloader");
+	if (iframe == null) {
+		iframe = document.createElement('iframe');
+		iframe.id = "csvdownloader";
+		iframe.style.visibility = 'hidden';
+		document.body.appendChild(iframe);
+	}
+	iframe.src = csvPath;
+	return true;
+}
+$( document ).ready(function() {
+    //$("#reportFilter").show();
+    $("#DIVFILTER").click(function(){
+	$("#reportFilter").toggle();
+    });
+});
+</script>
+
+
 
 <h1>Breakdown of Points Gained</h1>
 <div>
@@ -33,7 +56,39 @@ if(1)
 <?php $this->endWidget(); ?>
 </div>
 <br/>
+<div>
+<?php 
+if(!empty($downloadCSV))
+{
+
+?>
+	<div>
+	<fieldset class='filterSrch'>
+	<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl("reportsList/index"),
+		'method'=>'get',
+	)); ?>
+		<fieldset class='filterSrch'>
+			<legend>CSV</legend>
+			<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("reportsList/csv")?>/?fn=<?php echo $downloadCSV?>');">
+			DOWNLOAD CSV 
+			</a>
+		</fieldset>
+
+		<iframe id="csvdownloader" style="display:none"
+		 width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
+	<?php $this->endWidget(); ?>
+	</fieldset>
+</div>
+<?php
+}//show download
+?>
+</div>
 <br/>
+<br/>
+
+
+
 
 <?php
 $sumall = 0;

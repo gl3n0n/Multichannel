@@ -42,11 +42,13 @@ $this->menu=array(
 		'Address',
 		'Email',
 		'FBId',
+		'TwitterHandle',
 		array(
 		'name' => 'Total Points',
 		'type'=>'raw',
-		'value'=> CHtml::link("$total (View Logs)", Yii::app()->createUrl("reports/customeractivity/?customer_id=".$model->CustomerId)),
+		'value'=> CHtml::link("$total (View Logs)", Yii::app()->createUrl("reportsList/customeractivity/?customer_id=".$model->CustomerId)),
 		),
+		'Status',
 
 	),
 )); ?>

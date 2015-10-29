@@ -59,12 +59,21 @@ if(Yii::app()->user->AccessType === 'SUPERADMIN' && $model->scenario === 'insert
         <?php echo $form->error($model,'ClientId'); ?>
     </div>
     <?php endif; ?>
+	
+	<?php if($model->scenario === 'insert'): ?>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'BrandId'); ?>
 		<?php echo $form->dropDownList($model,'BrandId',$brand_list, array('empty'=>'--Select brand--')); ?>
 		<?php echo $form->error($model,'BrandId'); ?>
 	</div>
+	<?php else: ?>
+	<div class="row">
+        <?php echo $form->labelEx($model,'BrandId'); ?>
+        <?php echo $model->campaignBrands->BrandName ?>
+        <?php echo $form->error($model,'BrandId'); ?>
+    </div>
+		<?php endif; ?>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'CampaignName'); ?>

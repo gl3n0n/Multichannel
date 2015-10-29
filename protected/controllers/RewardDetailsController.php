@@ -97,7 +97,7 @@ class RewardDetailsController extends Controller
 
 			// check if inventory is greater than 0
 
-			if ($model->attributes['Inventory'] >= 0)
+			if(@intval($model->attributes['Inventory']) >= 0)
 			{
 				//get points id
 				$RewardId = '';
@@ -111,6 +111,7 @@ class RewardDetailsController extends Controller
 				list($PointsId, $ClientId  ) = @explode('-',trim($_POST['RewardDetails']['PointsId']));
 				
 				//save it
+				$model->setAttribute("Inventory",   @intval($model->attributes['Inventory']));
 				$model->setAttribute("RewardId",    $RewardId);
 				$model->setAttribute("PointsId",    $PointsId);
 				$model->setAttribute("ClientId",    $ClientId);
@@ -310,13 +311,13 @@ class RewardDetailsController extends Controller
 			$model->attributes=$_POST['RewardDetails'];
 			// check if inventory is greater than 0
 
-			if ($model->attributes['Inventory'] >= 0)
+			if (@intval($model->attributes['Inventory']) >= 0)
 			{
 				//get points id
 				$new_attrs = @var_export($model->attributes,1);
 				$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
 				
-				
+				$model->setAttribute("Inventory",   @intval($model->attributes['Inventory']));
 				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 				$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 				
@@ -358,21 +359,47 @@ class RewardDetailsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		/*
-		$dataProvider=new CActiveDataProvider('RewardDetails');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-		*/
-		
-		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
-		if(strlen($search))
+
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
 		{
-			$criteria->addCondition(" (
-			 	t.Name     LIKE '%".addslashes($search)."%' 
-			 ) ");
+		  $t = addslashes($byName);
+			$criteria->addCondition(" ( t.Name LIKE '%$t%' ) ");
 		}			
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+		//date: 
+		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateFr))
+		{
+			$t = addslashes($byTranDateFr);
+			$criteria->addCondition(" ( t.StartDate >= '$t 00:00:00' ) ");
+		}
+		//date: 
+		$byTranDateTo = trim(Yii::app()->request->getParam('byTranDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateTo))
+		{
+			$t = addslashes($byTranDateTo);
+			$criteria->addCondition(" ( t.EndDate <= '$t 23:59:59' ) ");
+		}		
+
 
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('RewardDetails', array(

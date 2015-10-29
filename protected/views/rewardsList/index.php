@@ -17,12 +17,17 @@ $this->menu=array(
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("rewardsList/index"),
 	'method'=>'get',
-)); ?>
-	<fieldset>
-		<legend>Search Title</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Title" title="Search Title">
-		<button type="submit">Search</button>
-	</fieldset>
+)); 
+
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bytitle-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-from-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-to-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bystatus-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+
+?>
+	
 <?php $this->endWidget(); ?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
@@ -39,17 +44,17 @@ $this->menu=array(
 	'Title',
 	'Description',
 	array(
-	'name' => 'Image',
-	'type' => 'raw',
-	'value'=> 'CHtml::link('.
-		  'CHtml::image($data->Image,"",array("width"=>"120px"))'.
-		  ',$data->Image)',
-	),
-	array(
 		'name' => 'ClientId',
 		'value'=> '($data->rewardClients != null )?($data->rewardClients->CompanyName):("")',
 		),
 	'Availability',
+	array(
+	'name' => 'Image',
+	'type' => 'raw',
+	'value'=> 'CHtml::link('.
+		  'CHtml::image($data->Image,"",array("width"=>"120px" ,"height"=>"120px"))'.
+		  ',$data->Image)',
+	),
 	'Status',
 	'DateCreated',
 	array(

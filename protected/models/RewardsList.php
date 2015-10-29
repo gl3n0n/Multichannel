@@ -33,7 +33,7 @@ class RewardsList extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('Title, Description, Availability, Image', 'required'),
+			array('ClientId,Title, Description, Availability, Image', 'required'),
 			array('CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
 			array('Title, Description', 'length', 'max'=>255),
 			array('Status', 'length', 'max'=>8),

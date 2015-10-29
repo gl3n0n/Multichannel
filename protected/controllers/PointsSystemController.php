@@ -136,21 +136,28 @@ class PointsSystemController extends Controller
 		//NOTE: this will need to be modified to prevent users from other clients from viewing others' records
 		$model=$this->loadModel($id);
 
-
+		$old_attrs = @var_export($model->attributes,1);
+		
 		if(isset($_POST['PointsSystem']))
 		{
 			$model->attributes=$_POST['PointsSystem'];
 			
+			$new_attrs = @var_export($model->attributes,1);
+			$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
+			
 			//reset the campaignId
 			// $model->setAttribute("Status", 'ACTIVE');
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			if(Yii::app()->user->AccessType !== "SUPERADMIN"){
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			}
+
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 
 			if($model->save())
 			{
 				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
+				$utilLog->saveAuditLogs(null,$audit_logs);
 				$this->redirect(array('view','id'=>$model->PointsId));
 			}
 		}
@@ -189,15 +196,34 @@ class PointsSystemController extends Controller
 	public function actionIndex()
 	{
 
-		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
-		if(strlen($search))
+		
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
 		{
 			$criteria->addCondition(" (
-			 	t.Name     LIKE '%".addslashes($search)."%' 
+			 	t.Name     LIKE '%".addslashes($byName)."%' 
 			 ) ");
 		}			
-
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('PointsSystem', array(
 				'criteria'=>$criteria ,

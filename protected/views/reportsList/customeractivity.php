@@ -18,7 +18,29 @@ if(1)
 	);
 }
 ?>
-<h1>Customer Activity</h1>
+<script>
+function downloadCSV(csvPath) 
+{
+	var iframe;
+	iframe = document.getElementById("csvdownloader");
+	if (iframe == null) {
+		iframe = document.createElement('iframe');
+		iframe.id = "csvdownloader";
+		iframe.style.visibility = 'hidden';
+		document.body.appendChild(iframe);
+	}
+	iframe.src = csvPath;
+	return true;
+}
+$( document ).ready(function() {
+    //$("#reportFilter").show();
+    $("#DIVFILTER").click(function(){
+	$("#reportFilter").toggle();
+    });
+});
+</script>
+
+<h1>Customer Activity History</h1>
 <div>
 <?php 
 if($this->statusMsg != null)
@@ -28,11 +50,20 @@ if($this->statusMsg != null)
 $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("reportsList/customeractivity"),
 	'method'=>'get',
-)); ?>
+)); 
+?>
 	<fieldset>
 		<legend>Search By Customer</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Customer" title="Search Customer">
+		<input type="text" 
+		id='search' 
+		name="search" 
+		placeholder="Customer" 
+		title="Search Customer"
+		value="<?=Yii::app()->request->getParam('search')?>"
+		/>
 		<button type="submit">Search</button>
+		<br/>
+		<br/>
 	</fieldset>
 <?php $this->endWidget(); ?>
 <script>
@@ -42,22 +73,40 @@ $form=$this->beginWidget('CActiveForm', array(
     {
     	document.getElementById("mainFrm"+id).submit();
     }
-
-
-</script>
-
+</script>	
 </div>
+<div>
 <?php 
-if(0)
+if(!empty($downloadCSV))
 {
-	foreach($dataProvider->getData() as $row)
-	{
-	echo "<hr>";
-	echo @var_export($row,true);
-	}
-	exit;
-}
 
+?>
+	<div>
+	<fieldset class='filterSrch'>
+	<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl("reportsList/index"),
+		'method'=>'get',
+	)); ?>
+		<fieldset class='filterSrch'>
+			<legend>CSV</legend>
+			<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("reportsList/csv")?>/?fn=<?php echo $downloadCSV?>');">
+			DOWNLOAD CSV 
+			</a>
+		</fieldset>
+
+		<iframe id="csvdownloader" style="display:none"
+		 width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
+	<?php $this->endWidget(); ?>
+	</fieldset>
+</div>
+<?php
+}//show download
+?>
+</div>
+
+
+
+<?php 
 $this->widget('CGridViewEtc', array(
 	'id' => 'gen-approve-view',
 	'dataProvider'=>$dataProvider,
@@ -65,62 +114,36 @@ $this->widget('CGridViewEtc', array(
 	'etc' => $mapping,
 	'columns'=>array(
 		array(
-			'name' => 'Subscription',
-			'type' =>'raw',
-			//'value'=> 'CHtml::link($data["SubscriptionId"], "../reportsList/subcriptionsum/?subscribid=".$data["SubscriptionId"])',
-			'value' => 'CHtml::link($data["SubscriptionId"],Yii::app()->createUrl("reportsList/subcriptionsum",array("subscribid"=>$data["SubscriptionId"])))'
-			),
+		'name' => 'Customer Id',
+		'value' => 'CHtml::link($data["CustomerId"],
+			    Yii::app()->createUrl("reportsList/custhistory/".$data["CustomerId"]))',
+		'type'  => 'raw',
+		),		
 		array(
-			'name' => 'Customer ID',
-			'type' => 'raw',
-			'value'=> '$data["CustomerId"]',
-		), 
+		'name' => 'Customer Name',
+		'value' => '$data["CustomerName"]',
+		),	
 		array(
-			'name' => 'Customer Name',
-			'type' => 'raw',
-			'value'=> '$data["FirstName"] . " " .  $data["LastName"]',
-		), 
-		array(
-			'name' => 'Client',
-			'type' => 'raw',
-			'value'=> '$data["CompanyName"]',
-		), 		
-		array(
-			'name' => 'Brand',
-			'type' => 'raw',
-			'value'=> '$data["BrandName"]',
-		), 		
-		array(
-			'name' => 'Campaign',
-			'type' => 'raw',
-			'value'=> '$data["CampaignName"]',
-		), 		
-		array(
-			'name' => 'Channel',
-			'type' => 'raw',
-			'value'=> '$data["ChannelName"]',
-		), 				
-		array(
+		'name' => 'Customer',
+		'value' => '$data["Email"]',
+		),
+		/**array(
+		'name'  => 'Points System',
+		'value' => 'CHtml::link($data["PointsSystemName"],
+			    Yii::app()->createUrl("reportsList/ptslog/".$data["PointsId"]))',
+		'type'  => 'raw',
+		),	
+        array(
 		    'name'  => 'Balance',
 		    'type'  => 'raw',
 		    'value'=> '$data["Balance"]',
 		),
 		array(
-		    'name'  => 'Used',
+		    'name'  => 'Last Activity',
 		    'type'  => 'raw',
-		    'value'=> '$data["Used"]',
-		),
-		array(
-		    'name'  => 'Total',
-		    'type'  => 'raw',
-		    'value'=> '$data["Total"]',
-		),
-		/**
-		array(
-		    'name'  => 'Points',
-		    'type'  => 'raw',
-		    'value'=> '$data["Points"]',
+		    'value'=> '$data["PointsSystemDate"]',
 		),**/
+		'DateCreated',
 	),
 )); 
 

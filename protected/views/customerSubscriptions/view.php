@@ -22,7 +22,10 @@ $this->menu=array(
 	'data'=>$model,
 	'attributes'=>array(
 		'SubscriptionId',
-		'CustomerId',
+		array(
+		'name'  => 'CustomerId',
+		'value' => sprintf("%s %s",$model->subsCustomers->LastName,$model->subsCustomers->FirstName),
+		),
 		array(
 			'name' => 'ClientId',
 			'value' => $model->subsClients->CompanyName,
@@ -36,9 +39,9 @@ $this->menu=array(
 			'value' => $model->subsCampaigns->CampaignName,
 			),
 		array(
-			'name' => 'ChannelId',
-			'value' => $model->subsChannels->ChannelName,
-			),
-		'Status',
+			'name' => 'Point System Name',
+			'value' => ($model->subsPoints!=null)?($model->subsPoints->Name):(""),
+			),			
+			'Status',
 	),
 )); ?>

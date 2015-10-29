@@ -59,8 +59,36 @@ class CouponSystemController extends Controller
 	public function actionView($id)
 	{
 		$model = CouponSystem::model()->findByPk($id);
+		
+		
+		if(1)
+		{
+				$t        = addslashes($id);
+				$rawSql   = "
+					SELECT   
+						gen.*
+					FROM 
+						generated_coupons gen
+					WHERE   1=1
+						AND gen.CouponId   = '$t'
+					ORDER BY gen.DateRedeemed DESC
+				";		
+				$rawData  = Yii::app()->db->createCommand($rawSql); 
+				$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+				$dataProvider    = new CSqlDataProvider($rawData, array(
+								'keyField'       => 'GeneratedCouponId',
+								'totalItemCount' => $rawCount,
+								)
+			);
+		
+		}
+		
+	    //get csv
+		$csv = $this->formatCsvCoupons($rawSql,null,null);
+    
 		$this->render('view',array(
-					'model'=>$model,
+					'model'        => $model,
+					'downloadCSV'  => (@intval($csv['total'])>0)?($csv['fn']):(''),
 					));
 	}
 
@@ -253,7 +281,8 @@ class CouponSystemController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-
+		$old_attrs = @var_export($model->attributes,1);
+		
 		if(0)
 		{
 			echo "<pre>" . @var_export($model,1)."</pre>";
@@ -279,6 +308,8 @@ class CouponSystemController extends Controller
 				if(intval($_POST['CouponSystem']['Quantity']) < intval($model->Quantity) ) {
 					$model->addError('error', 'Quantity must be more than the current value.');
 				} else {
+					if(intval($_POST['CouponSystem']['Quantity']) > intval($model->Quantity) )
+						$model->edit_flag = "1";
 					$model->Quantity = $_POST['CouponSystem']['Quantity'];
 				}
 			}
@@ -299,6 +330,7 @@ class CouponSystemController extends Controller
 					if($UploadFile !== null) 
 					{
 						$UploadFile->saveAs(Yii::app()->params['uploadImageDir'] . 'coupon/'  . $imageFilename);
+						$model->edit_flag = "1";
 					}
 				} 
 				catch (Exception $ex) 
@@ -324,8 +356,10 @@ class CouponSystemController extends Controller
 			}
 
 			$model->ExpiryDate = $_POST['CouponSystem']['ExpiryDate'];
+			$model->CouponName = $_POST['CouponSystem']['CouponName'];
+			$model->Status = $_POST['CouponSystem']['Status'];
 
-			if($model->Status==='ACTIVE') $model->edit_flag = "1";
+			// if($model->Status==='ACTIVE') $model->edit_flag = "1";
 
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
@@ -336,6 +370,9 @@ class CouponSystemController extends Controller
 			if(! $model->hasErrors())
 			{
 				$transaction = Yii::app()->db->beginTransaction();
+
+				$new_attrs = @var_export($model->attributes,1);
+				$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
 
 				try {
 					//echo '<pre>';
@@ -358,7 +395,7 @@ class CouponSystemController extends Controller
 							Yii::app()->user->setFlash('success','Coupon saved.');
 							$transaction->commit();
 							$utilLog = new Utils;
-							$utilLog->saveAuditLogs();
+							$utilLog->saveAuditLogs(null,$audit_logs);
 							$this->actionIndex();
 							return;
 						} else {
@@ -403,59 +440,74 @@ class CouponSystemController extends Controller
 	public function actionIndex()
 	{
 
-		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
-		if($search) $criteria->compare('Source', $search, true);
 
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')
 		{
 				//relations
-				$criteria->condition =  " t.ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
+				$t = addslashes(Yii::app()->user->ClientId);
+				$criteria->addCondition(" ( t.ClientId = '$t' ) ");
 		}
 
-		//get 
-		if(Yii::app()->utils->getUserInfo('AccessType') == 'SUPERADMIN')
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
 		{
-				$criteria->with = array(
-				'byClients'  => array('joinType'=>'LEFT JOIN'),
-				);
-				//byClient
-				$byClient      = trim(Yii::app()->request->getParam('byClient'));
-				if(strlen($byClient))
-				{
-					$byClient = addslashes($byClient);
-					$criteria->addCondition(" ( byClients.CompanyName  LIKE '%$byClient%' ) ");
-				}
-				//byExpiryDate
-				$byExpiryDateFr  = trim(Yii::app()->request->getParam('byExpiryDateFr'));
-				if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byExpiryDateFr))
-				{
-					$dt = addslashes($byExpiryDateFr);
-					$criteria->condition =  " ( t.ExpiryDate >= '$dt' ) ";
-				}
-				$byExpiryDateTo  = trim(Yii::app()->request->getParam('byExpiryDateTo'));
-				if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byExpiryDateTo))
-				{
-					$dt = addslashes($byExpiryDateTo);
-					$criteria->condition =  " ( t.ExpiryDate <= '$dt' ) ";
-				}
-				
-				//byCouponType
-				$byCouponType  = trim(Yii::app()->request->getParam('byCouponType'));
-				if(strlen($byCouponType))
-				{
-					$dt = addslashes($byCouponType);
-					$criteria->condition =  " ( t.CouponType IN ('$dt') ) ";	
-				}
-			
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
 		}
+		
+		//byExpiryDate
+		$byExpiryDateFr  = trim(Yii::app()->request->getParam('byExpiryDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byExpiryDateFr))
+		{
+			$dt = addslashes($byExpiryDateFr);
+			$criteria->addCondition(" ( t.ExpiryDate >= '$dt 00:00:00' ) " );
+		}
+		$byExpiryDateTo  = trim(Yii::app()->request->getParam('byExpiryDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byExpiryDateTo))
+		{
+			$dt = addslashes($byExpiryDateTo);
+			$criteria->addCondition(" ( t.ExpiryDate <= '$dt 23:59:59' ) " );
+		}
+
+		//CouponName
+		$byCouponName  = trim(Yii::app()->request->getParam('byCouponName'));
+		if(strlen($byCouponName))
+		{
+			$t = addslashes($byCouponName);
+			$criteria->addCondition(" ( t.CouponName LIKE '%$t%' ) " );	
+		}
+		
+		//byCouponType
+		$byCouponType  = trim(Yii::app()->request->getParam('byCouponType'));
+		if(strlen($byCouponType))
+		{
+			$dt = addslashes($byCouponType);
+			$criteria->addCondition(" ( t.CouponType IN ('$dt') ) " );	
+		}
+		
+		//points-name
+		$byPointsName = trim(Yii::app()->request->getParam('byPointsName'));
+		if(strlen($byPointsName))
+		{
+			$criteria->with = array(
+					'byPoints'  => array('joinType'=>'LEFT JOIN'),
+			);
+			$t = addslashes($byPointsName);
+			$criteria->addCondition(" (  byPoints.Name LIKE '%$t%' )  ");
+		}
+		
 		//create data
 		$dataProvider = new CActiveDataProvider('CouponSystem', array(
 					'criteria'=>$criteria ,
 					));
 
 		if(0){
-			echo "####<hr>".@var_dump($criteria,true);
+			echo "####<hr><pre>".@var_dump($criteria,true)."</pre><hr>";
 			//echo "####<hr>".@var_dump($dataProvider->getData(),true);
 			exit;
 		}
@@ -463,8 +515,8 @@ class CouponSystemController extends Controller
 		$model=new CouponSystem('search');
 
 		$this->render('index',array(
-					'dataProvider'=>$dataProvider,
-					'model' => $model,
+					'dataProvider' => $dataProvider,
+					'model'        => $model,
 					));
 	}
 
@@ -645,9 +697,20 @@ class CouponSystemController extends Controller
 		//all-pending
 
 
-		$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
-		if($this->xuid >  0)
-			$uid  = $this->xuid ;
+		$uid        = @addslashes(trim(Yii::app()->request->getParam('uid')));
+		$couponName = '';
+		if($this->xuid >  0){
+			$uid    = $this->xuid ;
+		}
+		if($uid>0)
+		{
+			$xmodel = CouponSystem::model()->findByPk($uid);
+			if($xmodel!=null)
+			{
+				$couponName = $xmodel->CouponName;
+			}
+		}
+			
 
 
 		if(1){
@@ -656,8 +719,19 @@ class CouponSystemController extends Controller
 					GC.CouponId,
 					GC.GeneratedCouponId,
 					GC.Code,
-					GC.Status,
-					coupon.CouponName
+					coupon.CouponName,
+					coupon.CouponType,
+					IFNULL(GC.DateRedeemed,'N/A') as DateRedeemed,
+					(
+						case coupon.CouponType
+							when 'REGULAR' then 
+								IFNULL(coupon.PointsValue,0)
+							else
+								'N/A'
+						end
+					) as PointEquivalent,
+					coupon.ExpiryDate,
+					GC.Status
 				 FROM   generated_coupons GC
 					join points on points.PointsId = GC.PointsId 
 					join coupon on coupon.CouponId = GC.CouponId
@@ -689,10 +763,24 @@ class CouponSystemController extends Controller
 			exit;
 		}
 
+		$showColumns = array(
+			'GeneratedCouponId',
+			'CouponId',
+			'Code',
+			'CouponName',
+			'CouponType',
+			'DateRedeemed',
+			'PointEquivalent',
+			'ExpiryDate',
+			'Status',
+		);
+		
+		$csv = $this->formatCsvGenCoupons('GeneratedCouponId',$showColumns, $rawSql, null, null);
 		$this->render('genapprove',array(
 					'dataProvider' => $dataProvider,
 					'mapping'      => $this->getMoreLists(),
-
+					'couponName'   => $couponName,
+					'downloadCSV'  => (@intval($csv['total'])>0)?($csv['fn']):(''),
 					));
 	}
 
@@ -967,6 +1055,145 @@ class CouponSystemController extends Controller
 		//give it back
 		return $data;
 	}
+
+	protected function formatCsvCoupons($rawSql, $criteria, $sort)
+	{
+		$fn   = sprintf("%s-GeneratedCoupons-%s-%s-%s.csv",Yii::app()->params['reportPfx'],@date("YmdHis"),uniqid(),md5(uniqid()));
+		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
+		
+		//ensure
+		if (!@file_exists(Yii::app()->params['reportCsv'])) {
+		    @mkdir(Yii::app()->params['reportCsv'], 0777, true);
+		}
+		
+		//fmt it her		
+		$rawData       = Yii::app()->db->createCommand($rawSql); 
+		$rawCount      = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dbprovider    = new CSqlDataProvider($rawData, array(
+				    'keyField'       => 'GeneratedCouponId',
+				    'totalItemCount' => $rawCount,
+				    'sort'           => $sort,
+				    )
+		);
+
+		//set
+		$dbprovider->setPagination(false);
+		$total = 0;
+		
+		//hdr
+		$hdr_ttl = array("SEQ. NO.",
+				 "COUPON ID",
+				 "CODE",
+				 "STATUS",
+				 "DATE CREATED",
+			 );
+
+		$utils = new Utils;
+		$hdr   = $utils->fmt_csv($hdr_ttl);
+		
+		$utils->io_save($csv, str_replace("\n",'', $hdr)."\n",'a');
+		$total = 0;
+		//get csv
+		foreach($dbprovider->getData() as $row) 
+		{
+			
+			$total++;
+			//customer
+			$GeneratedCouponId = $row["GeneratedCouponId"];
+			$CouponId          = $row["CouponId"];
+			$Code              = $row["Code"];
+			$Status            = $row["Status"];
+			
+			//hdr
+			$ts                = $row["DateCreated"];
+						           
+
+			//fmt
+			$udata   = array();
+			$udata[] = trim($total     );
+			$udata[] = trim($CouponId  );
+			$udata[] = trim($Code      );   
+			$udata[] = trim($Status    );   
+			$udata[] = trim($ts        );  
+			
+			//fmt
+			$str   = $utils->fmt_csv($udata);
+
+			$utils->io_save($csv, str_replace("\n",'', $str)."\n",'a');
+		}
+		
+		//give it back
+		return array(
+			'total' => $total,
+			'fn'    => $fn
+		);
+	}
+
+
+
+	protected function formatCsvGenCoupons($keyField,$showColumns, $rawSql, $criteria, $sort)
+	{
+		$fn   = sprintf("%s-GeneratedCoup-%s-%s-%s.csv",Yii::app()->params['reportPfx'],@date("YmdHis"),uniqid(),md5(uniqid()));
+		$csv  = Yii::app()->params['reportCsv'].DIRECTORY_SEPARATOR."$fn";
+		
+		//ensure
+		if (!@file_exists(Yii::app()->params['reportCsv'])) {
+		    @mkdir(Yii::app()->params['reportCsv'], 0777, true);
+		}
+		
+		//fmt it her		
+		$rawData       = Yii::app()->db->createCommand($rawSql); 
+		$rawCount      = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+		$dbprovider    = new CSqlDataProvider($rawData, array(
+				    'keyField'       => $keyField,
+				    'totalItemCount' => $rawCount,
+				    'sort'           => $sort,
+				    )
+		);
+
+		//set
+		$dbprovider->setPagination(false);
+		$total = 0;
+		
+		//set
+		$dbprovider->setPagination(false);
+		$total = 0;
+		
+		//hdr
+		$hdr_ttl = $showColumns;
+
+		$utils = new Utils;
+		$hdr   = $utils->fmt_csv($hdr_ttl);
+		
+		$utils->io_save($csv, str_replace("\n",'', $hdr)."\n",'a');
+		$total = 0;
+		
+		//get csv
+		foreach($dbprovider->getData() as $row) 
+		{
+			
+			$total++;
+			
+			//fmt
+			$udata   = array();
+			foreach($showColumns as $col)
+			{
+			$udata[] = trim($row["$col"]);
+			}
+			//fmt
+			$str   = $utils->fmt_csv($udata);
+
+			$utils->io_save($csv, str_replace("\n",'', $str)."\n",'a');
+		}
+		
+		//give it back
+		return array(
+			'total' => $total,
+			'fn'    => $fn
+		);
+		
+	}
+
 
 
 	

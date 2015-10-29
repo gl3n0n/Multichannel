@@ -31,29 +31,39 @@ $this->menu=array(
 	'columns'=>array(
 	'BrandId',
 	//'ClientId',
+		
 	array(
-	'name' => 'ClientId',
-	'value'=> '$data->clientBrands->CompanyName',
-	),
-	array(
-		'name'  => 'BrandName',
+		'name'  => 'Brand Name',
 		'value' => 'CHtml::link($data->BrandName,Yii::app()->createUrl("brands/update",array("id"=>$data->primaryKey)))',
 		'type'  => 'raw',
 	),
-	'Description',
-	'DurationFrom',
-	'DurationTo',
+	array(
+	'name' => 'Brand Description',
+	'value'=> '$data->Description',
+	),
+	array(
+	'name' => 'Client Name',
+	'value'=> '$data->clientBrands->CompanyName',
+	),
+	array(
+	'name' => 'Date From',
+	'value'=> '$data->DurationFrom',
+	),
+	array(
+	'name' => 'Date To',
+	'value'=> '$data->DurationTo',
+	),
 	'Status',
 	'DateCreated',
-	//'CreatedBy',
+	// 'CreatedBy',
 	array(
-		'name' => 'CreatedBy',
+		'name' => 'Created By',
 		'value'=> '$data->brandCreateUsers->Username',
 	),
 	'DateUpdated',
 	//'UpdatedBy',
 	array(
-		'name' => 'UpdatedBy',
+		'name' => 'Updated By',
 		'value'=> '$data->brandUpdateUsers->Username',
 	),
 	),

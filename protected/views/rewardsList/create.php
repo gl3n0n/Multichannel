@@ -15,4 +15,4 @@ $this->menu=array(
 
 <h1>Create RewardsList</h1>
 
-<?php $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php $this->renderPartial('_form', array('model'=>$model,'client_list'=>$client_list)); ?>

@@ -33,11 +33,18 @@ $this->breadcrumbs=array(
 		<table>
 			<thead>
 				<tr>
+					<th>UserID</th>
 					<th>Username</th>
 					<th>First Name</th>
 					<th>Last Name</th>
+					<th>Email</th>
 					<th>Access Type</th>
+					<th>Client Name</th>
 					<th>Status</th>
+					<th>Date Created</th>
+					<th>Created By</th>
+					<th>Date Updated</th>
+					<th>Updated By</th>
 				</tr>
 			</thead>
 			<tbody id="users-list-body">

@@ -7,12 +7,12 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	// array('label'=>'Create CustomerSubscriptions', 'url'=>array('create')),
+	array('label'=>'List Customers', 'url'=>array('/customers')),
 	// array('label'=>'Manage CustomerSubscriptions', 'url'=>array('admin')),
 );
 ?>
 
-<h1>Customer Reports</h1>
+<h1>Customer Subscriptions</h1>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("customerSubscriptions/index"),
@@ -29,28 +29,37 @@ $this->menu=array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-		'SubscriptionId',
-		//'CustomerId',
 		array(
-		'name' => 'CustomerId',
-		'value' => '$data->subsCustomers->FirstName',
+			'name'  => 'Subscription Id',
+			'value' => 'CHtml::link($data->SubscriptionId,Yii::app()->createUrl("customerSubscriptions/view",array("id"=>$data->primaryKey)))',
+			'type'  => 'raw',
 		),
 		array(
-			'name' => 'ClientId',
+		'name' => 'Customer Name',
+		'value' => '$data->subsCustomers->FirstName . $data->subsCustomers->LastName',
+		),
+		array(
+			'name' => 'Client Name',
 			'value' => '$data->subsClients->CompanyName',
 			),
 		array(
-			'name' => 'BrandId',
+			'name' => 'Brand Name',
 			'value' => '$data->subsBrands->BrandName',
 			),
 		array(
-			'name' => 'CampaignId',
+			'name' => 'Campaign Name',
 			'value' => '$data->subsCampaigns->CampaignName',
 			),
+			/*
 		array(
-			'name' => 'ChannelId',
+			'name' => 'Channel Name',
 			'value' => '$data->subsChannels->ChannelName',
 			),
+			*/
+		array(
+			'name' => 'Point System Name',
+			'value' => '($data->subsPoints!=null)?($data->subsPoints->Name):("")',
+			),			
 		'Status',
 	),	
 )); ?>

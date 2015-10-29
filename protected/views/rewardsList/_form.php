@@ -20,6 +20,21 @@
 
 	<?php echo $form->errorSummary($model); ?>
 
+         <?php if(Yii::app()->user->AccessType === 'SUPERADMIN' && $model->scenario === 'insert'): ?>
+        <div class="row">
+                <?php echo $form->labelEx($model,'ClientId'); ?>
+                <?php echo $form->dropDownList($model,'ClientId',$client_list,
+                array(
+                    'style'   => 'width:200px;',
+                    'options' => array("$model->ClientId" => array('selected'=>true)),
+                    'prompt'  => '-- Pls Select --',
+                ),
+                array('empty' => '-- Pls Select --'));
+                ?>
+                <?php echo $form->error($model,'ClientId'); ?>
+        </div>
+        <?php endif; ?>
+
 	<div class="row">
 		<?php echo $form->labelEx($model,'Title'); ?>
 		<?php echo $form->textField($model,'Title',array('size'=>60,'maxlength'=>255)); ?>

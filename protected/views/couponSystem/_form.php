@@ -25,9 +25,7 @@ if($model->scenario === 'insert')
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
 	<?php echo $form->errorSummary($model); ?>
-
-	<?php if($model->scenario === 'insert'): ?>
-
+	
 	<div class="row">
 		<?php echo $form->labelEx($model,  'CouponName'); ?>
 		<?php echo $form->textField($model,'CouponName',array(
@@ -37,6 +35,10 @@ if($model->scenario === 'insert')
 		?>
 		<?php echo $form->error($model,'CouponName'); ?>
 	</div>
+
+	<?php if($model->scenario === 'insert'): ?>
+
+	
 	<div class="row">
 	<?php echo $form->labelEx($model,'PointsId'); ?>
 	<?php echo $form->dropDownList($model,'PointsId',$points_id,
@@ -147,14 +149,14 @@ if($model->scenario === 'insert')
 		<?php echo $form->error($model,'Type'); ?>
        </div>
 
-	<div class="row system-generated">
+	<div class="row">
 		<?php echo $form->labelEx($model,'Source'); ?>
 		<?php echo $form->textField($model,'Source',array('size'=>50,
 					 'style'    => 'width:200px;','maxlength'=>50)); ?>
 		<?php echo $form->error($model,'Source'); ?>
 	</div>
 
-	<div class="row system-generated">
+	<div class="row">
 		<?php echo $form->labelEx($model,'Quantity'); ?>
 		<?php echo $form->textField($model,'Quantity',array('size'=>11,
 					 'style'    => 'width:200px;','maxlength'=>11)); ?>
@@ -261,7 +263,8 @@ if($model->scenario === 'insert')
 	    <?php echo $form->labelEx($model,'Status'); ?>
 	    <?php echo CHtml::dropDownList('CouponSystem[Status]', 
 		$model->scenario === 'update' ? $model->Status : 'ACTIVE', 
-		ZHtml::enumItem($model, 'Status'),array( 'style'    => 'width:200px;')); 
+		ZHtml::enumItem($model, 'Status'),array( 'style'    => 'width:200px;',
+                'disabled'=>($model->Status==='ACTIVE') ? false: true)); 
 	    ?>
 	    <?php echo $form->error($model,'Status'); ?>
 	</div>

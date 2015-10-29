@@ -64,26 +64,54 @@ class RewardsListController extends Controller
 	{
 		$model=new RewardsList;
 
+		
+		$clientsID = Users::model()->findByPk(Yii::app()->user->id)->ClientId;
+		
+		if(Yii::app()->user->AccessType === "SUPERADMIN" && $model->scenario === 'insert') {
+			$_clients = Clients::model()->active()->findAll();
+		} else {
+			$_clients = Clients::model()->findAll(array(
+				'select'=>'ClientId, CompanyName', 'condition'=>'ClientId='.$clientsID.''));
+		}
+		
+		$clients = array();
+		foreach($_clients as $row) {
+			$clients[$row->ClientId] = $row->CompanyName;
+
+		}
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
 		if(isset($_POST['RewardsList']))
 		{
 			$model->attributes=$_POST['RewardsList'];
-			
+			//client-ids
+			$cid = Yii::app()->user->ClientId;
+			$model->setAttribute("ClientId",$cid);
+			if(Yii::app()->user->AccessType === "SUPERADMIN" && $model->scenario === 'insert') 
+			{
+				foreach($_clients as $row) 
+				{
+					if($row->ClientId == $_POST['RewardsList']['ClientId'])
+					{
+						$cid = $row->ClientId;
+						$model->setAttribute("ClientId",$cid);
+						break;
+					}
+				}
+			}
+
 			// We get the image information using CUploadedFile class.
 			// The model object and attribute name is passed when the getInstance method is called.
-            $UploadFile = CUploadedFile::getInstance($model,'Image');
+			$UploadFile = CUploadedFile::getInstance($model,'Image');
 			Yii::app()->user->setFlash('notice', var_export($UploadFile));
 			if ($UploadFile !== null) {
-                $imageFilename = mktime() . '_' . $UploadFile->name;
-                // $model->File = $couponFilename;
-                $model->Image = Yii::app()->params['baseUploadUrl'] . 'rewards_list/' . $imageFilename;
-				
-            }
-            else Yii::app()->user->setFlash('notice', 'Error: File is null.');
-			
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+				$imageFilename = mktime() . '_' . $UploadFile->name;
+				// $model->File = $couponFilename;
+				$model->Image = Yii::app()->params['baseUploadUrl'] . 'rewards_list/' . $imageFilename;
+
+			}
+			else Yii::app()->user->setFlash('notice', 'Error: File is null.');
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("Status", 'ACTIVE');
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
@@ -91,24 +119,25 @@ class RewardsListController extends Controller
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
 			{
-			
-			$utilLog = new Utils;
-			$utilLog->saveAuditLogs();
+
+				$utilLog = new Utils;
+				$utilLog->saveAuditLogs();
 
 				try {
-	                if($UploadFile !== null) {
-	                    $UploadFile->saveAs(Yii::app()->params['uploadImageDir'] . 'rewards_list/'  . $imageFilename);
-	                }
-	            } catch (Exception $ex) {
-	            	$model->addError('File', 'Failed to upload file.');
-	            	Yii::app()->user->setFlash('error', 'Error: ' . $ex->getMessage());
-	            }
+					if($UploadFile !== null) {
+						$UploadFile->saveAs(Yii::app()->params['uploadImageDir'] . 'rewards_list/'  . $imageFilename);
+					}
+				} catch (Exception $ex) {
+					$model->addError('File', 'Failed to upload file.');
+					Yii::app()->user->setFlash('error', 'Error: ' . $ex->getMessage());
+				}
 				$this->redirect(array('view','id'=>$model->RewardId));
 			}
 		}
 
 		$this->render('create',array(
 			'model'=>$model,
+			'client_list'  => $clients,
 		));
 	}
 
@@ -126,12 +155,19 @@ class RewardsListController extends Controller
 
 		if(isset($_POST['RewardsList']))
 		{
+			$old_attrs = @var_export($model->attributes,1);
+			
 			$model->attributes=$_POST['RewardsList'];
+			
+
+			$new_attrs = @var_export($model->attributes,1);
+			$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
+
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save()){
 				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
+				$utilLog->saveAuditLogs(null,$audit_logs);
 
 				$this->redirect(array('view','id'=>$model->RewardId));
 			}
@@ -162,15 +198,47 @@ class RewardsListController extends Controller
 	 */
 	public function actionIndex()
 	{
-		/*
-		$dataProvider=new CActiveDataProvider('RewardsList');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-		*/
-		$search   = Yii::app()->request->getParam('search');
-				$criteria = new CDbCriteria;
-		if($search) $criteria->compare('Title', $search, true);
+		$criteria = new CDbCriteria;
+		
+		//bytitle
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
+		{
+			$t = addslashes($byName);
+			$criteria->addCondition(" (t.Title LIKE '%$t%' OR t.Description LIKE '%$t%' )  ");
+		}			
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+		//date: 
+		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateFr))
+		{
+			$t = addslashes($byTranDateFr);
+			$criteria->addCondition(" ( t.Availability >= '$t 00:00:00' ) ");
+		}
+		//date: 
+		$byTranDateTo = trim(Yii::app()->request->getParam('byTranDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateTo))
+		{
+			$t = addslashes($byTranDateTo);
+			$criteria->addCondition(" ( t.Availability <= '$t 23:59:59' ) ");
+		}		
+
 		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('RewardsList', array(

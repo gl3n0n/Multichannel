@@ -640,7 +640,7 @@ class UsersController extends Controller
 
 		try {
 			$criteria = new CDbCriteria;
-			$criteria->select="UserId, ClientId, Username, FirstName, LastName, AccessType, Status, DateCreated";
+			$criteria->select="UserId, ClientId, Username, FirstName, LastName, Email, AccessType, ClientId, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy";
 
 			if($search) $criteria->compare('Username', $search, true);
 

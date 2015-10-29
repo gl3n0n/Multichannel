@@ -64,6 +64,10 @@ class CouponToPoints extends CActiveRecord
 			'byClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
 			'byCreateUsers'=>array(self::BELONGS_TO, 'Users',  'CreatedBy'),
 			'byUpdateUsers'=>array(self::BELONGS_TO, 'Users',  'UpdatedBy'),
+			'byPoints'     =>array(self::MANY_MANY,  'PointsSystem',
+													 'coupon(CouponId,PointsId)',
+													 'through' => 'byCoupon'),
+			
 		);
 	}
 	

@@ -16,13 +16,17 @@ $this->menu=array(
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("actionType/index"),
 	'method'=>'get',
-)); ?>
-	<fieldset>
-		<legend>Search Name</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Name" title="Search Name">
-		<button type="submit">Search</button>
-	</fieldset>
-<?php $this->endWidget(); ?>
+)); 
+
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-byname-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-from-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-to-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bystatus-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+
+$this->endWidget(); 
+?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=> $dataProvider,
@@ -42,7 +46,6 @@ $this->menu=array(
 			'value'=> '$data->byClients!=null?($data->byClients->CompanyName):("")',
 			),		
 		'Value',
-		'PointsAction',
 		'PointsCapping',
 		'PointsLimit',
 		'StartDate',
@@ -52,6 +55,12 @@ $this->menu=array(
 			'name' => 'CreatedBy',
 			'value'=> '$data->byCreateUsers!=null?($data->byCreateUsers->Username):("")',
 		 ),
+		'DateUpdated',
+		array(
+			'name' => 'UpdatedBy',
+			'value'=> '$data->byUpdateUsers!=null?($data->byUpdateUsers->Username):("")',
+		 ),
+		 
        ),
 )); 
 ?>

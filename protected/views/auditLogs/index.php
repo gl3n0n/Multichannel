@@ -63,6 +63,7 @@ $( document ).ready(function() {
 					'size'        => '15',// textField size
 					'maxlength'   => '10',// textField maxlength
 					'placeholder' => 'Date From',// textField maxlength
+					'style'       => 'width:173px;',
 
 				),
 				// additional javascript options for the date picker plugin
@@ -93,7 +94,7 @@ $( document ).ready(function() {
 					'size'        => '15',// textField size
 					'maxlength'   => '10',// textField maxlength
 					'placeholder' => 'Date To',// textField maxlength
-
+					'style'       => 'width:173px;',
 				),
 				// additional javascript options for the date picker plugin
 				'options'     => array(
@@ -109,6 +110,26 @@ $( document ).ready(function() {
 			?>
 			</td>
 		</tr>				
+		<tr class="even">
+			<th style="200px;">
+			 Client Name
+			</th>
+			<td style="200px;">
+				<?php
+				$xtype = Yii::app()->request->getParam('byClientId');
+				echo CHtml::dropDownlist('byClientId','', 
+					$clientlists, 
+					array(
+						'id'      => 'byClientId',
+						'style'   => 'width:203px;',
+						'prompt'  => '-- Pls Select --',
+						'options' => array("$xtype" => array('selected' => true) ),
+					));
+					
+				?>				
+			</td>
+		</tr>
+		
 		<tr class="even">
 			<th style="200px;">
 			 User Name

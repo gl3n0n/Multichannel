@@ -82,6 +82,7 @@ class RaffleController extends Controller
 		}
 		$coupons = array();
 		foreach($_coupon as $row) {
+			if(@preg_match("/^(REGULAR)$/i",$row->CouponType) and @preg_match("/^(ACTIVE)$/i",$row->Status))
 			$coupons[$row->CouponId] = $row->CouponName;
 
 		}
@@ -159,13 +160,21 @@ class RaffleController extends Controller
 
 		if(isset($_POST['Raffle']))
 		{
+			$old_attrs = @var_export($model->attributes,1);
+			
 			$model->attributes=$_POST['Raffle'];
+			
+			
+			$new_attrs = @var_export($model->attributes,1);
+			$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
+
+			
 			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save()){
 				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
+				$utilLog->saveAuditLogs(null,$audit_logs);
 				$this->redirect(array('view','id'=>$model->RaffleId));
 			}
 		}
@@ -196,9 +205,70 @@ class RaffleController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$search   = trim(Yii::app()->request->getParam('search'));
+		
 		$criteria = new CDbCriteria;
-		if($search) $criteria->compare('Source', $search, true);
+		
+		
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
+		{
+		  $t = addslashes($byName);
+			$criteria->addCondition(" ( t.RaffleName     LIKE '%$t%' ) ");
+		}			
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+		//date: 
+		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateFr))
+		{
+			$t = addslashes($byTranDateFr);
+			$criteria->addCondition(" ( t.DrawDate >= '$t 00:00:00' ) ");
+		}
+		//date: 
+		$byTranDateTo = trim(Yii::app()->request->getParam('byTranDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateTo))
+		{
+			$t = addslashes($byTranDateTo);
+			$criteria->addCondition(" ( t.DrawDate <= '$t 23:59:59' ) ");
+		}		
+		
+		//by points
+		$byPointsName = trim(Yii::app()->request->getParam('byPointsName'));
+		if(strlen($byPointsName))
+		{
+				$t = addslashes($byPointsName);
+				$criteria->addCondition(" ( EXISTS (
+						SELECT 1 
+						FROM
+							coupon c,
+							points p
+						WHERE
+							c.CouponId = t.CouponId
+							and
+							c.PointsId = p.PointsId
+							and
+							p.Name  LIKE '%$t%'
+				) ) ");
+		}
+
+
+		
 
 
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
@@ -240,21 +310,84 @@ class RaffleController extends Controller
 	 */
 	public function actionPending()
 	{
-		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
-		if($search) $criteria->compare('Source', $search, true);
 
-		//all-pending
-		$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
+		
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
+		{
+		    $t = addslashes($byName);
+			$criteria->addCondition(" ( t.RaffleName     LIKE '%$t%' ) ");
+		}			
+
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		else
+		{
+			//all-pending
+			$criteria->addCondition("t.Status IN ('ACTIVE','PENDING') ");
+		}
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+		//date: 
+		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateFr))
+		{
+			$t = addslashes($byTranDateFr);
+			$criteria->addCondition(" ( t.DrawDate >= '$t 00:00:00' ) ");
+		}
+		//date: 
+		$byTranDateTo = trim(Yii::app()->request->getParam('byTranDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateTo))
+		{
+			$t = addslashes($byTranDateTo);
+			$criteria->addCondition(" ( t.DrawDate <= '$t 23:59:59' ) ");
+		}		
+		
+		//by points
+		$byPointsName = trim(Yii::app()->request->getParam('byPointsName'));
+		if(strlen($byPointsName))
+		{
+				$t = addslashes($byPointsName);
+				$criteria->addCondition(" ( EXISTS (
+						SELECT 1 
+						FROM
+							coupon c,
+							points p
+						WHERE
+							c.CouponId = t.CouponId
+							and
+							c.PointsId = p.PointsId
+							and
+							p.Name  LIKE '%$t%'
+				) ) ");
+		}
+
+		
+		
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
 		{
 			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 		}
 
-    		//provider
-    		$dataProvider = new CActiveDataProvider('Raffle', array(
-				'criteria'=>$criteria ,
-			));
+		//provider
+		$dataProvider = new CActiveDataProvider('Raffle', array(
+			'criteria'=>$criteria ,
+		));
     		
 		
 		$this->render('pending',array(

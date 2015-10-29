@@ -35,15 +35,6 @@ $this->menu=array(
 		'value' => 'CHtml::link($data->CustomerId,Yii::app()->createUrl("customers/view",array("id"=>$data->primaryKey)))',
 	),	
 	// 'ClientId',
-	array(
-		'name' => 'ClientId',
-		'value' => '$data->custClients!=null?$data->custClients->CompanyName:""',
-	),
-	array(
-		'name' => 'Subscriptions',
-		'type' => 'raw',
-		'value'=> 'CHtml::link("View Subscriptions",Yii::app()->createUrl("customerSubscriptions/?customer_id=".$data->CustomerId))',
-		),
 	'FirstName',
 	'MiddleName',
 	'LastName',
@@ -52,7 +43,19 @@ $this->menu=array(
 	'Address',
 	'Email',
 	'BirthDate',
-	'FBId'
+	'FBId',
+	'TwitterHandle',
+	array(
+		'name' => 'Client Name',
+		'value' => '$data->custClients!=null?$data->custClients->CompanyName:""',
+	),
+	array(
+		'name' => 'Subscriptions',
+		'type' => 'raw',
+		'value'=> 'CHtml::link("View Subscriptions",Yii::app()->createUrl("customerSubscriptions/?customer_id=".$data->CustomerId))',
+		),
+	'Status',
+	'DateCreated'
 	),
 	
 )); ?>

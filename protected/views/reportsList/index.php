@@ -52,56 +52,37 @@ $( document ).ready(function() {
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("reportsList/index"),
 	'method'=>'get',
-)); ?>
+)); 
+
+if(Yii::app()->user->AccessType === 'SUPERADMIN' )
+{
+?>
+
 	<fieldset class='filterSrch'>
-		<legend>Search Customer Name / Email</legend>
-		<input type="text" id='byCustomerName' 
+		<legend>Client Name</legend>
+		<input type="text" id='byClientName' 
 		 style="width:200px;"
-		 name="byCustomerName" 
-		 id="list-search" 
-		 placeholder="CustomerName" 
-		 title="Search Customer Name/Email"
-		 value="<?=Yii::app()->request->getParam('byCustomerName')?>"
+		 name="byClientName" 
+		 placeholder="ClientName" 
+		 title="Search Client Name"
+		 value="<?=Yii::app()->request->getParam('byClientName')?>"
 		 />
-		<!--
-		<button type="submit" id='btnByCustomerName'>Search</button>
-		//-->
-		<br/>
 	</fieldset>
-<!--//	
-<?php $this->endWidget(); ?>
-</div>
-<div>
-<?php $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("reportsList/index"),
-	'method'=>'get',
-)); ?>
-//-->
+<?php
+} //super
+?>
 	<fieldset class='filterSrch'>
-		<legend>Search Brand Name</legend>
+		<legend>Brand Name</legend>
 		<input type="text" id='byBrand' 
 		 style="width:200px;"
-		 name="byBrand" id="list-search" 
+		 name="byBrand" 
 		 placeholder="BrandName" 
 		 title="Search Brand Name" 
 		 value="<?=Yii::app()->request->getParam('byBrand')?>"
 		 />
-		<!--
-		<button type="submit" id='btnByBrandName'>Search</button>
-		//-->
-		<br/>
 	</fieldset>
-<!--//	
-<?php $this->endWidget(); ?>
-</div>
-<div>
-<?php $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("reportsList/index"),
-	'method'=>'get',
-)); ?>
-//-->
 	<fieldset class='filterSrch'>
-		<legend>Search Campaign Name</legend>
+		<legend>Campaign Name</legend>
 		<input type="text" id='byCampaign' 
 		 style="width:200px;"
 		 name="byCampaign" 
@@ -110,36 +91,68 @@ $( document ).ready(function() {
 		 title="Search Campaign Name"
 		 value="<?=Yii::app()->request->getParam('byCampaign')?>"
 		 />
-		<!--
-		<button type="submit" id='btnByCampaignName'>Search</button>
-		//-->
-		<br/>
 	</fieldset>
-
-<!--//	
-<?php $this->endWidget(); ?>
-</div>
-<div>
-<?php $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("reportsList/index"),
-	'method'=>'get',
-)); ?>
-//-->
 	<fieldset class='filterSrch'>
-		<legend>Search Channel Name</legend>
+		<legend>Channel Name</legend>
 		<input type="text" id='byChannel' 
 		 style="width:200px;"
-		 name="byChannel" id="list-search" 
+		 name="byChannel" 
 		 placeholder="ChannelName" 
 		 title="Search Channel Name"
 		 value="<?=Yii::app()->request->getParam('byChannel')?>"
 		 />
-		<!--
-		<button type="submit" id='btnByChannel'>Search</button>
-		//-->
 		<br/>
 	</fieldset>
 	<fieldset class='filterSrch'>
+	<legend>Transaction Date (From)</legend>
+		<?php
+			$this->widget('zii.widgets.jui.CJuiDatePicker', array(
+				'model'=>$model,
+                'value'=>Yii::app()->request->getParam('byTranDateFr'),
+				'id'   =>'byTranDateFr',
+		        'name' =>'byTranDateFr',
+				'options' => array(
+					'showAnim' => "slideDown",
+					'changeMonth' => true,
+					'numberOfMonths' => 1,
+					'showOn' => "button",
+					'buttonImageOnly' => false,
+					'dateFormat' => "yy-mm-dd",
+					'showButtonPanel' => true      
+       			),
+				'htmlOptions'=>array(
+						'style'=>'width:170px;',
+					),				
+           	));
+       	?>
+		<br/>
+	</fieldset>
+	<fieldset class='filterSrch'>
+		<legend>Transaction Date (To)</legend>
+		<?php
+			$this->widget('zii.widgets.jui.CJuiDatePicker', array(
+				'model'=>$model,
+                'value'=>Yii::app()->request->getParam('byTranDateTo'),
+				'id'   =>'byTranDateTo',
+		        'name' =>'byTranDateTo',
+				'options' => array(
+					'showAnim' => "slideDown",
+					'changeMonth' => true,
+					'numberOfMonths' => 1,
+					'showOn' => "button",
+					'buttonImageOnly' => false,
+					'dateFormat' => "yy-mm-dd",
+					'showButtonPanel' => true      
+       			),
+				'htmlOptions'=>array(
+						'style'=>'width:170px;',
+					),				
+				
+           	));
+       	?>
+		<br/>
+	</fieldset>
+		<fieldset class='filterSrch'>
 		<br/>
 		<button type="submit" id='btnByChannel' style="width:200px;">
 		Search
@@ -147,7 +160,6 @@ $( document ).ready(function() {
 		<br/>
 		<br/>
 	</fieldset>	
-	
 <?php $this->endWidget(); ?>
 </div>
 <?php 
@@ -155,33 +167,34 @@ if(!empty($downloadCSV))
 {
 
 ?>
-<div>
-<?php $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl("reportsList/index"),
-	'method'=>'get',
-)); ?>
+	<div>
 	<fieldset class='filterSrch'>
-		<legend>CSV</legend>
-		<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("reportsList/csv")?>/?fn=<?php echo $downloadCSV?>');">
-		DOWNLOAD CSV 
-		</a>
-	</fieldset>
+	<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl("reportsList/index"),
+		'method'=>'get',
+	)); ?>
+		<fieldset class='filterSrch'>
+			<legend>CSV</legend>
+			<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("reportsList/csv")?>/?fn=<?php echo $downloadCSV?>');">
+			DOWNLOAD CSV 
+			</a>
+		</fieldset>
 
-	<iframe id="csvdownloader" style="display:none"
-	 width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
-<?php $this->endWidget(); ?>
+		<iframe id="csvdownloader" style="display:none"
+		 width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
+	<?php $this->endWidget(); ?>
+	</fieldset>
 </div>
 <?php
 }//show download
 ?>
-
 </div>
-</fieldset>
+
 <?php $this->widget('zii.widgets.grid.CGridView', array(
        'dataProvider'=>$dataProvider,
        'columns' => array(
 	array(
-		'name'  => 'Customer Id',
+		'name'  => 'CustomerId',
 		'value' => '$data["CustomerId"]',
 		'type'  => 'raw',
 		),       
@@ -196,29 +209,38 @@ if(!empty($downloadCSV))
 			    Yii::app()->createUrl("customers/".$data["CustomerId"]))',
 		'type'  => 'raw',
 		),	
-	'SubscriptionId',
 	array(
-	'name'  => 'ClientId',
+		'name'  => 'PointsName',
+		'value' => 'CHtml::link($data["PointsName"],
+			    Yii::app()->createUrl("reportsList/ptslog/".$data["PointsId"]))',
+		'type'  => 'raw',
+		),		
+	array(
+	'name'  => 'Client',
 	'value' => '$data["CompanyName"]',
 	'type'  => 'raw',
 	),
 	array(
-	'name'  => 'BrandId',
+	'name'  => 'Brand',
 	'value' => '$data["BrandName"]',
 	'type'  => 'raw',
 	),
 	array(
-	'name'  => 'CampaignId',
+	'name'  => 'Campaign',
 	'value' => '$data["CampaignName"]',
 	'type'  => 'raw',
 	),
 	array(
-	'name'  => 'ChannelId',
+	'name'  => 'Channel',
 	'value' => '$data["ChannelName"]',
 	'type'  => 'raw',
 	),
-	'PointsId',
-	'Value',
-	'DateCreated',
+	
+	
+	array(
+	'name'  => 'Last Transaction',
+	'value' => '$data["DateCreated"]',
+	'type'  => 'raw',
+	),
     ),
 )); ?>

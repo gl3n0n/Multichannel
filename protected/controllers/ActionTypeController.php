@@ -69,7 +69,7 @@ class ActionTypeController extends Controller
 		if(Yii::app()->user->AccessType !== "SUPERADMIN") {
 			$xmore = " AND ClientId = '".addslashes(Yii::app()->user->ClientId)."' ";
 		}
-		$_points = Points::model()->findAll(array(
+		$_points = PointsSystem::model()->findAll(array(
 			  'select'=>'PointsId, Name', 'condition' => " status='ACTIVE' $xmore "));
 		$points = array();
 		foreach($_points as $row) {
@@ -93,15 +93,33 @@ class ActionTypeController extends Controller
 		{
 			$model->attributes=$_POST['ActionType'];
 			
-			// check if value/multiplier is greater than Points Limit
-			// if ($_POST['ActionType']['Value'] < $_POST['ActionType']['PointsLimit'])
-			if ($_POST['ActionType']['PointsLimit'] != 0)
+			//default
+			$ClientID = trim(Yii::app()->user->ClientId);
+			$xmore    = '';
+			if(Yii::app()->user->AccessType == "SUPERADMIN") 
 			{
-				if ($_POST['ActionType']['PointsLimit'] >= $_POST['ActionType']['Value'])
+				$_points = PointsSystem::model()->findAll(array(
+							'select'=>'PointsId, Name, ClientId', 'condition' => " status='ACTIVE' $xmore "));
+				$points = array();
+				foreach($_points as $row) {
+					if($_POST['ActionType']['PointsId'] == $row->PointsId)
+					{
+						$ClientID = trim($row->ClientId);
+						break;
+					}
+				}
+			}
+			
+			// check if value/multiplier is greater than Points Limit
+			// MULTIPLIER = ActionType,Value
+			// LIMIT      = ActionType,PointsLimit
+			if (@intval($_POST['ActionType']['PointsLimit']) != 0)
+			{
+				if ($_POST['ActionType']['PointsLimit'] < $_POST['ActionType']['Value'])
 				{
 					//reset the campaignId
 					$model->setAttribute("Status", 'ACTIVE');
-					$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+					$model->setAttribute("ClientId", $ClientID);
 					$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 					$model->setAttribute("CreatedBy", Yii::app()->user->id);
 					$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
@@ -109,7 +127,7 @@ class ActionTypeController extends Controller
 				}
 				else
 				{
-					$model->addError('Value', 'Multiplier/Value must be greater than or equal to the Points Limit.');
+					$model->addError('Value', 'Multiplier/Value must be greater than the Points Limit.');
 				}
 
 			}
@@ -117,7 +135,7 @@ class ActionTypeController extends Controller
 			{
 				//reset the campaignId
 				$model->setAttribute("Status", 'ACTIVE');
-				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+				$model->setAttribute("ClientId", $ClientID);
 				$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 				$model->setAttribute("CreatedBy", Yii::app()->user->id);
 				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
@@ -165,29 +183,60 @@ class ActionTypeController extends Controller
 
 		if(isset($_POST['ActionType']))
 		{
+			$old_attrs = @var_export($model->attributes,1);
+			
 			$model->attributes=$_POST['ActionType'];
+
+			$new_attrs = @var_export($model->attributes,1);
+			$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
 			
 			// check if value/multiplier is greater than Points Limit
 			// if ($_POST['ActionType']['Value'] < $_POST['ActionType']['PointsLimit'])
-			if ($_POST['ActionType']['PointsLimit'] >= $_POST['ActionType']['Value'])
+			
+			if ($_POST['ActionType']['PointsCapping'] == 'DAILY' && $_POST['ActionType']['PointsLimit'] == 0)
 			{
-				//reset the campaignId
-				$model->setAttribute("Status", 'ACTIVE');
-				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
-				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
-				$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-
+				$model->addError('PointsCapping', 'You cannot set to 0 if point capping is daily');
 			}
 			else
 			{
-				$model->addError('Value', 'Multiplier/Value must be greater than or equal to the Points Limit.');
+				if (@intval($_POST['ActionType']['PointsLimit']) != 0)
+				{
+					if ($_POST['ActionType']['PointsLimit'] > $_POST['ActionType']['Value'])
+					{
+						//echo 'dito?';
+						//echo $_POST['ActionType']['PointsLimit'] .' < ' . $_POST['ActionType']['Value'];
+						//exit();
+						if(Yii::app()->user->AccessType !== "SUPERADMIN" && $model->scenario === 'insert') {
+							$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+						}			
+						
+						//reset the campaignId
+						$model->setAttribute("Status", 'ACTIVE');
+						$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+						$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+
+					}
+					else
+					{
+						$model->addError('Value', 'Multiplier/Value must be less than or equal to the Points Limit.');
+					}
+				}
+				else
+				{
+					//reset the campaignId
+					$model->setAttribute("Status", 'ACTIVE');
+					$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
+					$model->setAttribute("UpdatedBy", Yii::app()->user->id);
+				}
+
 			}
+			
 			if(!$model->hasErrors())
 			{
 				if($model->save())
 				{
 					$utilLog = new Utils;
-					$utilLog->saveAuditLogs();
+					$utilLog->saveAuditLogs(null,$audit_logs);
 					$this->redirect(array('view','id'=>$model->ActiontypeId));
 				}
 
@@ -230,15 +279,53 @@ class ActionTypeController extends Controller
 	public function actionIndex()
 	{
 
-		$search   = trim(Yii::app()->request->getParam('search'));
+		
 		$criteria = new CDbCriteria;
-		if(strlen($search))
+		
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
 		{
-			$criteria->addCondition(" (
-			 	t.Name     LIKE '%".addslashes($search)."%' 
-			 ) ");
-		}			
+			$t = addslashes($byName);
+			$criteria->addCondition(" (	t.Name LIKE '%$t%' ) ");
+		}	
 
+		//date: 
+		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateFr))
+		{
+			$t = addslashes($byTranDateFr);
+			$criteria->addCondition(" ( t.DateCreated >= '$t 00:00:00' ) ");
+		}
+		//date: 
+		$byTranDateTo = trim(Yii::app()->request->getParam('byTranDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateTo))
+		{
+			$t = addslashes($byTranDateTo);
+			$criteria->addCondition(" ( t.DateCreated <= '$t 23:59:59' ) ");
+		}		
+
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+
+
+		
+		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('ActionType', array(
 				'criteria'=>$criteria ,

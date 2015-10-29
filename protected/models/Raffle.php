@@ -62,6 +62,9 @@ class Raffle extends CActiveRecord
 			'raffleCoupon'     =>array(self::BELONGS_TO, 'Coupon', 'CouponId'),
 			'raffleCreateUsers'=>array(self::BELONGS_TO, 'Users', 'CreatedBy'),
 			'raffleUpdateUsers'=>array(self::BELONGS_TO, 'Users', 'UpdatedBy'),
+			'byPoints'     =>array(self::MANY_MANY,  'PointsSystem',
+										 'coupon(CouponId,PointsId)',
+										 'through' => 'raffleCoupon'),
 		);
 	}
 	

@@ -138,6 +138,24 @@ class AuditLogsController extends Controller
 			$criteria->addCondition(" UPPER(t.UserType) LIKE '".strtoupper(addslashes($byUserType))."' ");
 		}
 
+		//client
+		$byClientId  = trim(Yii::app()->request->getParam('byClientId'));
+		if(strlen($byClientId))
+		{
+			$t    = addslashes($byClientId);
+			$criteria->addCondition(" ( t.ClientId = '$t' )");
+		}
+
+		
+		
+		//clientlist
+		$_clientlists = Clients::model()->findAll(array(
+				          'select'=>'ClientId, CompanyName'));
+		$clientlists  = array();
+		foreach($_clientlists as $row) {
+			$clientlists["$row->ClientId"] = $row->CompanyName;
+		}
+		
 		
 		//userlist
 		$_usernames = Users::model()->findAll(array(
@@ -147,10 +165,13 @@ class AuditLogsController extends Controller
 			$usernames["$row->Username"] = $row->Username;
 
 		}
-		
+		// set sort options
+		$sort = new CSort;
+		$sort->defaultOrder = ' t.LogDate DESC ';
 		//get it
 		$dataProvider = new CActiveDataProvider('AuditLogs', array(
-			'criteria'=>$criteria ,
+			'criteria'=> $criteria ,
+			'sort'    => $sort
 		));		
 	
 		//get csv
@@ -161,6 +182,7 @@ class AuditLogsController extends Controller
 			'usertypelist'    => Yii::app()->params['UserTypes'],
 			'usermodulelist'  => Yii::app()->params['Pages'],
 			'usernamelist'    => $usernames,
+			'clientlists'     => $clientlists,
 			'downloadCSV'     => (@intval($csv['total'])>0)?($csv['fn']):(''),
 		));
 	}

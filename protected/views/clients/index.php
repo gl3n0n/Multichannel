@@ -6,10 +6,13 @@ $this->breadcrumbs=array(
 	'Clients',
 );
 
+if(Yii::app()->utils->getUserInfo('AccessType') == 'SUPERADMIN')  
+{
 $this->menu=array(
 	array('label'=>'Create Clients', 'url'=>array('create')),
 	// array('label'=>'Manage Clients', 'url'=>array('admin')),
 );
+}
 ?>
 
 <h1>Clients</h1>
@@ -19,7 +22,7 @@ $this->menu=array(
 	'method'=>'get',
 )); ?>
 	<fieldset>
-		<legend>Search Company Name</legend>
+		<legend>Search Client Name</legend>
 		<input type="text" id='search' name="search" id="list-search" placeholder="CompanyName" title="Search Company Name">
 		<button type="submit">Search</button>
 	</fieldset>
@@ -30,10 +33,13 @@ $this->menu=array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
-			'ClientId',
+			array(
+			'name' => 'Client Id',
+			'value'=> '$data->ClientId',
+			),	
 			//'CompanyName',
 			array(
-			'name'  => 'CompanyName',
+			'name'  => 'Client Name',
 			'value' => 'CHtml::link($data->CompanyName,Yii::app()->createUrl("clients/update",array("id"=>$data->primaryKey)))',
 			'type'  => 'raw',
 			),
@@ -44,13 +50,13 @@ $this->menu=array(
 			'DateCreated',
 			//'CreatedBy',
 			array(
-			'name' => 'CreatedBy',
+			'name' => 'Created By',
 			'value'=> '$data->clientCreateUsers->Username',
 			),			
 			'DateUpdated',
 			//'UpdatedBy',
 			array(
-			'name' => 'UpdatedBy',
+			'name' => 'Updated By',
 			'value'=> '($data->clientUpdateUsers != null )?($data->clientUpdateUsers->Username):("")',
 			),			
 	),

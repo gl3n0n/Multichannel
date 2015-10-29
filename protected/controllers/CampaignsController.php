@@ -155,13 +155,19 @@ class CampaignsController extends Controller
 
 		if(isset($_POST['Campaigns']))
 		{
+			$old_attrs = @var_export($model->attributes,1);
+			
 			$model->attributes=$_POST['Campaigns'];
+			
+			$new_attrs = @var_export($model->attributes,1);
+			$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
+			
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 			if($model->save())
 			{
 				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
+				$utilLog->saveAuditLogs(null,$audit_logs);
 
 				$this->redirect(array('view','id'=>$model->CampaignId));
 			}

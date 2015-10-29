@@ -72,7 +72,7 @@ class CouponSystem extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CouponName,PointsId,ClientId,Type,LimitPerUser,ExpiryDate', 'required'),
+			array('CouponName,PointsId,ClientId,Type,LimitPerUser,ExpiryDate,Source,Quantity', 'required'),
 			array('File',       'checkCouponMode'),
 			array('CouponMode', 'checkPointsValue'),
 			array('ClientId,PointsId,CodeLength,PointsValue, Quantity, LimitPerUser, CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),

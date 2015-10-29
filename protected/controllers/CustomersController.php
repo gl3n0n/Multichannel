@@ -324,8 +324,17 @@ class CustomersController extends Controller
 			{
 				$ClientId = $cusm[0]->ClientId;
 			}
+			//normal-user
+			if(Yii::app()->user->AccessType !== "SUPERADMIN" ) {
+				//not-sync-CLIENT-ID per CUSTOMER-ID
+				if($ClientId !=  Yii::app()->user->ClientId)
+					$ClientId = 0;
+			}
 			if($ClientId <= 0 )
 				$model->addError('ClientId', 'ClientId cannot be blank.');
+
+
+
 
 
 			if(!$model->hasErrors())
@@ -341,8 +350,8 @@ class CustomersController extends Controller
 				$CampaignId  = trim($_POST['CustomerSubscriptions']['CampaignId']);
 				$sqlwhere    = ' ';
 				//client
-				$cid       = addslashes(Yii::app()->user->ClientId); 
-				$sqlwhere .= " AND t.ClientId = '$cid' ";
+				$cid       = addslashes($ClientId); 
+				$sqlwhere .=  " AND t.ClientId  = '$cid' ";
 				//customer
 				$cid       = addslashes($CustomerId);
 				$sqlwhere .=  " AND t.CustomerId = '$cid' ";
@@ -429,6 +438,7 @@ class CustomersController extends Controller
 				$model->setAttribute("CreatedBy",   Yii::app()->user->id);
 				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 				$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
+				$model->setAttribute("ClientId",    $ClientId);
 
 				//chk it again
 				if(!$model->hasErrors())

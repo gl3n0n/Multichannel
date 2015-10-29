@@ -40,7 +40,9 @@ echo Yii::app()->params['jQueryInclude'];
         		'disabled'=>true, 
         		'value'=>$model->byCoupon->CouponName,
         		'style' => 'width:200px;')); ?>
-        <?php echo $form->error($model,'CouponId'); ?>
+        <?php echo $form->error($model,'CouponId'); 
+		echo CHtml::hiddenField('CouponId', $model->CouponId, array('id'=>'CouponToPoints[CouponId]'));
+		?>
 	  </div>
 	  
 	<?php endif; ?>

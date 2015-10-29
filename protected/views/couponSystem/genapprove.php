@@ -14,13 +14,39 @@ $this->menu=array(
 if(Yii::app()->user->AccessType === "SUPERADMIN")
 {
 	$this->menu=array(
+		array('label'=>'List   Coupon System',  'url'=>array('index')),
 		array('label'=>'Create Coupon System',  'url'=>array('create')),
 		array('label'=>'Pending Coupon System', 'url'=>array('pending')),
 	);
 }
 ?>
 
-<h1>Generated Coupons</h1>
+<h1>Generated Coupons <?=$couponName?></h1>
+
+
+<script>
+function downloadCSV(csvPath) 
+{
+	var iframe;
+	iframe = document.getElementById("csvdownloader");
+	if (iframe == null) {
+		iframe = document.createElement('iframe');
+		iframe.id = "csvdownloader";
+		iframe.style.visibility = 'hidden';
+		document.body.appendChild(iframe);
+	}
+	iframe.src = csvPath;
+	return true;
+}
+$( document ).ready(function() {
+    
+	
+	//$("#reportFilter").show();
+    $("#DIVFILTER").click(function(){
+	$("#reportFilter").toggle();
+    });
+});
+</script>
 <div>
 <?php 
 if($this->statusMsg != null)
@@ -31,13 +57,6 @@ $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("coupon/generatedview"),
 	'method'=>'get',
 )); ?>
-	<fieldset>
-	<!--//
-		<legend>Search By Source</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Source" title="Search Source">
-		<button type="submit">Search</button>
-	//-->
-	</fieldset>
 <?php $this->endWidget(); ?>
 <script>
 
@@ -49,8 +68,35 @@ $form=$this->beginWidget('CActiveForm', array(
 
 
 </script>
-
 </div>
+<?php 
+if(!empty($downloadCSV))
+{
+
+?>
+	<div>
+	<fieldset class='filterSrch'>
+	<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl("tableQuery/index"),
+		'method'=>'get',
+	)); ?>
+		<fieldset class='filterSrch'>
+			<legend>CSV</legend>
+			<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("reportsList/csv")?>/?fn=<?php echo $downloadCSV?>');">
+			DOWNLOAD CSV 
+			</a>
+		</fieldset>
+		<br/>
+		<br/>
+		<iframe id="csvdownloader" style="display:none"
+		 width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
+	<?php $this->endWidget(); ?>
+	</fieldset>
+</div>
+<?php
+}//show download
+?>
+
 <?php 
 if(0)
 {
@@ -73,11 +119,6 @@ $this->widget('CGridViewEtc', array(
 			'value'=> '$data["GeneratedCouponId"]',
 		), 
 		array(
-			'name'  => 'Coupon',
-			'value' => 'CHtml::link($data["CouponName"],Yii::app()->createUrl("couponSystem/view",array("id"=>$data["CouponId"])))',
-			'type'  => 'raw',
-		),
-		array(
 			'name' => 'Code',
 			'type' => 'raw',
 			'value'=> '$data["Code"]',
@@ -87,6 +128,17 @@ $this->widget('CGridViewEtc', array(
 		    'type'  => 'raw',
 		    'value' => '$this->grid->etcButtonCoupon($data,$this->grid->etc["custList"])',
 		),
+		'CouponType',
+		'PointEquivalent',
+		'ExpiryDate',
+		'Status',
+		'DateRedeemed',
+		/**
+		array(
+			'name'  => 'Coupon',
+			'value' => 'CHtml::link($data["CouponName"],Yii::app()->createUrl("couponSystem/view",array("id"=>$data["CouponId"])))',
+			'type'  => 'raw',
+		),**/
 	),
 )); 
 

@@ -227,23 +227,27 @@ class PointsSystemMappingController extends Controller
 	{
 		
 		//NOTE: this will need to be modified to prevent users from other clients from viewing others' records
-		$model=$this->loadModel($id);
-
+		$model     = $this->loadModel($id);
+		$old_attrs = @var_export($model->attributes,1);
 
 		if(isset($_POST['PointsSystemMapping']))
 		{
 			$model->attributes=$_POST['PointsSystemMapping'];
-			
+			$new_attrs = @var_export($model->attributes,1);
+			$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
 			//reset the campaignId
 			// $model->setAttribute("Status", 'ACTIVE');
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			if(Yii::app()->user->AccessType !== "SUPERADMIN"){
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			}
+			
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
 
 			if($model->save())
 			{
 				$utilLog = new Utils;
-				$utilLog->saveAuditLogs();
+				$utilLog->saveAuditLogs(null,$audit_logs);
 				$this->redirect(array('view','id'=>$model->PointMappingId));
 			}
 		}
@@ -403,23 +407,45 @@ class PointsSystemMappingController extends Controller
 	public function actionIndex()
 	{
 
-		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
 		$xtra     = '';
-		//comp
-		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') {
-			$xtra     = " AND t.ClientId = '".@addslashes(Yii::app()->user->ClientId)."' ";
-					
-		}
-		if(strlen($search))
+	
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
 		{
+		  $t = addslashes($byName);
 			$criteria->with = array(
 				'byPointsSystem'    => array('joinType'=>'LEFT JOIN'),
 			);
-		        $criteria->addCondition(" ( byPointsSystem.Name LIKE '%".addslashes($search)."%' ) $xtra ");
-		} else {
-			$criteria->addCondition(" t.ClientId = '".@addslashes(Yii::app()->user->ClientId)."' ");
-		}		
+		    $criteria->addCondition(" ( byPointsSystem.Name LIKE '%$t%' ) ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+		
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+				$criteria->addCondition(" t.ClientId = '".@addslashes(Yii::app()->user->ClientId)."' ");
+		}
+
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}
+		else
+		{
+			$criteria->addCondition(" (t.Status != 'INACTIVE') ");		
+		}
 
 		$dataProvider = new CActiveDataProvider('PointsSystemMapping', array(
 				'criteria'=>$criteria ,
@@ -497,8 +523,8 @@ protected function getBrands($ClientId=0)
     {
         
         $criteria = new CDbCriteria;
-        $criteria->condition = "t.Status = 'ACTIVE'";
-        $criteria->addCondition('t.BrandId = :filter_brand_id');
+        $criteria->addInCondition(" t.Status = 'ACTIVE' ");
+        $criteria->addCondition(' t.BrandId = :filter_brand_id ');
         $criteria->params[':filter_brand_id'] = $BrandId;
 
         if(is_array($CampaignId)) { 
@@ -526,7 +552,8 @@ protected function getBrands($ClientId=0)
     	list($Point,$Client) = @explode('-',$PointsId);
         if( ! (intval($Client)) ) return Yii::app()->utils->sendJSONResponse(array("$PointsId" => "$Client"));
 
-        $model = Brands::model()->findAllByAttributes(array('ClientId'=>$Client), array('select'=>'BrandId, BrandName'));
+        $model = Brands::model()->findAllByAttributes(array('ClientId'=>$Client), 
+								array('select'=>'BrandId, BrandName','condition' => " status = 'ACTIVE' "));
         $list  = CHtml::listData($model, 'BrandId', 'BrandName');
 
         Yii::app()->utils->sendJSONResponse($list);
@@ -542,6 +569,7 @@ protected function getBrands($ClientId=0)
 
 	$criteria = new CDbCriteria;
 	$criteria->addInCondition('BrandId',    $BrandId);
+	$criteria->addCondition(" ( t.Status = 'ACTIVE' ) ");
         $model = Campaigns::model()->findAll($criteria);
         $list  = array();
 
@@ -565,6 +593,7 @@ protected function getBrands($ClientId=0)
 	    }
 
 	    $criteria = new CDbCriteria;
+		$criteria->addCondition(" ( t.Status = 'ACTIVE' ) ");
 	    $criteria->addInCondition('t.BrandId',    $BrandId);
 	    $criteria->addInCondition('t.CampaignId', $CampaignId);
 	    $model = Channels::model()->with('channelCampaigns')->findAll($criteria);

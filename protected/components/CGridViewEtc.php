@@ -76,7 +76,7 @@ class CGridViewEtc extends CGridView {
 		$src   = Yii::app()->params['api-url']['link_qrcode'];
 		$img   = sprintf("%s/coup%s.png",$src , $data["GeneratedCouponId"]);
 		
-		return  CHtml::image($img,'Coupon Qr Code');
+		return  CHtml::image($img,'Coupon Qr Code',array("width"=>"188px" ,"height"=>"188px"));
 		//<img src='http://104.156.53.150/multichannel-api/coupon/qr_codes/coup" . $coup["generatedcouponid"] . ".png' />";
 		
 	}

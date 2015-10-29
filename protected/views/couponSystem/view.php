@@ -21,8 +21,44 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 
 
 ?>
+<script>
+function downloadCSV(csvPath) 
+{
+	var iframe;
+	iframe = document.getElementById("csvdownloader");
+	if (iframe == null) {
+		iframe = document.createElement('iframe');
+		iframe.id = "csvdownloader";
+		iframe.style.visibility = 'hidden';
+		document.body.appendChild(iframe);
+	}
+	iframe.src = csvPath;
+	return true;
+}
+$( document ).ready(function() {
+  
+});
+</script>
 
 <h1>View <?php echo $model->CouponName; ?></h1>
+<div>
+<?php 
+if(!empty($downloadCSV))
+{
+?>
+	<div>
+		<fieldset class='filterSrch'>
+		<a href="#" onclick="downloadCSV('<?php echo Yii::app()->createUrl("reportsList/csv")?>/?fn=<?php echo $downloadCSV?>');">
+			DOWNLOAD CSV 
+		</a>
+		</fieldset>
+		<iframe id="csvdownloader" style="display:none"
+				width=0 height=0 style="hidden" frameborder=0 marginheight=0 marginwidth=0 scrolling=no></iframe>
+	</div>
+<?php
+}//show download
+?>
+</div>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
@@ -30,10 +66,14 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 		'CouponId',
 		'CouponName',
 		array(
-			'name'  => 'PointsId',
+			'name'  => 'Points System Id',
 			'value' => CHtml::link($model->PointsId,Yii::app()->createUrl("pointsSystem/view",array("id"=>$model->PointsId))),
 			'type'  => 'raw',
 		),
+		array(
+			'name' => 'Points System Name',
+			'value' => (($model->byPoints != null)?($model->byPoints->Name):('') ),
+			),		
 		'Type',
 		'TypeId',
 		'Source',

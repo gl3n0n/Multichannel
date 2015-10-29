@@ -30,38 +30,47 @@ if(Yii::app()->user->AccessType === "SUPERADMIN" or Yii::app()->user->AccessType
 $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("raffle/index"),
 	'method'=>'get',
-)); ?>
-	<fieldset>
-		<legend>Search By Source</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="Source" title="Search Source">
-		<button type="submit">Search</button>
-	</fieldset>
-<?php $this->endWidget(); ?>
+)); 
+
+
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-byname-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bypointsystem-name-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-from-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-to-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bystatus-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+	
+$this->endWidget(); 
+?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
-	//'itemView'=>'_view',CHtml::link(CHtml::encode($data->RaffleId), array('view', 'id'=>$data->RaffleId))
 	'columns'=>array(
-		//'RaffleId',
 		array(
 		'name' => 'RaffleId',
 		'type' => 'raw',
 		'value'=> 'CHtml::link($data->RaffleId,Yii::app()->createUrl("raffle/update",array("id"=>$data->primaryKey)))',
 		), 
+		'RaffleName',
 		array(
-		'name'  => 'CouponId',
+		'name'  => 'Coupon Name',
 		'value' => '($data->raffleCoupon!=null)?($data->raffleCoupon->CouponName):("")',
 		),
-		'RaffleName',
-		'Source',
-		'NoOfWinners',
-		'BackUp',
-		'FdaNo',
+		array(
+			'name' => 'Points System Name',
+			'value'=> '($data->byPoints!=null and @count($data->byPoints))?$data->byPoints[0]->Name:""',
+			),	
 		array(
 		'name' => 'ClientId',
 		'value'=> '$data->raffleClients!=null?$data->raffleClients->CompanyName:""',
 		),		
+		'NoOfWinners',
+		'BackUp',
+		'FdaNo',
+		'Source',
 		'DrawDate',
+		'Status',
 		'DateCreated',
 		array(
 		'name'  => 'CreatedBy',
@@ -72,6 +81,5 @@ $form=$this->beginWidget('CActiveForm', array(
 		'name'  => 'UpdatedBy',
 		'value' => '($data->raffleUpdateUsers!=null)?($data->raffleUpdateUsers->Username):("")',
 		),
-		'Status',
 		),
 )); ?>

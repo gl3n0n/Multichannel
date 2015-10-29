@@ -67,7 +67,7 @@ class RewardDetails extends CActiveRecord
 			'byCreateUsers'  =>array(self::BELONGS_TO, 'Users',        'CreatedBy'),
 			'byUpdateUsers'  =>array(self::BELONGS_TO, 'Users',        'UpdatedBy'),
 			'byPointsSystem' =>array(self::BELONGS_TO, 'PointsSystem', 'PointsId'),
-			'byRewards'   =>array(self::BELONGS_TO, 'RewardsList',   'RewardId'),
+			'byRewards'      =>array(self::BELONGS_TO, 'RewardsList',   'RewardId'),
 		);
 	}
 

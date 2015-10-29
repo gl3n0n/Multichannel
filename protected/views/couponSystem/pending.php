@@ -47,26 +47,33 @@ $form=$this->beginWidget('CActiveForm', array(
 			'type'  => 'raw',
 		),
 	'CouponName',
-	'Type',
-	'TypeId',
-	'Source',
-	'ExpiryDate',
-	'Status',
+	array(
+		'name'  => 'Points System Name',
+		'value' => '(($data->byPoints != null)?($data->byPoints->Name):("") )',
+	     ),	
 	array(
 		'name'  => 'ClientId',
 		'value' => '($data->byClients!=null)?($data->byClients->CompanyName):("")',
 		),	
-	array(
-		'name' => 'Image',
-		'type' => 'raw',
-		'value'=> 'CHtml::link('.
-			  'CHtml::image($data->Image,"",array("width"=>"120px","height"=>"120px"))'.
-			  ',$data->Image)',
-	),
+	'CouponType',
+	'Source',
+	'Type',
+	'PointsValue',
 	'Quantity',
 	'LimitPerUser',
+	'ExpiryDate',
+	'Status',
+    /**    array(
+                'name' => 'Image',
+                'type' => 'raw',
+                'value'=> '( ($data->Image!=null)?(CHtml::link('.
+                          'CHtml::image($data->Image,"",array("border" => "0px","width"=>"120px","height"=>"120px"))'.
+                          ',$data->Image)):(""))',
+        ),
+	'Quantity',
+	'LimitPerUser',**/
 	array(
-		'name' => 'Action',
+		'name' => 'Operation',
 		'type' => 'raw',
 		'value'=> '($data->Status !== "PENDING")?
 			(($data->edit_flag==1)?(CHtml::link("Update Approved",Yii::app()->createUrl("couponSystem/approveupdate/",array("uid"=>$data->primaryKey)))):
