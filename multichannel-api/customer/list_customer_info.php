@@ -2,22 +2,20 @@
 
 require_once('../config/database.php');		
 require_once('../config/constants.php');		
-require_once('../includes/reward_list.php');
+require_once('../includes/customer_info.php');
 
 
 //chk params
 $client_id   = trim($_GET['clientid']);
 $customer_id = trim($_GET['customerid']);
-
+$fb_id    = trim($_GET['fbid']);
+$twitter_handle    = trim($_GET['twitterhandle']);
+$email       = trim($_GET['email']);
 
 //filter
 if (
-( strlen($client_id)   && ! @preg_match(DIGIT_REGEX, $client_id  ) ) or
-( strlen($customer_id) && ! @preg_match(DIGIT_REGEX, $customer_id) ) or
-(                          
-	( strlen($client_id)     <= 0 ) or
-	( strlen($customer_id)   <= 0 ) 
-) 
+	( strlen($client_id)   && ! @preg_match(DIGIT_REGEX, $client_id  ) ) or
+	( strlen($customer_id) && ! @preg_match(DIGIT_REGEX, $customer_id) ) 
 )
 {
 	$response['result_code'] = 405;
@@ -25,7 +23,6 @@ if (
 	echo json_encode($response);
 	return;
 }
-
 
 
 //check token
@@ -44,13 +41,18 @@ if($rtoken['status'] <= 0)
 }
 //check token
 
+
+
 //prep
 $data     = array();
-$obj      = new RewardList($dbconn);
-$response = $obj->list_of_rewards_available(
+$obj      = new CustomerInfo($dbconn);
+$response = $obj->get_info(
 			array(
 				"client_id"   => $client_id,
 				"customer_id" => $customer_id,
+				"email"       => $email,
+				"fb_id"    => $fb_id,
+				"twitter_handle"    => $twitter_handle,
 				)
 			);
 
@@ -64,8 +66,7 @@ if ($response['status'])
 else
 {
 	$response['result_code'] = 404;
-	$response['error_txt']   = 'No List of Rewards Available found!';
-	
+	$response['error_txt']   = 'No List of Customer found!';
 }
 
 

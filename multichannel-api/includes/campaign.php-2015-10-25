@@ -186,10 +186,6 @@ class Campaign
 				AND map.CampaignId = camp.CampaignId 
 				AND map.CustomerId = cust.CustomerId
 				AND map.CustomerId = '$customer_id'
-				AND map.ClientId   = pts.ClientId 
-				AND map.ClientId   = camp.ClientId 
-				AND map.ClientId   = brnd.ClientId 
-				AND map.ClientId   = cust.ClientId
 			";
 			
 			//run

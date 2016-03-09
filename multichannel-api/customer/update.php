@@ -3,19 +3,19 @@
 	require_once('../config/constants.php');
 	require_once('../includes/customer.php');
 
-	$customer_id = $_POST['customer_id'];
-	$first_name = $_POST['first_name'];
-	$middle_name = $_POST['middle_name'];
-	$last_name = $_POST['last_name'];
+	$customer_id = $_POST['customerid'];
+	$first_name = $_POST['firstname'];
+	$middle_name = $_POST['middlename'];
+	$last_name = $_POST['lastname'];
 	$gender = $_POST['gender'];
 	$birthdate = $_POST['birthdate'];
 	$address = $_POST['address'];
 	$status = $_POST['status'];
-	$fb_id = $_POST['fb_id'];
-	$twitter_handle = $_POST['twitter_handle'];
+	$fb_id = $_POST['fbid'];
+	$twitter_handle = $_POST['twitterhandle'];
 	$email = $_POST['email'];
-	$contact_number = $_POST['contact_number'];
-	$client_id = $_POST['client_id'];
+	$contact_number = $_POST['contactnumber'];
+	$client_id = $_POST['clientid'];
 
     $response = array(
         'result_code' => '',
@@ -38,9 +38,7 @@
         return;
     }
 
-	if (empty($first_name) && empty($middle_name) && empty($last_name) && empty($gender) && 
-	    empty($birthdate) && empty($address) && empty($status) &&
-		empty($fb_id) && empty($twitter_handle) && empty($email) && empty($contact_number))
+	if (empty($first_name) || empty($last_name) || empty($address) && empty($status))
     {
         $response['result_code'] = 405;
         $response['error_txt'] = 'Missing Parameters';
@@ -59,6 +57,27 @@
 			return;
 	    }
 
+		
+		
+
+	//check token
+	require_once('../includes/api_token.php');
+	$atoken  = new ApiToken($dbconn);
+	$rtoken  = $atoken->is_valid_token();
+	if($rtoken['status'] <= 0)
+	{
+			//Precondition Failed
+			$tdata                = array();
+			$tdata['result_code'] = 412;
+			$tdata['error_txt']   = 'Api-Token is Invalid!';
+			//give it back
+			echo json_encode($tdata);
+			return;
+	}
+	//check token		
+		
+		
+		
 	$customer = new Customer($dbconn, $customer_id);
     $response = $customer->update($first_name, $middle_name, $last_name, $gender, $birthdate,
 								  $address, $status, $fb_id, $twitter_handle, $email, $contact_number, $client_id);

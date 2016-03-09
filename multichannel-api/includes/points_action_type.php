@@ -95,8 +95,37 @@ class PointsActionType
 				AND sub.ClientId   = pmap.ClientId
 				AND sub.BrandId    = pmap.BrandId
 				AND sub.CampaignId = pmap.CampaignId
+				AND EXISTS(
+							select 1 FROM
+								channels chan
+							where
+							chan.ChannelId = pmap.ChannelId
+							and 
+							chan.Status    = 'ACTIVE'
+					LIMIT 1  
+				)
+				AND EXISTS(
+							 select 1 FROM
+							 brands brnd
+							 where
+							 brnd.BrandId = pmap.BrandId
+							 and
+							 brnd.Status     = 'ACTIVE'
+							 LIMIT 1  
+				)
+				AND EXISTS(
+							 select 1 FROM
+							 campaigns camp
+							 where
+							 camp.CampaignId = pmap.CampaignId
+							 and
+							 camp.Status     = 'ACTIVE'
+							 LIMIT 1  
+				)
 			";
 
+			debug("SQL> $query;");
+			
 			//run
 			$res = $this->conn->query($query);
 
@@ -247,6 +276,8 @@ class PointsActionType
 				AND sub.CustomerId   = cust.CustomerId
 			";
 
+			debug("SQL> $query;");
+			
 			$retv["status"]    = 0;
 
 			//run
@@ -314,7 +345,7 @@ class PointsActionType
 			 {
 			 
 			 	$retv['result_code'] = 402;
-				$retv['error_txt']   = 'Daily Limit Exceeded.';
+				$retv['error_txt']   = 'Max Limit Reached.';
 				//give it back
 				return $retv;
 			 }
@@ -484,6 +515,7 @@ class PointsActionType
 			)
 			";
 
+			debug("SQL> $query;");
 			//run
 			$row = $this->conn->exec($query);
 			//get it
@@ -523,7 +555,8 @@ class PointsActionType
 				AND PointsId      = '$points_id'
 			";
 
-
+			debug("SQL> $query;");
+			
 			//run
 			$res = $this->conn->query($query);
 			if (PEAR::isError($res)) {
@@ -633,8 +666,13 @@ class PointsActionType
 			AND CustomerId    = '$customer_id'
 			AND PointsId      = '$points_id'
 			AND ClientId      = '$client_id'
+			AND BrandId       = '$brand_id'
+			AND CampaignId    = '$campaign_id'
 			AND ActiontypeId  = '$actiontype_id'
+			AND DateCreated  >= curdate()
 		";
+
+		debug("SQL> $query;");
 
 		//run
 		$res = $this->conn->query($query);
@@ -733,6 +771,9 @@ class PointsActionType
 				GROUP BY 
 					sub.PointsId
 			";
+			
+			debug("SQL> $query;");
+			
 			//run
 			$res = $this->conn->query($query);
 			if (PEAR::isError($res)) {

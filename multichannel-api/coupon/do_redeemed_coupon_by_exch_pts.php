@@ -2,25 +2,27 @@
 
 require_once('../config/database.php');		
 require_once('../config/constants.php');		
-require_once('../includes/reward_list.php');
+require_once('../includes/coupon_list.php');
 
 
 //chk params
-$client_id   = trim($_GET['clientid']);
-$customer_id = trim($_GET['customerid']);
-
+$client_id   = trim($_POST['clientid']);
+$customer_id = trim($_POST['customerid']);
+$coupon_id   = trim($_POST['couponid']);
 
 //filter
 if (
 ( strlen($client_id)   && ! @preg_match(DIGIT_REGEX, $client_id  ) ) or
 ( strlen($customer_id) && ! @preg_match(DIGIT_REGEX, $customer_id) ) or
+( strlen($coupon_id)   && ! @preg_match(DIGIT_REGEX, $coupon_id) ) or
 (                          
-	( strlen($client_id)     <= 0 ) or
-	( strlen($customer_id)   <= 0 ) 
+	( strlen($client_id)   <= 0 ) or
+	( strlen($customer_id) <= 0 ) or
+	( strlen($coupon_id)   <= 0 ) 
 ) 
 )
 {
-	$response['result_code'] = 405;
+	$response['result_code'] = 409;
 	$response['error_txt']   = 'Invalid Parameters';
 	echo json_encode($response);
 	return;
@@ -42,31 +44,31 @@ if($rtoken['status'] <= 0)
 		echo json_encode($tdata);
 		return;
 }
+//customter-ACTIVE
+if($rtoken['customer'] <= 0)
+{
+		//Precondition Failed
+		$tdata                = array();
+		$tdata['result_code'] = 413;
+		$tdata['error_txt']   = 'Customer Status is Invalid!';
+		//give it back
+		echo json_encode($tdata);
+		return;
+}
 //check token
+
 
 //prep
 $data     = array();
-$obj      = new RewardList($dbconn);
-$response = $obj->list_of_rewards_available(
+$obj      = new CouponList($dbconn);
+$response = $obj->do_redeemed_a_coupon_by_exch_pts(
 			array(
 				"client_id"   => $client_id,
 				"customer_id" => $customer_id,
+				"coupon_id"   => $coupon_id,
+				"qrlink"      => "http://104.156.53.150/multichannel-api/coupon/qr_codes/coup",
 				)
 			);
-
-
-if ($response['status'])
-{		
-	$data['results']     = $response;
-	$data['result_code'] = 200;
-	$response            = $data;
-}
-else
-{
-	$response['result_code'] = 404;
-	$response['error_txt']   = 'No List of Rewards Available found!';
-	
-}
 
 
 //give it back

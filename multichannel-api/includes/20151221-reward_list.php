@@ -28,7 +28,6 @@ class RewardList
 					dtls.RewardConfigId,
 					dtls.RewardId,
 					dtls.PointsId,
-					dtls.Name,
 					cust.CustomerId ,
 					cust.ClientId   ,
 					clnt.CompanyName as ClientName,
@@ -121,9 +120,9 @@ class RewardList
 								and plog.ClientId    = clnt.ClientId
 								and plog.BrandId     = brnd.BrandId
 								and plog.CampaignId  = camp.CampaignId ) , 0 )>0				
-				/**GROUP BY 
+				GROUP BY 
 					cust.PointsId,
-					rlist.RewardId**/
+					rlist.RewardId	
 				";
 
 			debug("SQL> $query;");
@@ -143,8 +142,6 @@ class RewardList
 			{				
 				if( $row["redeemable"] > 0)
 				{
-					$details = $this->getPtsMapBrandCampaign($row['pointsid']);
-					$row['others'] = $details;
 					$result_array["rewards"][] = $row;
 					$counter++;
 				}
@@ -252,9 +249,9 @@ class RewardList
 					AND cust.BrandId    = brnd.BrandId
 					AND cust.CampaignId = camp.CampaignId
 					AND (CURDATE() BETWEEN dtls.StartDate AND dtls.EndDate)
-				/**GROUP BY 
-				cust.PointsId,
-					rlist.RewardId**/
+				GROUP BY 
+					cust.PointsId,
+					rlist.RewardId
 					
 				";
 
@@ -273,8 +270,6 @@ class RewardList
 			{				
 				if( $row["redeemable"] <= 1 )
 				{
-					$details = $this->getPtsMapBrandCampaign($row['pointsid']);
-					$row['others'] = $details;
 					$result_array["rewards"][] = $row;
 					$counter++;
 				}
@@ -283,42 +278,6 @@ class RewardList
 			$result_array["status"]    = (($counter>0)?(1):(0));
 			//give it back
 			return ($counter == 0) ? (false) : ($result_array);
-	}
-	
-	public function getPtsMapBrandCampaign($pointsid)
-	{
-		$query = "SELECT brandid, campaignid FROM points_mapping WHERE pointsid = $pointsid";
-		debug("SQL> $query;");
-
-		//run
-		$res = $this->conn->query($query);
-		
-		$retv          = array();
-
-		if (PEAR::isError($res)) {
-			return null;
-		}
-
-		$result_array = array();
-		while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
-		{
-			$retv['brandid'] .= $row['brandid'];
-			$retv['brandname'] .= $this->getTableFieldName("brandname", "brands", "brandid", $row['brandid']);
-			$retv['campaignid'] .= $row['campaignid'];
-			$retv['campaignname'] .= $this->getTableFieldName('campaignname', 'campaigns', 'campaignid', $row['campaignid']);
-		}
-		return $retv;
-	}
-	
-	public function getTableFieldName($field, $table, $where, $value)
-	{
-		$query = "SELECT $field FROM $table WHERE $where = $value LIMIT 1";
-		$res = $this->conn->query($query);
-		while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))
-		{			
-			
-			return $row[$field];
-		}
 	}
  
 
@@ -335,7 +294,6 @@ class RewardList
 			$retv           = array();
 			$retv["rewards"]= array();
 			$retv["status"] = 0;
-			/*
 			$query      	= "
 				SELECT  distinct
 					cust.PointsId,
@@ -359,14 +317,32 @@ class RewardList
 					LIMIT 1
 					) as PointsSystemName,
 					rdm.DateRedeemed,
-					dtls.Value as Value,
-					dtls.Name as Details_Name,
-					dtls.RewardConfigId as Reward_Details_Config_Id
+					(select dtls.Value
+					from
+					reward_details dtls
+					where
+					  dtls.RewardId = rlist.RewardId 
+					  and
+					  dtls.ClientId = cust.ClientId
+					  and
+					  dtls.PointsId = cust.PointsId
+					limit 1
+					) as Value,
+					(select dtls.Name
+					from
+					reward_details dtls
+					where
+					  dtls.RewardId = rlist.RewardId 
+					  and
+					  dtls.ClientId = cust.ClientId
+					  and
+					  dtls.PointsId = cust.PointsId
+					limit 1
+					) as Details_Name
 				FROM
 					customer_subscriptions cust,
 					rewards_list rlist,
-					redeemed_reward rdm,
-					reward_details dtls
+					redeemed_reward rdm
 				WHERE
 				1=1
 					AND cust.CustomerId = '$customer_id'
@@ -378,35 +354,9 @@ class RewardList
 					AND cust.Status   IN ('ACTIVE')
 					AND rlist.RewardId  = rdm.RewardId
 					AND rdm.PointsId    = cust.PointsId
-					AND dtls.ClientId   = '$client_id'
-					AND dtls.ClientId   = rlist.ClientId
-					AND dtls.RewardId   = rlist.RewardId
-					AND dtls.PointsId   = dtls.PointsId
+			";
 
-			";
-			*/
-			$query = "SELECT 
-						dtls.Name, 
-						dtls.Value, 
-						rdeem.DateRedeemed, 
-						cli.CompanyName, 
-						pts.Name AS PointSystemName 
-					  FROM 
-						reward_details dtls, 
-						redeemed_reward rdeem, 
-						clients cli, 
-						points pts 
-					  WHERE 
-						rdeem.UserId = '$customer_id' 
-						AND rdeem.ClientId = '$client_id'
-						AND rdeem.RewardConfigId = dtls.RewardConfigId 
-						AND rdeem.ClientId = cli.ClientId 
-						AND rdeem.PointsId = pts.PointsId;
-							
-			
-			";
 			debug("SQL> $query;");
-			// echo $query;
 			
 			//run
 			$res = $this->conn->query($query);
@@ -643,9 +593,6 @@ class RewardList
 				$pdata["value"]               = $row["value"];
 				$pdata["actiontype_id"]       = $row["actiontypeid"];
 				$allpoints                    = $row["value"];
-				$pdata["reward_config_id"]    = $reward_config_id;
-				
-
 
 				//doit
 				if($doit <= 0)
@@ -809,7 +756,6 @@ class RewardList
 			$reward_id       = addslashes($pdata["reward_id"]  );
 			$created_by      = addslashes($pdata["created_by"]  );
 			$points_id       = addslashes($pdata["points_id"]  );
-			$reward_config_id  = addslashes($pdata["reward_config_id"]  );
 			
 			
 			$retv   = array();
@@ -819,7 +765,6 @@ class RewardList
 			INSERT INTO redeemed_reward (
 				RewardId     ,
 				UserId       ,
-				RewardConfigId,
 				Source       ,
 				Action       ,
 				DateCreated  ,
@@ -833,7 +778,6 @@ class RewardList
 			VALUES (
 				'$reward_id'  ,
 				'$customer_id'    ,
-				'$reward_config_id',
 				'POINTS'     ,
 				'REDEEMED'   ,
 				Now()        ,

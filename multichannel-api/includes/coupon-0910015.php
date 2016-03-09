@@ -232,27 +232,18 @@ $flag = 1;
 			$query_keys = array();
 
 			if (!empty($generated_coupon_id))
-				$query_keys[] = 'g.GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
+				$query_keys[] = 'GeneratedCouponId = '. $this->conn->quote($generated_coupon_id, 'integer');
 			
 			if (sizeof($query_keys) == 0)
 				$query_string = null;
 			else
 				$query_string = implode(' AND ', $query_keys);
 				
-			//$res   = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
-			$query = "SELECT g.*,
-					 c.CouponUrl
-				   FROM
-				   generated_coupons g,
-				   coupon c
-			WHERE  g.CouponId          = c.CouponId AND
-			       g.GeneratedCouponId = '$generated_coupon_id' LIMIT 1";
-			       
-			$res   = $this->conn->query($query);
-				
+			$res = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
+			
 			if (PEAR::isError($res)) {
-            		    	return false;
-            		}
+                return false;
+            }
 
 			$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
 			if (sizeof($row) == 0)
@@ -281,8 +272,7 @@ $flag = 1;
 				
 			$query_string = $query_string . " ORDER BY GeneratedCouponId ASC";
 
-			//$res = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
-			
+			$res = $this->conn->extended->autoExecute("generated_coupons", null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
 			//var_dump($res);
 			if (PEAR::isError($res)) {
                 return false;
@@ -545,6 +535,17 @@ $flag = 1;
 				$file = fopen($coupon_details['file'],"r");
 				if($file)
 				{
+					/*while(!feof($file))
+					{
+					  $tmp_arr = fgetcsv($file);
+					  foreach ($tmp_arr as &$a_code)
+					  {
+						if(!empty($a_code) && null != ($a_code))
+						{
+							$the_codes[] = $a_code;
+						}
+					  }
+					}*/
 					while (($a_code = fgets($file)) !== false) {
 						// trim spaces
 						$a_code = trim($a_code);
@@ -566,6 +567,9 @@ $flag = 1;
 				{
 					return array("FILENOTFOUND");
 				}		
+
+				//$the_codes = array_unique($the_codes);
+				//print_r($the_codes);
 				shuffle($the_codes);
 				$the_quantity = count($the_codes);
 			}
@@ -604,9 +608,8 @@ $flag = 1;
 			$curdate = date('Y-m-d H:i:s');
 			for ($i = 1; $i <= $the_quantity; $i++)
 			{
-				$types = array('integer', 'integer','text','timestamp');
+				$types = array('integer','text','timestamp');
 				$fields_values = array(
-					'PointsId' => $coupon_details['pointsid'],
 					'CouponId' => $coupon_details['couponid'],
 					'Code' => $the_codes[$i-1],
 					'DateCreated' => $curdate,
@@ -634,64 +637,14 @@ $flag = 1;
 			}
 
 			$result_arr = array();
-			if ($this->updateInfo($the_quantity, 'ACTIVE'))
+			if ($this->update($client_id, $brand_id, $campaign_id, $channel_id, null,
+						  null, null, null, null, $the_quantity, null, null, 'ACTIVE', $the_quantity))
 			{
 				$result_arr["generated_count"] = sizeof($the_codes);
 				return $result_arr;
 			}
 			else
 				return false;
-		}
-		
-		public function updateInfo($quantity, $status)
-		{
-			if (!empty($this->coupon_id))
-				$query_keys[] = 'CouponId = '. $this->conn->quote($this->coupon_id, 'integer');
-			
-			if (sizeof($query_keys) == 0)
-				$query_string = null;
-			else
-				$query_string = implode(' AND ', $query_keys);
-				
-			// Prepare values
-			$fields_values = array();
-
-			$fields_values['UpdatedBy'] = $updated_by;
-			$types = array('text');
-			
-			if (!empty($quantity))
-			{
-				$fields_values['Quantity'] = $quantity;
-				array_push($types,'text');
-			}
-			
-			if (!empty($status))
-			{
-				$fields_values['Status'] = $status;
-				array_push($types,'text');
-			}
-			
-			$fields_values['edit_flag'] = '0';
-			$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
-			
-
-			if (PEAR::isError($affectedRows)) {
-				return false;
-			}
-
-			$res = $this->conn->extended->autoExecute($this->table_name, null, MDB2_AUTOQUERY_SELECT, $query_string, null, true, null);
-
-			if (PEAR::isError($res)) {
-                return false;
-            }
-
-			$row = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
-			if (sizeof($row) == 0)
-			{
-				return array("NOTFOUND");
-			}
-
-			return $row;
 		}
 		
 		public function regenerate()
@@ -732,20 +685,17 @@ $flag = 1;
 			
 			// generate from csv
 			$the_codes = array();
-			$current_quantity = $coupon_details['quantity'];
+			$the_quantity = $coupon_details['quantity'];
 
-			if ('USER-GENERATED' == $coupon_details['typeid'])
+			if (!empty($coupon_details['file']))
 			{
-				//reset
-				$the_quantity     = 0;
-				
-				// get list of generated codes
-				$existing_codes = $this->edit_retrieve_generated();
-				$file           = @fopen($coupon_details['file'],"r");
-				if($file and (!empty($coupon_details['file'])))
+			// get list of generated codes
+			$existing_codes = $this->edit_retrieve_generated();
+				$file = fopen($coupon_details['file'],"r");
+				if($file)
 				{
 
-					while (($a_code = @fgets($file)) !== false) {
+					while (($a_code = fgets($file)) !== false) {
 						// trim spaces
 						$a_code = trim($a_code);
 						// check if null or empty
@@ -761,7 +711,12 @@ $flag = 1;
 					
 					// compare existing and new codes
 					$diff1 = array_diff($the_codes, $existing_codes);
-					@fclose($file);
+					//echo '<pre>';
+					//print_r($the_codes);
+					//print_r($existing_codes);
+					//print_r($diffs);
+					//exit();
+					fclose($file);
 				}
 				else
 				{
@@ -769,14 +724,12 @@ $flag = 1;
 				}		
 				shuffle($diff1);
 				$the_quantity = count($diff1);
-				$addcounter   = count($diff1);
-				$totalAdd     = $the_quantity;
+				$addcounter = count($diff1);
+				$totalAdd = $the_quantity;
 			}
 			// system generated
 			else
 			{
-				$the_quantity     = $coupon_details['quantity'];
-
 				//get current codes
 				$existing_codes = $this->edit_retrieve_generated();
 				
@@ -828,7 +781,6 @@ $flag = 1;
 			{
 				$types = array('integer','text','timestamp');
 				$fields_values = array(
-					'PointsId' => $coupon_details['pointsid'],
 					'CouponId' => $coupon_details['couponid'],
 					'Code' => $diff1[$i-1],
 					'DateCreated' => $curdate,
@@ -857,12 +809,9 @@ $flag = 1;
 			}
 
 			$result_arr = array();
-			/*
 			if ($this->update($client_id, $brand_id, $campaign_id, $channel_id, null,
 						  null, null, null, null, $the_quantity, null, null, 'ACTIVE', '0'))
-			{*/
-			$new_quantity = (('USER-GENERATED' == $coupon_details['typeid']))?($current_quantity + $the_quantity):($current_quantity+$addcounter);
-			if ($this->updateInfo($new_quantity, 'ACTIVE')) {
+			{
 				// $result_arr["generated_count"] = sizeof($diffs);
 				$result_arr["generated_count"] = $totalAdd;
 				return $result_arr;

@@ -3,10 +3,10 @@
 	require_once('../config/constants.php');
 	require_once('../includes/customer.php');
 
-	$customer_id = $_POST['customer_id'];
+	$customer_id = $_POST['customerid'];
 
 	$email = $_POST['email'];
-	$fb_id = $_POST['fb_id'];
+	$fb_id = $_POST['fbid'];
 
     $response = array(
         'result_code' => '',
@@ -27,6 +27,23 @@
         echo json_encode($response);
         return;
     }
+
+		
+	//check token
+	require_once('../includes/api_token.php');
+	$atoken  = new ApiToken($dbconn);
+	$rtoken  = $atoken->is_valid_token();
+	if($rtoken['status'] <= 0)
+	{
+			//Precondition Failed
+			$tdata                = array();
+			$tdata['result_code'] = 412;
+			$tdata['error_txt']   = 'Api-Token is Invalid!';
+			//give it back
+			echo json_encode($tdata);
+			return;
+	}
+	//check token
 
 	$customer = new Customer($dbconn, $customer_id);
     $response = $customer->retrieve($fb_id, $email);

@@ -11,8 +11,6 @@
 	$no_of_winners = $_POST['no_of_winners'];
 	$draw_date = $_POST['draw_date'];
 	$status = $_POST['status'];
-	$client_id = $_POST['client_id'];
-	
 
 	/*if ((empty($client_id) || !preg_match(DIGIT_REGEX, $client_id)) ||
 	(empty($raffle_id) || !preg_match(DIGIT_REGEX, $raffle_id)) ||

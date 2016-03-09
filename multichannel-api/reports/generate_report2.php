@@ -12,6 +12,24 @@
 	
 	$query_keys = array();
 
+	
+	
+	//check token
+	require_once('../includes/api_token.php');
+	$atoken  = new ApiToken($dbconn);
+	$rtoken  = $atoken->is_valid_token();
+	if($rtoken['status'] <= 0)
+	{
+			//Precondition Failed
+			$tdata                = array();
+			$tdata['result_code'] = 412;
+			$tdata['error_txt']   = 'Api-Token is Invalid!';
+			//give it back
+			echo json_encode($tdata);
+			return;
+	}
+	//check token
+
 	if (!empty($client_id))
 		$query_keys[] = 'customer_subscriptions.ClientId = '. $dbconn->quote($client_id, 'integer');
 	if (!empty($customer_id))

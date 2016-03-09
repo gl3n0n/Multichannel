@@ -3,11 +3,11 @@
 	require_once('../config/constants.php');
 	require_once('../includes/customer.php');
 
-	$customer_id = $_POST['customer_id'];
-	$channel_id = $_POST['channel_id'];
-	$campaign_id = $_POST['campaign_id'];
-	$brand_id = $_POST['brand_id'];
-	$client_id = $_POST['client_id'];
+	$customer_id = $_POST['customerid'];
+	$channel_id = $_POST['channelid'];
+	$campaign_id = $_POST['campaignid'];
+	$brand_id = $_POST['brandid'];
+	$client_id = $_POST['clientid'];
 	$status = $_POST['status'];
 
 	$response = array(
@@ -39,6 +39,24 @@
 		return;
 	}
 
+	
+	//check token
+	require_once('../includes/api_token.php');
+	$atoken  = new ApiToken($dbconn);
+	$rtoken  = $atoken->is_valid_token();
+	if($rtoken['status'] <= 0)
+	{
+			//Precondition Failed
+			$tdata                = array();
+			$tdata['result_code'] = 412;
+			$tdata['error_txt']   = 'Api-Token is Invalid!';
+			//give it back
+			echo json_encode($tdata);
+			return;
+	}
+	//check token
+
+	
 	$customer = new Customer($dbconn, $customer_id);
 	
 	//$customer->isAllowed($brand_id, $campaign_id, $channel_id)

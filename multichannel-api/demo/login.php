@@ -40,14 +40,14 @@
 			$_SESSION['login_id']=$row["customerid"];
 			$_SESSION['client_id']=$row["clientid"]; 
 
-			/*$q = "SELECT CompanyName FROM clients WHERE client_id = " . $_SESSION['client_id'];
+			$q = "SELECT apitoken FROM clients WHERE clientid = " . $_SESSION['client_id'];
 			$res2 = $dbconn->query($q);
 			if (PEAR::isError($res2)) {
 				return false;
 			}
 			$cn = $res2->fetchRow(MDB2_FETCHMODE_ASSOC);
-			$_SESSION['company_name'] = $cn["companyname"];
-
+			$_SESSION['api_token'] = $cn["apitoken"];
+/*
 			if ($_SESSION['login_id'] == 1 )
 			{
 				$_SESSION['client_id']=1;
@@ -91,7 +91,7 @@
   <script>
 	function errorLogin()
 	{
-		document.getElementById("msg").innerHTML = "Your Enail or Password is invalid.";
+		document.getElementById("msg").innerHTML = "Your Email or Password is invalid.";
 	}
   </script>
 </head>

@@ -3,8 +3,8 @@
 	require_once('../config/constants.php');		
 	require_once('../includes/campaign.php');
 	
-	$brand_id = $_POST['brand_id'];
-	$campaign_id = $_POST['campaign_id'];
+	$brand_id = $_POST['brandid'];
+	$campaign_id = $_POST['campaignid'];
 
     /*if (empty($brand_id) &&
         empty($campaign_id))

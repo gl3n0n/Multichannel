@@ -184,6 +184,8 @@ class PointsList
 			LIMIT 1				
 			";
 			
+			debug("SQL> $query;");
+			
 			//run
 			$res = $this->conn->query($query);
 			if (PEAR::isError($res)) {
@@ -286,6 +288,17 @@ class PointsList
 					return $retv;
 				}
 
+                                //409        No-Balance
+                                if (@preg_match("/^(DEDUCT)$/i",$action) and $row["customer_points_balance"]  < $value)
+                                {
+                                        $retv['result_code'] = 409;
+                                        $retv['error_txt']   = 'Insufficient Balance.';
+                                        $retv["result"]      = null;
+                                        //give it back
+                                        return $retv;
+                                }
+
+
 				//410        No-Balance
 				if ( @preg_match("/^(ADD)$/i",$action)   and
 				     ( $row["pointscapping"]  == 'DAILY' and
@@ -295,7 +308,7 @@ class PointsList
 				    )			   
 				{
 					$retv['result_code'] = 410;
-					$retv['error_txt']   = 'Daily Limit Exceeded.';
+					$retv['error_txt']   = 'Max Limit Reached.';
 					$retv["result"]      = null;
 					//give it back
 					return $retv;
@@ -367,6 +380,7 @@ class PointsList
 			AND PointsId       = '$points_id'
 		";
 
+		debug("SQL> $query;");
 
 		//run
 		$res = $this->conn->query($query);
@@ -440,6 +454,8 @@ class PointsList
 			$data['save_customer_points']  = $res;
 		}
 
+		debug("SQL> $query;");
+		
 		//get new balance
 		$query      = "
 			SELECT  SUM(IFNULL(balance, 0)) as balance
@@ -451,6 +467,8 @@ class PointsList
 				AND PointsId       = '$points_id'
 			LIMIT 1
 		";
+		
+		debug("SQL> $query;");
 		
 		//run
 		$newbalance = 0;
@@ -548,6 +566,8 @@ class PointsList
 			)
 			";
 
+			debug("SQL> $query;");
+			
 			//run
 			$row = $this->conn->exec($query);
 			//get it

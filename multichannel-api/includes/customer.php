@@ -148,6 +148,7 @@ class Customer {
 				'FBId' => $fb_id,
 				'TwitterHandle' => $twitter_handle,
 				'DateCreated' => $curdate,
+				'BirthDate' => $birthdate,
 				'ClientId' => $client_id,
 			);
 
@@ -313,7 +314,6 @@ class Customer {
 		public function update($first_name, $middle_name, $last_name, $gender, $birthdate,
 							   $address, $status, $fb_id, $twitter_handle, $email, $contact_number, $client_id)
 		{
-			$query_keys = array();
 
 			if (!empty($this->customer_id))
 				$query_keys[] = 'CustomerId = '. $this->conn->quote($this->customer_id, 'integer');
@@ -409,37 +409,46 @@ class Customer {
 				array_push($types,'text');
 				array_push($table_fields,'ContactNumber');
 			}
-            if (!empty($status))
-			{
-				$fields_values['Status'] = $fb_id;
-				array_push($types,'text');
-				array_push($table_fields,'Status');
-			}
 			
-			// check first if email is available
-			$select_query = "SELECT * FROM customers WHERE Email = " . $this->conn->quote($email) . " AND ClientId = " . $this->conn->quote($client_id . " AND CustomerId = " . $this->customer_id);
-			$select_res = $this->conn->query($select_query);
-			if (PEAR::isError($select_res)){
+			// check if email change
+			$curr_query = "SELECT Email FROM customers WHERE Email = " . $this->conn->quote($email) . " AND ClientId = " . $this->conn->quote($client_id . " AND CustomerId = " . $this->customer_id);
+			$curr_result = $this->conn->query($curr_query);
+			if (PEAR::isError($curr_result)){
 				return false;
 			}
-
-			$row_select = $select_res->fetchRow(MDB2_FETCHMODE_ASSOC);
-
-			if (sizeof($row_select) > 0)
+			
+			$row_selects = $curr_result->fetchRow(MDB2_FETCHMODE_ASSOC);
+			if (sizeof($row_selects) > 0)
 			{
-				/*if ($row_select["fbid"] == $fb_id)
-				{
-					return array("EXISTS_FBID");
-				}
-				else
-				{
-					return array("EXISTS_EMAIL");
-				}*/
-				return array("EXISTS_EMAIL");
+				$curr_email = $row_selects['email'];
 			}
 			
-			
-			
+			if ($email != $curr_email)
+			{
+				// check first if email is available
+				$select_query = "SELECT * FROM customers WHERE Email = " . $this->conn->quote($email) . " AND ClientId = " . $this->conn->quote($client_id . " AND CustomerId = " . $this->customer_id);
+				$select_res = $this->conn->query($select_query);
+				if (PEAR::isError($select_res)){
+					return false;
+				}
+
+				$row_select = $select_res->fetchRow(MDB2_FETCHMODE_ASSOC);
+
+				if (sizeof($row_select) > 0)
+				{
+					/*if ($row_select["fbid"] == $fb_id)
+					{
+						return array("EXISTS_FBID");
+					}
+					else
+					{
+						return array("EXISTS_EMAIL");
+					}*/
+					return array("EXISTS_EMAIL");
+				}
+				
+			}
+
 			$affectedRows = $this->conn->extended->autoExecute($this->table_name, $fields_values, MDB2_AUTOQUERY_UPDATE, $query_string, null, true, $types);
 
 			if (PEAR::isError($affectedRows)) {

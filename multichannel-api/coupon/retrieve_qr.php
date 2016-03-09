@@ -45,10 +45,11 @@
 
 		//fmt
 		$name        = '/var/www/html/multichannel-api/coupon/qr_codes/coup' . $result['generatedcouponid'] . '.png';
-		if ($result['couponurl'] != '')
+		if ( strlen(trim($result['couponurl']))>0 )
 		{
 			$url1        = "http://104.156.53.150/multichannel-api/coupon/redeem?generated_coupon_id=" . $result['generatedcouponid'];
-			$url2        = sprintf("%s/%s",$result['couponurl'],$result['generatedcouponid']);
+			// $url2        = sprintf("%s/%s",$result['couponurl'],$result['generatedcouponid']);
+			$url2	= sprintf("%s/%s/%s", $result['couponurl'],$result['couponid'],$result['code']);
 			// $url_to_call = (strlen(trim($result['couponurl']))>0) ? ($url2): ($url1);
 		}
 		else
