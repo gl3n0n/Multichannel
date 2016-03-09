@@ -87,7 +87,7 @@ class Raffle extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'RaffleId' => 'Raffle',
+			'RaffleId' => 'Raffle ID',
 			'RaffleName' => 'Raffle Name',
 			'Source' => 'Source',
 			'ClientId' => 'Client Name',

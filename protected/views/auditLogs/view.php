@@ -58,7 +58,11 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 		),		
 		'GetPost',
 		'UserType',
-		'UserAgent',
+		array(
+		'name'  => 'UserAgent',
+		'value' => ($model->UserAgent!= null)?(nl2br($model->UserAgent)):(""),
+		'type'  => 'raw',
+		),		
 		'IPAddr',
 		array(
 			'name'  => 'UrlData',

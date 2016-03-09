@@ -10,7 +10,6 @@ $this->breadcrumbs=array(
 if(1)
 {
 	$this->menu=array(
-	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
 	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
 	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
 	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
@@ -51,21 +50,17 @@ $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("reportsList/customeractivity"),
 	'method'=>'get',
 )); 
+
+
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bycustomer-name-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-datecreated-from-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-datecreated-to-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+
+
+$this->endWidget(); 
 ?>
-	<fieldset>
-		<legend>Search By Customer</legend>
-		<input type="text" 
-		id='search' 
-		name="search" 
-		placeholder="Customer" 
-		title="Search Customer"
-		value="<?=Yii::app()->request->getParam('search')?>"
-		/>
-		<button type="submit">Search</button>
-		<br/>
-		<br/>
-	</fieldset>
-<?php $this->endWidget(); ?>
 <script>
 
     // Controll submit form event
@@ -82,6 +77,7 @@ if(!empty($downloadCSV))
 
 ?>
 	<div>
+	<br/>
 	<fieldset class='filterSrch'>
 	<?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl("reportsList/index"),
@@ -114,7 +110,7 @@ $this->widget('CGridViewEtc', array(
 	'etc' => $mapping,
 	'columns'=>array(
 		array(
-		'name' => 'Customer Id',
+		'name' => 'Customer ID',
 		'value' => 'CHtml::link($data["CustomerId"],
 			    Yii::app()->createUrl("reportsList/custhistory/".$data["CustomerId"]))',
 		'type'  => 'raw',
@@ -124,16 +120,38 @@ $this->widget('CGridViewEtc', array(
 		'value' => '$data["CustomerName"]',
 		),	
 		array(
-		'name' => 'Customer',
+		'name' => 'Customer Email',
 		'value' => '$data["Email"]',
 		),
-		/**array(
-		'name'  => 'Points System',
-		'value' => 'CHtml::link($data["PointsSystemName"],
-			    Yii::app()->createUrl("reportsList/ptslog/".$data["PointsId"]))',
-		'type'  => 'raw',
-		),	
-        array(
+		array(
+		'name' => 'Points System Name',
+		'value' => '$data["PointsSystemName"]',
+		),
+		array(
+		'name'  => 'Client Name',
+		'value' => '$data["CompanyName"]',
+		),
+		array(
+		'name'  => 'Brand Name',
+		'value' => '$data["BrandName"]',
+		),
+		array(
+		'name'  => 'Campaign Name',
+		'value' => '$data["CampaignName"]',
+		),
+		array(
+		'name'  => 'Channel Name',
+		'value' => '$data["ChannelName"]',
+		),
+		array(
+		'name'  => 'Points',
+		'value' => '$data["PointsLogHist"]',
+		),
+		array(
+		'name'  => 'Gain/Deduction Type',
+		'value' => '$data["LogType"]',
+		),
+     	   	/**array(
 		    'name'  => 'Balance',
 		    'type'  => 'raw',
 		    'value'=> '$data["Balance"]',
@@ -143,7 +161,10 @@ $this->widget('CGridViewEtc', array(
 		    'type'  => 'raw',
 		    'value'=> '$data["PointsSystemDate"]',
 		),**/
-		'DateCreated',
+		array(
+		'name'  => 'Date of Last Activity',
+		'value' => '$data["LastActivity"]',
+		),
 	),
 )); 
 

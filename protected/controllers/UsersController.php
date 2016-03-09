@@ -640,8 +640,31 @@ class UsersController extends Controller
 
 		try {
 			$criteria = new CDbCriteria;
-			$criteria->select="UserId, ClientId, Username, FirstName, LastName, Email, AccessType, ClientId, Status, DateCreated, CreatedBy, DateUpdated, UpdatedBy";
-
+			/*
+			$criteria->select= array(
+							'UserId', 
+							'ClientId', 
+							'Username', 
+							'FirstName', 
+							'LastName', 
+							'Email', 
+							'AccessType', 
+							'Status', 
+							'DateCreated', 
+							'CreatedBy', 
+							'DateUpdated', 
+							'UpdatedBy',
+							'(
+								select a.Username
+								from users a
+								where
+								1=1
+								and
+								a.UserId = t.UpdatedBy
+								LIMIT 1
+							) as UpdatedBy2'
+							);*/
+			//$criteria->with=array('clientInfo'=>array('select'=>'CompanyName'));
 			if($search) $criteria->compare('Username', $search, true);
 
 			$arr['totalData'] = Users::model()->count($criteria);
@@ -651,8 +674,86 @@ class UsersController extends Controller
 			$criteria->offset=$offset;
 			$criteria->limit=$limit;
 
-			// $arr['data'] = Users::model()->inMyCompany()->findAll($criteria);
-			$arr['data'] = Users::model()->findAll($criteria);
+			if(1){
+				$sort    = new CSort;
+				$sort->attributes = array('*');
+				
+				$sfilter = '';
+				if(strlen($search))
+				{
+					$t       = addslashes($search);
+					$sfilter = " AND t.UserName = '$t' ";
+				}
+				$rawSql   = "
+						select
+								t.UserId, 
+								t.ClientId, 
+								t.Username, 
+								t.FirstName, 
+								t.LastName, 
+								t.Email, 
+								t.AccessType, 
+								t.Status, 
+								t.DateCreated, 
+								t.CreatedBy, 
+								t.DateUpdated, 
+								t.UpdatedBy,
+								IFNULL((
+								select a.CompanyName
+								from clients a
+								where
+								1=1
+								and
+								a.ClientId = t.ClientId
+								LIMIT 1
+								),'') as CompanyName, 
+								IFNULL((
+								select a.Username
+								from users a
+								where
+								1=1
+								and
+								a.UserId = t.UpdatedBy
+								LIMIT 1
+								),'') as UpdatedBy2,
+								IFNULL((
+								select a.Username
+								from users a
+								where
+								1=1
+								and
+								a.UserId = t.CreatedBy
+								LIMIT 1
+								),'') as CreatedBy2
+						from
+						users t
+					WHERE 1=1
+						$sfilter 
+				ORDER BY t.UserId DESC
+				";
+
+				$rawData      = Yii::app()->db->createCommand($rawSql); 
+				$rawCount     = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+				$dataProvider = new CSqlDataProvider($rawData, array(
+						'keyField'       => 'UserId',
+						'totalItemCount' => $rawCount,
+						'sort'           => $sort,
+						)
+				);
+				foreach($dataProvider->getData() as $rec)
+				{
+					$arr['data'][] = $rec;
+				}
+
+			}
+			//$arr['data'] = Users::model()->inMyCompany()->findAll($criteria);
+			//$arr['data'] = Users::model()->with('clientInfo')->findAll($criteria);
+			//$arr['data'] = Users::model()->findAll($criteria);
+			if(0){
+			echo '<pre>';
+			echo @var_export($criteria,1);
+			exit();
+			}
 			$arr['totalRows'] = count($arr['data']);
 
 			if($arr['totalRows']) {

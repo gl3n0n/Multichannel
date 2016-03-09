@@ -21,7 +21,7 @@
 
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'CouponId'); ?>
+		<?php echo $form->labelEx($model,'Coupon System Name'); ?>
 		<?php echo $form->dropDownList($model,'CouponId',$coupon_list); ?>
 		<?php echo $form->error($model,'CouponId'); ?>
 	</div>

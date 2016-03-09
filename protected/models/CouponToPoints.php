@@ -64,7 +64,7 @@ class CouponToPoints extends CActiveRecord
 			'byClients'    =>array(self::BELONGS_TO, 'Clients','ClientId'),
 			'byCreateUsers'=>array(self::BELONGS_TO, 'Users',  'CreatedBy'),
 			'byUpdateUsers'=>array(self::BELONGS_TO, 'Users',  'UpdatedBy'),
-			'byPoints'     =>array(self::MANY_MANY,  'PointsSystem',
+			'byPoints'     =>array(self::MANY_MANY, 'PointsSystem',
 													 'coupon(CouponId,PointsId)',
 													 'through' => 'byCoupon'),
 			
@@ -90,9 +90,9 @@ class CouponToPoints extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'CtpId'       => 'Id',
+			'CtpId'       => 'CoupontoPoints ID',
 			'ClientId'    => 'Client',
-			'CouponId'    => 'Coupon Id',
+			'CouponId'    => 'Coupon ID',
 			'Value'       => 'Coupon Value',
 			'Name'        => 'Coupon Name',
 			'StartDate'   => 'Start Date',

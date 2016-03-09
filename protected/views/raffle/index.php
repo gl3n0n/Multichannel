@@ -54,7 +54,7 @@ $this->endWidget();
 		), 
 		'RaffleName',
 		array(
-		'name'  => 'Coupon Name',
+		'name'  => 'Coupon System Name',
 		'value' => '($data->raffleCoupon!=null)?($data->raffleCoupon->CouponName):("")',
 		),
 		array(

@@ -326,6 +326,9 @@ class ChannelsController extends Controller
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('Channels', array(
 			'criteria'=>$criteria ,
+			'sort'    => array(
+							'defaultOrder' => ' t.ChannelId DESC ',
+							)			
 			));
 		} else {
 			if(0)
@@ -339,6 +342,10 @@ class ChannelsController extends Controller
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('Channels', array(
 					'criteria'=>$criteria ,
+					'sort'    => array(
+							'defaultOrder' => ' t.ChannelId DESC ',
+							)			
+					
 			));
 		}
 

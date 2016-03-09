@@ -17,13 +17,18 @@ $this->menu=array(
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("campaigns/index"),
 	'method'=>'get',
-)); ?>
-	<fieldset>
-		<legend>Search Campaign Name</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="CampaignName" title="Search Campaign Name">
-		<button type="submit">Search</button>
-	</fieldset>
-<?php $this->endWidget(); ?>
+)); 
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-byname-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-from-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-daterange-to-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bystatus-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+
+
+
+$this->endWidget(); 
+?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
@@ -32,11 +37,7 @@ $this->menu=array(
 	'CampaignId',
 	//'ClientId',
 	
-	//'BrandId',
-	array(
-	'name' => 'Brand Name',
-	'value'=> '$data->campaignBrands->BrandName',
-	),
+	
 	//'CampaignName',
 	array(
 	'name'  => 'Campaign Name',
@@ -51,6 +52,12 @@ $this->menu=array(
 	'name' => 'Client Name',
 	'value'=> '$data->campaignClients->CompanyName',
 	),
+	//'BrandId',
+	array(
+	'name' => 'Brand Name',
+	'value'=> '$data->campaignBrands->BrandName',
+	),
+	'Type',
 	array(
 	'name' => 'Start Date',
 	'value'=> '$data->DurationFrom',
@@ -66,6 +73,7 @@ $this->menu=array(
 		'name' => 'CreatedBy',
 		'value'=> '$data->campaignCreateUsers->Username',
 	),	
+	'DateUpdated',
 	//'UpdatedBy',
 	array(
 	'name'  => 'UpdatedBy',

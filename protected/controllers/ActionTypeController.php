@@ -292,6 +292,7 @@ class ActionTypeController extends Controller
 
 		//date: 
 		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
+		$dtfilter1     = '';
 		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateFr))
 		{
 			$t = addslashes($byTranDateFr);
@@ -329,11 +330,17 @@ class ActionTypeController extends Controller
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('ActionType', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+							'defaultOrder' => ' t.ActiontypeId DESC ',
+							)
 			));
 		} else {
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('ActionType', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+							'defaultOrder' => ' t.ActiontypeId DESC ',
+							)				
 			));
 		}
 

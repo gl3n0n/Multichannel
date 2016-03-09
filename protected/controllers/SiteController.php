@@ -37,7 +37,7 @@ class SiteController extends Controller
 		if(Yii::app()->user->isGuest)
 			$this->redirect('login');
 		else
-			$this->redirect(array('users/index'));
+			$this->redirect(array('mgmtUsers/index'));
 	}
 
 	/**
@@ -85,7 +85,7 @@ class SiteController extends Controller
 	 */
 	public function actionLogin()
 	{
-		if(!Yii::app()->user->isGuest) $this->redirect(array('users/index'));
+		if(!Yii::app()->user->isGuest) $this->redirect(array('mgmtUsers/index'));
 
 		$model=new LoginForm;
 

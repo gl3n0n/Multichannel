@@ -67,7 +67,7 @@ class RewardDetails extends CActiveRecord
 			'byCreateUsers'  =>array(self::BELONGS_TO, 'Users',        'CreatedBy'),
 			'byUpdateUsers'  =>array(self::BELONGS_TO, 'Users',        'UpdatedBy'),
 			'byPointsSystem' =>array(self::BELONGS_TO, 'PointsSystem', 'PointsId'),
-			'byRewards'      =>array(self::BELONGS_TO, 'RewardsList',   'RewardId'),
+			'byRewards'   =>array(self::BELONGS_TO, 'RewardsList',   'RewardId'),
 		);
 	}
 
@@ -77,8 +77,8 @@ class RewardDetails extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'RewardConfigId' => 'Reward Config',
-			'Name' => 'Reward Name',
+			'RewardConfigId' => 'Reward Config ID',
+			'Name' => 'Reward Config Name',
 			'RewardId' => 'Reward',
 			'PointsId' => 'Point System',
 			'ClientId' => 'Client',

@@ -449,6 +449,10 @@ class PointsSystemMappingController extends Controller
 
 		$dataProvider = new CActiveDataProvider('PointsSystemMapping', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+								'defaultOrder' => ' t.PointMappingId DESC ',
+								)				
+
 			));
 		//get models
 		$this->render('index',array(

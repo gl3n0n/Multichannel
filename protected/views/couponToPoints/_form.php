@@ -21,7 +21,7 @@ echo Yii::app()->params['jQueryInclude'];
 
     <?php if($model->scenario === 'insert'): ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'Coupon Name'); ?>
+		<?php echo $form->labelEx($model,'Coupon System Name'); ?>
 		<?php echo $form->dropDownList($model,'CouponId',$coupon_list,
 		array(
         	    'style'   => 'width:200px;',
@@ -34,7 +34,7 @@ echo Yii::app()->params['jQueryInclude'];
 	<?php else: ?>
 	
 	<div class="row">
-		<?php echo $form->labelEx($model,'CouponId'); ?>
+		<?php echo $form->labelEx($model,'Coupon System Name'); ?>
         <?php echo $form->textField($model,'CodeLength',array('size'=>20,
         		'maxlength'=>20,
         		'disabled'=>true, 
@@ -50,7 +50,7 @@ echo Yii::app()->params['jQueryInclude'];
  
 
 	<div class="row">
-		<?php echo $form->labelEx($model,  'Name'); ?>
+		<?php echo $form->labelEx($model,  'Coupon To Points Name'); ?>
 		<?php echo $form->textField($model,'Name',array(
 		'style'    => 'width:200px;',
 		'maxlength'=>255
@@ -60,7 +60,7 @@ echo Yii::app()->params['jQueryInclude'];
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,  'Value'); ?>
+		<?php echo $form->labelEx($model,  'Coupon To Points Value'); ?>
 		<?php echo $form->textField($model,'Value',array(
 			'style'     => 'width:200px;',
 			'maxlength' => 11

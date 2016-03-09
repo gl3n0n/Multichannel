@@ -41,7 +41,7 @@ $this->endWidget();
 		'type'  => 'raw',
 	),
 	array(
-			'name' => 'Coupon To Points Name',
+			'name' => 'CoupontoPoints Name',
 			'value' => '$data->Name',
 			'type'  => 'raw',
 	),	

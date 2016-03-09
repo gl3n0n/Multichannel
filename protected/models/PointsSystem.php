@@ -85,7 +85,7 @@ class PointsSystem extends CActiveRecord
 	{
 		//PointsId,ClientId,Name,Status,DateCreated,CreatedBy,DateUpdated,UpdatedBy
 		return array(
-			'PointsId'         => 'ID',
+			'PointsId'         => 'Points System ID',
 			'ClientId'         => 'Client Name',
 			'PointMappingId'   => 'Mapping Id',
 			'BrandId'     => 'Brand Name',
@@ -96,7 +96,7 @@ class PointsSystem extends CActiveRecord
 			'CreatedBy'   => 'Created By',
 			'DateUpdated' => 'Date Updated',
 			'UpdatedBy'   => 'Updated By',
-			'Name'        => 'Name',
+			'Name'        => 'Points System Name',
 		);
 	}
 

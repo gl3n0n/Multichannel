@@ -14,6 +14,7 @@
 
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/main.css">
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/form.css">
+	<link rel="shortcut icon" href="<?php echo Yii::app()->request->baseUrl; ?>/css/favicon.ico" />
 
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 
@@ -37,9 +38,10 @@
 	<div id="mainmenu">
 		<?php $this->widget('zii.widgets.CMenu',array(
 			'items'=>array(
-				array('label'=>'User Management', 'url'=>array('/users'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
-				
-				array('label'=>'Customers ', 'url'=>array('/customers'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
+				//array('label'=>'User Management', 'url'=>array('/users'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
+				array('label'=>'User Management', 'url'=>array('/mgmtUsers'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
+				//array('label'=>'Customers ', 'url'=>array('/customers'), 'visible'=>!Yii::app()->user->isGuest && Yii::app()->user->AccessType=="SUPERADMIN"),
+				array('label'=>'Customers', 'url'=>array('/customers/index?Customers_sort=CustomerId.desc&ajax=yw1'), 'visible'=>!Yii::app()->user->isGuest),
 				array('label'=>'Clients', 'url'=>array('/clients'), 'visible'=>!Yii::app()->user->isGuest),
 				
 				

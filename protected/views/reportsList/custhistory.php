@@ -10,7 +10,6 @@ $this->breadcrumbs=array(
 if(1)
 {
 	$this->menu=array(
-	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
 	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
 	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
 	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
@@ -67,7 +66,7 @@ $this->widget('CGridViewEtc', array(
 	'etc' => $mapping,
 	'columns'=>array(
 		array(
-		'name' => 'Customer Id',
+		'name' => 'Customer ID',
 		'value' => '$data["CustomerId"]',
 		'type'  => 'raw',
 		),		
@@ -113,7 +112,7 @@ $this->widget('CGridViewEtc', array(
 		    'value'=> '$data["LogType"]',
 		),
 		array(
-		    'name'  => 'Last Activity',
+		    'name'  => 'Date of Last Activity',
 		    'type'  => 'raw',
 		    'value'=> '$data["PointsSystemDate"]',
 		),

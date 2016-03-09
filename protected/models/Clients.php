@@ -101,7 +101,7 @@ class Clients extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'ClientId' => 'Client',
+			'ClientId' => 'Client ID',
 			'CompanyName' => 'Company Name',
 			'Address' => 'Address',
 			'Email' => 'Email',
@@ -111,6 +111,8 @@ class Clients extends CActiveRecord
 			'CreatedBy' => 'Created By',
 			'DateUpdated' => 'Date Updated',
 			'UpdatedBy' => 'Updated By',
+			//'ApiToken' => 'Api Token',
+			
 		);
 	}
 
@@ -142,6 +144,7 @@ class Clients extends CActiveRecord
 		$criteria->compare('CreatedBy',$this->CreatedBy);
 		$criteria->compare('DateUpdated',$this->DateUpdated,true);
 		$criteria->compare('UpdatedBy',$this->UpdatedBy);
+		//$criteria->compare('ApiToken',$this->ApiToken);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

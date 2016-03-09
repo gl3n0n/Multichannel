@@ -97,16 +97,26 @@ class ReportsListController extends Controller
 			$filterSrch++;
 			$qfilter = " AND brnd.BrandName LIKE '%".addslashes($byBrand)."%' ";
 		}
-		//customer
-		$byClientName = trim(Yii::app()->request->getParam('byClientName'));
-		$rfilter      = '';
-		if(strlen($byClientName))
+		$rfilter  = '';
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
 		{
-			$filterSrch++;
-			$rfilter = " AND (
-						 clnt.CompanyName LIKE '%".addslashes($byClientName)."%'
-				     ) ";
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t        = addslashes($byClient);
+				$rfilter  = " AND (  clnt.ClientId = '$t' )  ";
+			}			
 		}
+		
+		//normal
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			$t        = addslashes(Yii::app()->user->ClientId);
+			$rfilter  = " AND (  clnt.ClientId = '$t' )  ";
+		}
+
+		
 		//date: 
 		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
 		$dtfilter1     = '';
@@ -1059,19 +1069,18 @@ class ReportsListController extends Controller
 	
 	public function actionCustomeractivity($customer_id=0)
 	{
-		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
 		//all-pending
-		
 		if(empty($uid))
 			$uid  = @addslashes(trim(Yii::app()->request->getParam('uid')));
 		
 		
-		$clid   = addslashes(Yii::app()->user->ClientId);
+		//client
 		$xtra   = '';
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN')  
 		{
-			$xtra   = " AND a.ClientId = '$clid'  ";
+			$t      = addslashes(Yii::app()->user->ClientId);
+			$xtra   = " AND a.ClientId = '$t'  ";
 		}
 		
 		$vcust  = trim(Yii::app()->request->getParam('customer_id'));
@@ -1083,17 +1092,65 @@ class ReportsListController extends Controller
 		{
 			$vxtra   = " AND a.CustomerId = '$vlid'  ";
 		}
-		$filter = '';
-		if(strlen($search) > 0) 
+		
+	    //byCustomerName
+		$filter           = '';
+		$byCustomerName   = trim(Yii::app()->request->getParam('byCustomerName'));
+		if(strlen($byCustomerName))
 		{
-			$srch   = addslashes($search);
+		    $t = addslashes($byCustomerName);
 			$filter = " AND  (
-						e.Email     LIKE '%$srch%'  OR 
-						e.FirstName LIKE '%$srch%'  OR 
-						e.LastName  LIKE '%$srch%'   
-			                 ) ";
+								e.Email     LIKE '%$t%'  OR 
+								e.FirstName LIKE '%$t%'  OR 
+								e.LastName  LIKE '%$t%'   
+							  ) ";
+		}					
+		
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t      = addslashes($byClient);
+				$xtra   = " AND a.ClientId = '$t'  ";
+			}			
 		}
-		    
+		
+		//points-name
+		$psql         = '';
+		$byPointsName = trim(Yii::app()->request->getParam('byPointsName'));
+		if(strlen($byPointsName))
+		{
+			$t = addslashes($byPointsName);
+			$psql  = " AND EXISTS (
+							SELECT 1 
+							FROM
+								points p
+							WHERE
+								1=1
+								AND p.PointsId = a.PointsId
+								AND p.Name    LIKE '%$t%'
+							)";
+		}
+
+		//byCreatedDateFr: 
+		$dtfilter1       = '';
+		$byCreatedDateFr = trim(Yii::app()->request->getParam('byCreatedDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byCreatedDateFr))
+		{
+			$t = addslashes($byCreatedDateFr);
+			$dtfilter1   = " AND a.DateCreated >= '$t 00:00:00' ";
+		}
+		//byCreatedDateTo: 
+		$dtfilter2       = '';
+		$byCreatedDateTo = trim(Yii::app()->request->getParam('byCreatedDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byCreatedDateTo))
+		{
+			$t = addslashes($byCreatedDateTo);
+			$dtfilter2   = " AND a.DateCreated <= '$t 23:59:59' ";
+		}		
+		
 		
 		if(1){
 			$rawSql = "
@@ -1114,7 +1171,7 @@ class ReportsListController extends Controller
 				       e.Email,
 				       e.FirstName,
 				       e.LastName,
-					   e.BirthDate,
+				       e.BirthDate,
 					(
 						select pts.Name
 						from
@@ -1172,6 +1229,124 @@ class ReportsListController extends Controller
 						bb.PointsId       = a.PointsId
 					    limit 1
 					) as Total,
+					f.CompanyName,
+					(
+					   select bb.BrandName
+					    from
+						brands bb
+					    where
+						1=1
+						and
+						bb.BrandId = a.BrandId
+					    limit 1
+
+					) as BrandName,
+					(
+					   select bb.CampaignName
+					    from
+						campaigns bb
+					    where
+						1=1
+						and
+						bb.CampaignId = a.CampaignId
+					    limit 1
+
+					) as CampaignName,
+					(
+					   select bb.ChannelName
+					    from
+						channels bb
+					    where
+						1=1
+						and
+						bb.CampaignId = a.CampaignId
+						and
+						bb.BrandId    = a.BrandId
+						and
+						bb.ClientId   = a.ClientId
+					    limit 1
+					) as ChannelName,
+					(
+					 select SUM(IFNULL(pts.Value,0))
+					 from
+					 points_log pts
+					 where
+					 1=1
+					 and pts.PointsId         = a.PointsId
+					 and pts.SubscriptionId   = a.SubscriptionId
+					 and pts.ClientId         = a.ClientId
+					 and pts.BrandId          = a.BrandId
+					 and pts.CampaignId       = a.CampaignId
+					 and pts.ClientId         = a.ClientId
+					 and pts.ChannelId        in (
+						 select bb.ChannelId
+						 from
+						 channels bb
+						 where
+						 1=1
+						 and
+						 bb.CampaignId = a.CampaignId
+						 and
+						 bb.BrandId    = a.BrandId
+						 and
+						 bb.ClientId   = a.ClientId
+						 )
+					 limit 1
+					 ) as PointsLogHist,
+					(
+					 select pts.LogType
+					 from
+					 points_log pts
+					 where
+					 1=1
+					 and pts.PointsId         = a.PointsId
+					 and pts.SubscriptionId   = a.SubscriptionId
+					 and pts.ClientId         = a.ClientId
+					 and pts.BrandId          = a.BrandId
+					 and pts.CampaignId       = a.CampaignId
+					 and pts.ClientId         = a.ClientId
+					 and pts.ChannelId        in (
+						 select bb.ChannelId
+						 from
+						 channels bb
+						 where
+						 1=1
+						 and
+						 bb.CampaignId = a.CampaignId
+						 and
+						 bb.BrandId    = a.BrandId
+						 and
+						 bb.ClientId   = a.ClientId
+						 )
+					 limit 1
+					 ) as LogType,
+					(
+					 select pts.DateCreated
+					 from
+					 points_log pts
+					 where
+					 1=1
+					 and pts.PointsId         = a.PointsId
+					 and pts.SubscriptionId   = a.SubscriptionId
+					 and pts.ClientId         = a.ClientId
+					 and pts.BrandId          = a.BrandId
+					 and pts.CampaignId       = a.CampaignId
+					 and pts.ClientId         = a.ClientId
+					 and pts.ChannelId        in (
+						 select bb.ChannelId
+						 from
+						 channels bb
+						 where
+						 1=1
+						 and
+						 bb.CampaignId = a.CampaignId
+						 and
+						 bb.BrandId    = a.BrandId
+						 and
+						 bb.ClientId   = a.ClientId
+						 )
+					 limit 1
+					 ) as LastActivity,
 					a.DateCreated
 				from  customer_subscriptions a, 
 				      customers e, clients f
@@ -1182,6 +1357,9 @@ class ReportsListController extends Controller
 					$xtra
 					$vxtra
 					$filter
+					$psql
+					$dtfilter1 
+					$dtfilter2
 				GROUP BY a.CustomerId
 				";
 
@@ -1245,6 +1423,12 @@ class ReportsListController extends Controller
 				 "CUSTOMER EMAIL",
 				 "CUSTOMER BDAY",
 				 "POINTS NAME",
+				 "CLIENT NAME",
+				 "BRAND NAME",
+				 "CAMPAIGN NAME",
+				 "CHANNEL NAME",
+				 "POINTS",
+				 "LOG TYPE",
 				 "DATE CREATED",
 			 );
 
@@ -1282,7 +1466,13 @@ class ReportsListController extends Controller
 			$udata[] = trim($custmail  );
 			$udata[] = trim($custbday  );
 			$udata[] = trim($ptsname   );
-			$udata[] = trim($ts        );  
+			$udata[] = trim($row["CompanyName"]);
+			$udata[] = trim($row["BrandName"]);
+			$udata[] = trim($row["CampaignName"]);
+			$udata[] = trim($row["ChannelName"]);
+			$udata[] = trim($row["PointsLogHist"]);
+			$udata[] = trim($row["LogType"]);
+			$udata[] = trim($row["LastActivity"]);
 			
 			//fmt
 			$str   = $utils->fmt_csv($udata);
@@ -1598,6 +1788,8 @@ class ReportsListController extends Controller
 						$dtfilter1
 						$dtfilter2
 						$dtfilter3
+					GROUP BY 
+						rdm.DateRedeemed
 					ORDER BY rdm.DateRedeemed DESC	
 					";
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
@@ -1843,8 +2035,21 @@ class ReportsListController extends Controller
 			$qid     =  addslashes(Yii::app()->user->ClientId);
 			$sfilter = " AND ptslog.ClientId = '$qid' ";
 		}
+		
+		//byClientName
+		$tfilter     = '';
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$tfilter = " AND ptslog.ClientId = '$t' ";
+			}			
+		}
 
-
+		
 		//email + cust-name + etc
 		if('sortby' == 'sortby')
 		{
@@ -1941,6 +2146,7 @@ class ReportsListController extends Controller
 						$qfilter 
 						$rfilter 
 						$sfilter 
+						$tfilter
 						$dtfilter1
 						$dtfilter2
 					GROUP BY
@@ -1997,6 +2203,7 @@ class ReportsListController extends Controller
 						$qfilter 
 						$rfilter 
 						$sfilter 
+						$tfilter
 						$dtfilter1
 						$dtfilter2
 				GROUP BY 
@@ -2060,6 +2267,7 @@ class ReportsListController extends Controller
 						$qfilter 
 						$rfilter 
 						$sfilter 
+						$tfilter
 						$dtfilter1
 						$dtfilter2
 				GROUP BY 
@@ -2131,6 +2339,7 @@ class ReportsListController extends Controller
 						$qfilter 
 						$rfilter 
 						$sfilter 
+						$tfilter
 						$dtfilter1
 						$dtfilter2
 			GROUP BY 
@@ -3238,15 +3447,16 @@ class ReportsListController extends Controller
 						pts.PointsId = b.PointsId
 						limit 1	
 					) as PointsSystemName,
-					(
-						select pts.DateCreated
+					/**(
+						select max(pts.DateCreated)
 						from
 						 points_log pts
 						where
 							pts.PointsId = b.PointsId
 						order by pts.DateCreated DESC
 						limit 1	
-					) as PointsSystemDate,
+					) as PointsSystemDate,**/
+					b.DateCreated as PointsSystemDate,
 					(
 					   select CONCAT(cust.FirstName,' ' ,cust.LastName)
 					   from

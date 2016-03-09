@@ -16,7 +16,7 @@ if(Yii::app()->user->AccessType === "SUPERADMIN")
 	$this->menu=array(
 		array('label'=>'List   Coupon System',  'url'=>array('index')),
 		array('label'=>'Create Coupon System',  'url'=>array('create')),
-		array('label'=>'Pending Coupon System', 'url'=>array('pending')),
+//		array('label'=>'Pending Coupon System', 'url'=>array('pending')),
 	);
 }
 ?>

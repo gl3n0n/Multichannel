@@ -227,11 +227,18 @@ class PointsSystemController extends Controller
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('PointsSystem', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+							'defaultOrder' => ' t.PointsId DESC ',
+							)			
+				
 			));
 		} else {
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('PointsSystem', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+							'defaultOrder' => ' t.PointsId DESC ',
+							)				
 			));
 		}
 

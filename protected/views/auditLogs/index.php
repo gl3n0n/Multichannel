@@ -256,7 +256,11 @@ $( document ).ready(function() {
 		),
 		'UserType',
 		'IPAddr',
-		'UserAgent',
+		array(
+		'name'  => 'UserAgent',
+		'value' => '($data->UserAgent!= null)?(nl2br($data->UserAgent)):("")',
+		'type'  => 'raw',
+		),		
 		array(
 		'name'  => 'ClientId',
 		'value' => '($data->byClients != null)?($data->byClients->CompanyName):("")',

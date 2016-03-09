@@ -74,7 +74,7 @@ class Customers extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'CustomerId' => 'Customer Id',
+			'CustomerId' => 'Customer ID',
 			'FirstName' => 'First Name',
 			'MiddleName' => 'Middle Name',
 			'LastName' => 'Last Name',
@@ -83,7 +83,7 @@ class Customers extends CActiveRecord
 			'Address' => 'Address',
 			'Email' => 'Email',
 			'BirthDate' => 'BirthDate',
-			'FBId' => 'Fbid',
+			'FBId' => 'FbID',
 			'TwitterHandle' => 'Twitter Handle',
 			'Status' => 'Status',
 			'DateCreated' => 'Date Created',

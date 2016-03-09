@@ -188,20 +188,85 @@ class CustomersController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$search   = trim(Yii::app()->request->getParam('search'));
 		$criteria = new CDbCriteria;
-		if($search) 
-			$criteria->compare('FirstName', $search, true);
+	
+		//byCustomerName
+		$byCustomerName   = trim(Yii::app()->request->getParam('byCustomerName'));
+		if(strlen($byCustomerName))
+		{
+		    $t = addslashes($byCustomerName);
+			$criteria->addCondition(" ( t.FirstName  LIKE '%$t%' OR t.LastName  LIKE '%$t%' ) ");
+		}			
+		//byEmail
+		$byEmail   = trim(Yii::app()->request->getParam('byEmail'));
+		if(strlen($byEmail))
+		{
+		    $t = addslashes($byEmail);
+			$criteria->addCondition(" ( t.Email  LIKE '%$t%' ) ");
+		}			
+
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+
+		//byCreatedDateFr: 
+		$byCreatedDateFr = trim(Yii::app()->request->getParam('byCreatedDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byCreatedDateFr))
+		{
+			$t = addslashes($byCreatedDateFr);
+			$criteria->addCondition(" ( t.DateCreated >= '$t 00:00:00' ) ");
+		}
+		//byCreatedDateTo: 
+		$byCreatedDateTo = trim(Yii::app()->request->getParam('byCreatedDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byCreatedDateTo))
+		{
+			$t = addslashes($byCreatedDateTo);
+			$criteria->addCondition(" ( t.DateCreated <= '$t 23:59:59' ) ");
+		}		
 
 
+		//byBirthDateFr: 
+		$byBirthDateFr = trim(Yii::app()->request->getParam('byBirthDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byBirthDateFr))
+		{
+			$t = addslashes($byBirthDateFr);
+			$criteria->addCondition(" ( t.BirthDate >= '$t 00:00:00' ) ");
+		}
+		//byBirthDateTo: 
+		$byBirthDateTo = trim(Yii::app()->request->getParam('byBirthDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byBirthDateTo))
+		{
+			$t = addslashes($byBirthDateTo);
+			$criteria->addCondition(" ( t.BirthDate <= '$t 23:59:59' ) ");
+		}		
+
+		
+		//normal
 		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
 		{
-			 $criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
+			$t = addslashes(Yii::app()->user->ClientId);
+			$criteria->addCondition(" (  t.ClientId = '$t' )  ");
 		}
 
 		$dataProvider = new CActiveDataProvider('Customers', array(
 			'criteria'=>$criteria ,
-			));
+		));
+		
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -365,6 +430,8 @@ class CustomersController extends Controller
 				$cid       = addslashes($PointsId);
 				$sqlwhere .=  " AND t.PointsId   = '$cid' ";
 				
+
+				//echo " $sqlwhere; ";exit;
 				//chk if exists
 				$cust_subs = CustomerSubscriptions::model()->findAll(array(
 						'select'    => '*', 
@@ -439,6 +506,7 @@ class CustomersController extends Controller
 				$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 				$model->setAttribute("UpdatedBy",   Yii::app()->user->id);
 				$model->setAttribute("ClientId",    $ClientId);
+				$model->setAttribute("PointsId",    $PointsId);
 
 				//chk it again
 				if(!$model->hasErrors())

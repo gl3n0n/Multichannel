@@ -20,13 +20,13 @@ $this->menu=array(
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("clients/index"),
 	'method'=>'get',
-)); ?>
-	<fieldset>
-		<legend>Search Client Name</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="CompanyName" title="Search Company Name">
-		<button type="submit">Search</button>
-	</fieldset>
-<?php $this->endWidget(); 
+));
+
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bystatus-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+
+$this->endWidget(); 
 ?>
 </div>
 <?php $this->widget('zii.widgets.grid.CGridView', array(
@@ -34,13 +34,13 @@ $this->menu=array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 			array(
-			'name' => 'Client Id',
+			'name' => 'ClientId',
 			'value'=> '$data->ClientId',
 			),	
 			//'CompanyName',
 			array(
 			'name'  => 'Client Name',
-			'value' => 'CHtml::link($data->CompanyName,Yii::app()->createUrl("clients/update",array("id"=>$data->primaryKey)))',
+			'value' => 'CHtml::link($data->CompanyName,Yii::app()->createUrl("clients/view",array("id"=>$data->primaryKey)))',
 			'type'  => 'raw',
 			),
 			'Address',
@@ -58,7 +58,7 @@ $this->menu=array(
 			array(
 			'name' => 'Updated By',
 			'value'=> '($data->clientUpdateUsers != null )?($data->clientUpdateUsers->Username):("")',
-			),			
+			),	
 	),
 )); 
 

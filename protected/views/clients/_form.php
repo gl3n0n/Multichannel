@@ -42,8 +42,7 @@
 		<?php echo $form->textField($model,'Landline',array('size'=>30,'maxlength'=>30)); ?>
 		<?php echo $form->error($model,'Landline'); ?>
 	</div>
-
-	
+ 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'Status'); ?>
 		<?php echo ZHtml::enumDropDownList(Clients::model(), 'Status', array(
@@ -53,7 +52,6 @@
 )); ?>
 		<?php echo $form->error($model,'Status'); ?>
 	</div>
-
 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

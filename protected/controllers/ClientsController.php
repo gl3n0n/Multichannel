@@ -74,6 +74,14 @@ class ClientsController extends Controller
 			$model->attributes=$_POST['Clients'];
 			$model->setAttribute("DateCreated", new CDbExpression('NOW()'));
 			$model->setAttribute("CreatedBy", Yii::app()->user->id);
+			
+			//token
+			$apitoken  = @hash('sha256', md5(sprintf("#!/usr/local/bin/yuicon/multi-channel-api-%s-%s-%s",
+										   $_POST['Clients']['CompanyName'],
+										   $_POST['Clients']['Email']), 
+										   Yii::app()->user->id ));	
+			$model->setAttribute("ApiToken", $apitoken);
+			
 			if($model->save())
 			{
 				$utilLog = new Utils;
@@ -145,24 +153,52 @@ class ClientsController extends Controller
 	 */
 	public function actionIndex()
 	{
-	
-	
-		$search   = Yii::app()->request->getParam('search');
 		$criteria = new CDbCriteria;
-		if($search) $criteria->compare('CompanyName', $search, true);
-		
+
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
+		{
+		    $t = addslashes($byName);
+			$criteria->addCondition(" ( t.CompanyName     LIKE '%$t%' ) ");
+		}			
+
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+
 		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'ADMIN')
 		{
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true);
 			$dataProvider=new CActiveDataProvider('Clients', array ( 
-			'criteria' => $criteria ) 
-			);
+			'criteria' => $criteria,
+			'sort'     => array(
+							'defaultOrder' => ' t.ClientId DESC ',
+							) 
+			));
 		}
 		else
 		{
 			$dataProvider = new CActiveDataProvider('Clients', array(
-				'criteria'=>$criteria ,
+				'criteria'=> $criteria ,
+				'sort'    => array(
+								'defaultOrder' => ' t.ClientId DESC ',
+								)
 			));						
 			
 		// Yii::app()->user->ClientId

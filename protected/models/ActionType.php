@@ -93,7 +93,7 @@ class ActionType extends CActiveRecord
 		//StartDate,EndDate,Status,DateCreated,CreatedBy,DateUpdated,UpdatedBy
 
 		return array(
-			'ActiontypeId' => 'Id',
+			'ActiontypeId' => 'Action Type ID',
 			'Name'         => 'Action Type Name',
 			'ClientId'     => 'Client Name',
 			'Value'        => 'Multiplier',

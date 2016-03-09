@@ -25,9 +25,9 @@ $this->menu=array(
 $this->renderPartial('_form', array(
 	'model'	        =>$model, 
 	'client_list'   =>$client_list,
-	'brand_list'    =>$brand_list,
-	'campaign_list' =>$campaign_list,
-	'channel_list'  =>$channel_list,
+	'brand_list'    =>array(),
+	'campaign_list' =>array(),
+	'channel_list'  =>array(),
 	'point_list'   =>$point_list,
 	'coupon_list'  =>$coupon_list,
 	'reward_list'  =>$reward_list,

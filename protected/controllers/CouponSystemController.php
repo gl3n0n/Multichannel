@@ -291,6 +291,9 @@ class CouponSystemController extends Controller
 			exit;
 		}
 
+		//flag
+		$goodFlag = 0;
+		
 		if(isset($_POST['CouponSystem']))
 		{
 			$couponUploadFile = CUploadedFile::getInstance($model,'File');
@@ -309,7 +312,10 @@ class CouponSystemController extends Controller
 					$model->addError('error', 'Quantity must be more than the current value.');
 				} else {
 					if(intval($_POST['CouponSystem']['Quantity']) > intval($model->Quantity) )
+					{
 						$model->edit_flag = "1";
+						$goodFlag++;
+					}
 					$model->Quantity = $_POST['CouponSystem']['Quantity'];
 				}
 			}
@@ -378,6 +384,14 @@ class CouponSystemController extends Controller
 					//echo '<pre>';
 					//print_r($model->attributes);
 					//exit();
+					
+					//editable flag is set
+					if($couponUploadFile !== null and $goodFlag > 0 and $model->CouponMode==='user') 
+					{
+						$model->edit_flag = "1";
+						$model->setAttribute("edit_flag", "1");
+					}
+					
 					if($model->save()) {
 						if($model->CouponMode==='user') {
 							try {
@@ -504,6 +518,9 @@ class CouponSystemController extends Controller
 		//create data
 		$dataProvider = new CActiveDataProvider('CouponSystem', array(
 					'criteria'=>$criteria ,
+					'sort'    => array(
+										'defaultOrder' => ' t.CouponId DESC ',
+										)	
 					));
 
 		if(0){

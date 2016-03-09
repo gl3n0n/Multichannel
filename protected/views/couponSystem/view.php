@@ -74,8 +74,14 @@ if(!empty($downloadCSV))
 			'name' => 'Points System Name',
 			'value' => (($model->byPoints != null)?($model->byPoints->Name):('') ),
 			),		
-		'Type',
-		'TypeId',
+		        array(
+                'name'  => 'Coupon Mode',
+                'value' => $model->TypeId,
+        ),
+		        array(
+                'name'  => 'Code Type',
+                'value' => $model->Type,
+        ),
 		'Source',
 		'ExpiryDate',
 		'CodeLength',

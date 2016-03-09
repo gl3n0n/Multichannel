@@ -404,11 +404,17 @@ class RewardDetailsController extends Controller
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('RewardDetails', array(
 				'criteria'=>$criteria ,
+				'sort'         => array(
+				'defaultOrder' => ' t.RewardConfigId DESC ',
+				)
 			));
 		} else {
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('RewardDetails', array(
 				'criteria'=>$criteria ,
+				'sort'         => array(
+						'defaultOrder' => ' t.RewardConfigId DESC ',
+						)				
 			));
 		}
 

@@ -133,48 +133,128 @@ class CustomerSubscriptionsController extends Controller
 	 */
 	public function actionIndex($customer_id='')
 	{
-		$search      = trim(Yii::app()->request->getParam('search'));
+		$criteria    = new CDbCriteria;
 		$customer_id = trim(Yii::app()->getRequest()->getParam('customer_id'));
+		
+
+		//points
+		$byPointsName   = trim(Yii::app()->request->getParam('byPointsName'));
+		$ofilter        = '';
+		if(strlen($byPointsName))
+		{
+		    $t = addslashes($byPointsName);
+			$ofilter = " AND pts.Name LIKE '%$t%' ";
+		}	
+		//byBrandName
+		$byBrandName   = trim(Yii::app()->request->getParam('byBrandName'));
+		$pfilter       = '';
+		if(strlen($byBrandName))
+		{
+		    $t = addslashes($byBrandName);
+			$pfilter = " AND brnd.BrandName LIKE '%$t%' ";
+		}	
+		//byChannelName
+		$byChannelName = trim(Yii::app()->request->getParam('byChannelName'));
+		$qfilter       = '';
+		if(strlen($byChannelName))
+		{
+		    $t = addslashes($byChannelName);
+			$qfilter = " AND EXISTS (
+							SELECT 1 
+							FROM
+							channels cn
+							WHERE
+							1=1
+							AND cn.ClientId   = cs.ClientId
+							AND cn.BrandId    = cs.BrandId
+							AND cn.CampaignId = cs.CampaignId
+							AND cn.ChannelName LIKE '%$t%'
+						)
+						";
+		}			
+		
+		//by client
+		$rfilter       = '';
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$rfilter       = " AND cs.ClientId = '$t' ";
+			}			
+		}
+		//client 
+		if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
+		{
+			$t = addslashes(Yii::app()->user->ClientId);
+			$rfilter       = " AND cs.ClientId = '$t' ";
+		}
+
+		//customer
+		$sfilter = '';
 		if ($customer_id != '')
 		{
-			$criteria = new CDbCriteria;
-			$criteria->addCondition(' t.CustomerId = :customer_id');
-			$criteria->params = array(':customer_id' => $customer_id);
-				
-			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
-			{
-				$criteria->compare('t.ClientId', Yii::app()->user->ClientId, true); 
-			}
-			
-			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
-					'criteria'=> $criteria,
-				));
-				
-		}
-		else
-		{
-			$criteria = new CDbCriteria;
-			if(strlen($search))
-			{
-				$criteria->with = array(
-					'subsChannels' => array('joinType'=>'LEFT JOIN'),
-				);
-				// $criteria->addCondition(" subsChannels.ChannelName LIKE '%".addslashes($search)."%' ");
-			}
-
-			if(Yii::app()->utils->getUserInfo('AccessType') !== 'SUPERADMIN') 
-			{
-				$criteria->compare('t.ClientId', Yii::app()->user->ClientId, true); 
-			}
-
-			$dataProvider = new CActiveDataProvider('CustomerSubscriptions', array(
-				'criteria'=> $criteria,
-			));
+			$t        = addslashes($customer_id);
+			$sfilter  = " AND cs.CustomerId = '$t' ";	
 		}
 		
-		//echo "HAHA<hr>".@var_export($dataProvider->criteria,true);
-		//exit;
-			
+		if(1){
+		$rawSql   = "
+				SELECT 
+					cs.*,
+					brnd.BrandName,
+					camp.CampaignName,
+					(
+						select y.ChannelName
+						from
+						channels y
+						where
+						1=1
+						AND  y.ClientId   = cs.ClientId
+						AND  y.BrandId    = cs.BrandId
+						AND  y.CampaignId = cs.CampaignId
+						limit 1 
+					) as ChannelName ,
+					clnt.CompanyName as ClientName,
+					pts.Name as PointsSystemName,
+					CONCAT(cust.LastName, ' ',cust.FirstName ) as CustomerName
+				FROM 
+					  customer_subscriptions cs,
+					  customers cust,
+					  clients clnt,
+					  points pts,
+					  brands brnd,
+					  campaigns camp
+				WHERE 1=1
+					  AND   cs.CustomerId     = cust.CustomerId
+					  AND   cs.ClientId       = clnt.ClientId
+					  AND   cs.PointsId       = pts.PointsId
+					  AND   cs.BrandId        = brnd.BrandId
+					  AND   cs.CampaignId     = camp.CampaignId
+						$ofilter 
+						$pfilter 
+						$qfilter 
+						$rfilter 
+						$sfilter 
+			ORDER BY cs.DateCreated DESC
+			";
+
+			//echo "rawSql:$rawSql";exit();
+			$sort = new CSort;
+			$sort->attributes = array('*');
+			//run
+			$rawData  = Yii::app()->db->createCommand($rawSql); 
+			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
+			$dataProvider    = new CSqlDataProvider($rawData, array(
+				    'keyField'       => 'SubscriptionId',
+				    'totalItemCount' => $rawCount,
+				    'sort'           => $sort,
+				    )
+			);
+
+		}
+		
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));

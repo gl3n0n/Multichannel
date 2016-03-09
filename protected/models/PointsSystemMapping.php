@@ -62,7 +62,7 @@ class PointsSystemMapping extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'PointMappingId' => 'ID',
+			'PointMappingId' => 'Point Mapping ID',
 			'PointsId' => 'Points System',
 			'ClientId' => 'Client',
 			'BrandId' => 'Brand',

@@ -17,15 +17,63 @@ $this->menu=array(
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("customerSubscriptions/index"),
 	'method'=>'get',
-)); ?>
-	<fieldset>
-		<legend>Search Channel Name</legend>
-		<input type="text" id='search' name="search" id="list-search" placeholder="ChannelName" title="Search Channel Name">
-		<button type="submit">Search</button>
-	</fieldset>
-<?php $this->endWidget(); ?>
+));
+
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bybrand-name-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bychannel-name-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-bypointsystem-name-form.php');
+include_once(Yii::app()->basePath . '/views/filters/filter-submit-btn-form.php');
+
+
+$this->endWidget(); ?>
 </div>
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php 
+
+$this->widget('zii.widgets.grid.CGridView', array(
+	'dataProvider'=>$dataProvider,
+	//'itemView'=>'_view',
+	'columns'=>array(
+		array(
+			'name'  => 'Subscription Id',
+			'value' => 'CHtml::link($data["SubscriptionId"],Yii::app()->createUrl("customerSubscriptions/view",array("id"=>$data["SubscriptionId"])))',
+			'type'  => 'raw',
+		),
+		array(
+		'name'  => 'Customer Name',
+		'value' => '$data["CustomerName"]',
+		),
+		array(
+			'name'  => 'Client Name',
+			'value' => '$data["ClientName"]',
+			),
+		array(
+			'name'  => 'Brand Name',
+			'value' => '$data["BrandName"]',
+			),
+		array(
+			'name'  => 'Campaign Name',
+			'value' => '$data["CampaignName"]',
+			),
+		array(
+			'name'  => 'Channel Name',
+			'value' => '$data["ChannelName"]',
+			),
+		array(
+			'name'  => 'Point System Name',
+			'value' => '$data["PointsSystemName"]',
+			),			
+		'Status',
+		array(
+			'name' => 'Date Joined',
+			'value' => '$data["DateCreated"]',
+			),	
+	),	
+)); 
+
+
+/**
+$this->widget('zii.widgets.grid.CGridView', array(
 	'dataProvider'=>$dataProvider,
 	//'itemView'=>'_view',
 	'columns'=>array(
@@ -50,16 +98,22 @@ $this->menu=array(
 			'name' => 'Campaign Name',
 			'value' => '$data->subsCampaigns->CampaignName',
 			),
-			/*
 		array(
 			'name' => 'Channel Name',
 			'value' => '$data->subsChannels->ChannelName',
 			),
-			*/
 		array(
 			'name' => 'Point System Name',
 			'value' => '($data->subsPoints!=null)?($data->subsPoints->Name):("")',
 			),			
 		'Status',
+		array(
+			'name' => 'Date Joined',
+			'value' => '$data->DateCreated',
+			),	
 	),	
-)); ?>
+)); 
+**/
+
+
+?>

@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 if(1)
 {
 	$this->menu=array(
-	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
+//	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
 	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
 	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
 	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
@@ -178,7 +178,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	//'itemView'=>'_view',
 	'columns'=>array(
 		array(
-		'name' => 'Customer Id',
+		'name' => 'Customer ID',
 		'value' => '$data["CustomerId"]',
 		),
 		array(
@@ -190,18 +190,18 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		'value' => '$data["Email"]',
 		),
 		array(
-		'name'  => 'Points System',
+		'name'  => 'Points System Name',
 		'value' => 'CHtml::link($data["PointsSystemName"],
 			    Yii::app()->createUrl("reportsList/ptslog/".$data["PointsId"]))',
 		'type'  => 'raw',
 		),		
 			
 		array(
-		'name' => 'Reward Detail Name',
+		'name' => 'Reward Config Name',
 		'value' => '$data["DetailsName"]',
 		),
 		array(
-		'name' => 'Reward Detail Id',
+		'name' => 'Reward Detail ID',
 		'value' => '$data["DetailsId"]',
 		),
 		array(
@@ -209,7 +209,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'value' => '$data["Pts"]',
 			),
 		array(
-			'name' => 'DateRedeemed',
+			'name' => 'Date Redeemed',
 			'value' => '$data["DateRedeemed"]',
 		),			
 	),	

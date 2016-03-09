@@ -79,7 +79,7 @@ class ReportsList extends CActiveRecord
 		return array(
 			'PointLogId'   => 'Point Log Id',
 			'CustomerName' => 'Customer Name',
-			'CustomerId' => 'Customer Id',
+			'CustomerId' => 'Customer ID',
 			'Email'      => 'Email',
 			'SubscriptionId' => 'Subscription',
 			'ClientId'    => 'Client Name',

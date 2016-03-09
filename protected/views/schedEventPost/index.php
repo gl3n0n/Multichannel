@@ -19,8 +19,6 @@ $this->menu=array(
 ));
 
 
-
-
 include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
 include_once(Yii::app()->basePath . '/views/filters/filter-byname-form.php');
 include_once(Yii::app()->basePath . '/views/filters/filter-bypointsystem-name-form.php');
@@ -35,7 +33,7 @@ $this->endWidget(); ?>
 	'dataProvider'=> $dataProvider,
 	'columns'=>array(
 	array(
-		'name'  => 'SchedId',
+		'name'  => 'Scheduled Event ID',
 		'value' => 'CHtml::link($data->SchedId,Yii::app()->createUrl("schedEventPost/view",array("id"=>$data->primaryKey)))',
 		'type'  => 'raw',
 	),
@@ -44,7 +42,7 @@ $this->endWidget(); ?>
 	'value'=> 'trim($data->Title)',
 	),	
 	array(
-	'name' => 'Scheduled Event Description',
+	'name' => 'Description',
 	'value'=> 'trim($data->Description)',
 	),	
 	array(
@@ -73,12 +71,12 @@ $this->endWidget(); ?>
 	'DateCreated',
 	array(
 		'name' => 'CreatedBy',
-		'value'=> '($data->sCreateUsers!=null)?($data->sCreateUsers->Username):()',
+		'value'=> '($data->sCreateUsers!=null)?($data->sCreateUsers->Username):("")',
 	),
 	'DateUpdated',
 	array(
 		'name' => 'UpdatedBy',
-		'value'=> '($data->sUpdateUsers!=null)?($data->sUpdateUsers->Username):()',
+		'value'=> '($data->sUpdateUsers!=null)?($data->sUpdateUsers->Username):("")',
 	),
 	
 	),

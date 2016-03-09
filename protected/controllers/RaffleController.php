@@ -157,9 +157,38 @@ class RaffleController extends Controller
 			$coupons[$row->CouponId] = $row->CouponName;
 
 		}
+		
+		if(Yii::app()->user->AccessType === "SUPERADMIN") {
+			$_coupon = CouponSystem::model()->findAll();
+		} else {
+			$_coupon = CouponSystem::model()->thisClient()->findAll();
+		}
+		$coupons = array();
+		foreach($_coupon as $row) {
+			if(@preg_match("/^(REGULAR)$/i",$row->CouponType) and @preg_match("/^(ACTIVE)$/i",$row->Status))
+			$coupons[$row->CouponId] = $row->CouponName;
+
+		}
 
 		if(isset($_POST['Raffle']))
 		{
+			
+			$cid   = 0;
+			$ctype = 0;
+			$more  = '';
+			if(1){
+				foreach($_coupon as $row) {
+					if($row->CouponId == $_POST['Raffle']['CouponId'])
+					{
+						$cid = $row->ClientId;
+						if(@preg_match("/^(REGULAR)$/i",$row->CouponType))
+							$ctype++;
+						$more = sprintf("%s - %s",$row->CouponType,$row->CouponName);
+						break;
+					}
+				}
+			}
+			
 			$old_attrs = @var_export($model->attributes,1);
 			
 			$model->attributes=$_POST['Raffle'];
@@ -169,13 +198,34 @@ class RaffleController extends Controller
 			$audit_logs= sprintf("OLD:\n\n%s\n\nNEW:\n\n%s",$old_attrs,$new_attrs);
 
 			
-			$model->setAttribute("ClientId", Yii::app()->user->ClientId);
 			$model->setAttribute("DateUpdated", new CDbExpression('NOW()'));
 			$model->setAttribute("UpdatedBy", Yii::app()->user->id);
-			if($model->save()){
-				$utilLog = new Utils;
-				$utilLog->saveAuditLogs(null,$audit_logs);
-				$this->redirect(array('view','id'=>$model->RaffleId));
+			
+			if(Yii::app()->user->AccessType !== "SUPERADMIN") 
+			{
+				$model->setAttribute("ClientId", Yii::app()->user->ClientId);
+			}
+			
+			if(Yii::app()->user->AccessType == "SUPERADMIN") {
+				$model->setAttribute("ClientId", $cid);
+			}
+
+			if(! $ctype)
+			{
+				$model->addError('CouponId', 'Allowed Coupon Type is REGULAR only.');
+			}
+			else
+			{
+					if($model->save())
+					{
+						$utilLog = new Utils;
+						$utilLog->saveAuditLogs(null,$audit_logs);
+						$this->redirect(array('view','id'=>$model->RaffleId));
+					}
+					else					
+					{
+						$model->addError('CouponId', 'Failed to update raffle.');
+					}
 			}
 		}
 
@@ -279,6 +329,9 @@ class RaffleController extends Controller
 
 		$dataProvider = new CActiveDataProvider('Raffle', array(
 		'criteria'=>$criteria ,
+		'sort'    => array(
+								'defaultOrder' => ' t.RaffleId DESC ',
+								)
 		));
 
 		$this->render('index',array(
@@ -313,11 +366,11 @@ class RaffleController extends Controller
 		$criteria = new CDbCriteria;
 
 		
-		//name
+				//name
 		$byName   = trim(Yii::app()->request->getParam('byName'));
 		if(strlen($byName))
 		{
-		    $t = addslashes($byName);
+		  $t = addslashes($byName);
 			$criteria->addCondition(" ( t.RaffleName     LIKE '%$t%' ) ");
 		}			
 

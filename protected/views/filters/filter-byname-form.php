@@ -1,9 +1,9 @@
 <fieldset>
-	<legend>By Name</legend>
+	<legend>Point System Name</legend>
 	<input type='text' 
 		id='byName' 
 		name='byName' 
-		placeholder='Name' 
+		placeholder='Point System Name' 
 		title='Search Name' 
 		style='width:200px;'
 		maxlength='20'

@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 if(1)
 {
 	$this->menu=array(
-	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
+//	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
 	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
 	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
 	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
@@ -193,7 +193,7 @@ $this->widget('CGridViewEtc', array(
 	'etc' => $mapping,
 	'columns'=>array(
 		array(
-		'name' => 'Customer Id',
+		'name' => 'Customer ID',
 		'value' => '$data["CustomerId"]',
 		),
 		array(
@@ -201,11 +201,11 @@ $this->widget('CGridViewEtc', array(
 		'value' => '$data["CustomerName"]',
 		),	
 		array(
-		'name' => 'Customer',
+		'name' => 'Customer Email',
 		'value' => '$data["Email"]',
 		),
 		array(
-		'name'  => 'Points System',
+		'name'  => 'Points System Name',
 		'value' => 'CHtml::link($data["PointsSystemName"],
 			    Yii::app()->createUrl("reportsList/ptslog/".$data["PointsId"]))',
 		'type'  => 'raw',
@@ -216,17 +216,12 @@ $this->widget('CGridViewEtc', array(
 			'value'=> '$data["CouponName"]',
 		), 	
 		array(
-			'name' => 'Coupon Id',
-			'type' => 'raw',
-			'value'=> '$data["CouponId"]',
-		), 
-		array(
 			'name' => 'Coupon Type',
 			'type' => 'raw',
 			'value'=> '$data["CouponType"]',
 		), 		
 		array(
-			'name' => 'Code',
+			'name' => 'Coupon Code',
 			'type' => 'raw',
 			'value'=> '$data["Code"]',
 		), 

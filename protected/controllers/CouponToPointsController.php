@@ -244,6 +244,9 @@ class CouponToPointsController extends Controller
 
 		$dataProvider = new CActiveDataProvider('CouponToPoints', array(
 			'criteria'=>$criteria ,
+			'sort'    => array(
+											'defaultOrder' => ' t.CtpId DESC ',
+											)			
 		));
 
 		$this->render('index',array(

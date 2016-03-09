@@ -138,7 +138,7 @@ if($model->scenario === 'insert')
 	</div>
 
    <div class="row system-generated">
-		<?php echo $form->labelEx($model,'Type'); ?>
+		<?php echo $form->labelEx($model,'Code Type'); ?>
 		<?php echo ZHtml::enumDropDownList(CouponSystem::model(), 'Type', array(
 		    'id'   =>'Type',
 		    'options' => array("$model->Type" => array('selected'=>true)),
@@ -157,7 +157,7 @@ if($model->scenario === 'insert')
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'Quantity'); ?>
+		<?php echo $form->labelEx($model,'Coupon Quantity'); ?>
 		<?php echo $form->textField($model,'Quantity',array('size'=>11,
 					 'style'    => 'width:200px;','maxlength'=>11)); ?>
 		<?php echo $form->error($model,'Quantity'); ?>
@@ -208,6 +208,7 @@ if($model->scenario === 'insert')
 		    'style'=> 'width:200px;',
 		    'options' => array("$model->Type" => array('selected'=>true)),
 		    'value'=>'',
+			'disabled' => true,
 		)); ?>
 		<?php echo $form->error($model,'Type'); ?>
        </div>
@@ -248,8 +249,10 @@ if($model->scenario === 'insert')
         <?php echo $form->labelEx($model,'CouponType'); ?>
         <?php echo $form->textField($model,'CouponType',array('size'=>11, 'style'=> 'width:200px;','maxlength'=>11,'disabled'=>true)); ?>
         <?php echo $form->error($model,'CouponType'); ?>
+		<?php 
+		 echo $form->hiddenField($model,'Source',array('value'=> $model->Source )); 
+		 ?>
     </div>
-	
 
 	 <?php if($model->CouponType==='CONVERT_TO_POINTS' || $model->CouponType==='EXCHANGE_POINTS_TO_COUPON') { ?>
 		<div class="row">

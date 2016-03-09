@@ -204,18 +204,63 @@ class BrandsController extends Controller
 	public function actionIndex()
 	{
 
-		$search   = Yii::app()->request->getParam('search');
+		
 		$criteria = new CDbCriteria;
-		if($search) $criteria->compare('BrandName', $search, true);
+		
+		//name
+		$byName   = trim(Yii::app()->request->getParam('byName'));
+		if(strlen($byName))
+		{
+		    $t = addslashes($byName);
+			$criteria->addCondition(" ( t.BrandName     LIKE '%$t%' ) ");
+		}			
 
+		//status
+		$byStatusType = trim(Yii::app()->request->getParam('byStatusType'));
+		if(strlen($byStatusType))
+		{
+			$t = addslashes($byStatusType);
+			$criteria->addCondition(" (  t.Status = '$t' )  ");
+		}			
+		//by client
+		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN' and isset($_REQUEST['Clients'])) 
+		{
+			$byClient = $_REQUEST['Clients']['ClientId'];
+			if($byClient>0)
+			{
+				$t = addslashes($byClient);
+				$criteria->addCondition(" (  t.ClientId = '$t' )  ");
+			}			
+		}
+		//date: 
+		$byTranDateFr = trim(Yii::app()->request->getParam('byTranDateFr'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateFr))
+		{
+			$t = addslashes($byTranDateFr);
+			$criteria->addCondition(" ( t.DurationFrom >= '$t 00:00:00' ) ");
+		}
+		//date: 
+		$byTranDateTo = trim(Yii::app()->request->getParam('byTranDateTo'));
+		if(@preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$byTranDateTo))
+		{
+			$t = addslashes($byTranDateTo);
+			$criteria->addCondition(" ( t.DurationTo <= '$t 23:59:59' ) ");
+		}		
+		
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('Brands', array(
 				'criteria'=>$criteria ,
+				'sort'     => array(
+							'defaultOrder' => ' t.BrandId DESC ',
+							) 
 			));
 		} else {
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('Brands', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+							'defaultOrder' => ' t.BrandId DESC ',
+							)				
 			));
 		}
 		//get models

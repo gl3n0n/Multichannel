@@ -64,6 +64,16 @@ class Users extends CActiveRecord
             array('Username', 'length', 'max'=>32),
             array('Username', 'validateUsername'),
             array('Email',    'emailExists'),
+			
+			array('FirstName, MiddleName, LastName', 'length', 'max'=>50),
+			array('FirstName, MiddleName, LastName', 'match',  'pattern'=>'/^([A-Za-z0-9\. ]+)$/', 'message' => 'Invalid characaters'),
+			array('Username', 'length', 'max'=>50),
+			array('Username', 'match',  'pattern'=>'/^([A-Za-z0-9_]+)$/','message' => 'Invalid characaters'),
+			array('Email',    'length', 'max'=>30),
+			array('Email',    'match',  
+					'pattern' =>'/^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$/i',
+					'message' => 'Invalid format'
+			),
             array('Password, ConfirmPassword', 'length', 'min'=>8, 'max'=>64),
             array('Password, ConfirmPassword', 'match', 'pattern'=>'/^[a-zA-Z0-9]*$/', 'on'=>array('insert', 'create', 'update')),
             array('Password', 'compare', 'compareAttribute'=>'ConfirmPassword'),
@@ -124,10 +134,10 @@ class Users extends CActiveRecord
      */
     public function checkPassword($compareAttribute)
     {
-        
+        //$model->scenario === 'insert' $this->isNewRecord()
         if($this->Password || $this->{$compareAttribute} )
         {
-            if($this->encrypt($this->Password) === $this->findByPk($this->UserId)->Password && ! $this->isNewRecord())
+            if($this->encrypt($this->Password) === $this->findByPk($this->UserId)->Password && $this->scenario !== 'insert')
                 $this->addError('Password', 'Password is already used. Please choose another one.');
 
             if($this->Password !== $this->{$compareAttribute})

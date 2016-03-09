@@ -405,11 +405,19 @@ class SchedEventPostController extends Controller
 		if(Yii::app()->utils->getUserInfo('AccessType') === 'SUPERADMIN') {
 			$dataProvider = new CActiveDataProvider('SchedEventPost', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+										'defaultOrder' => ' t.SchedId DESC ',
+										)
+				
 			));
 		} else {
 			$criteria->compare('ClientId', Yii::app()->user->ClientId, true); 
 			$dataProvider = new CActiveDataProvider('SchedEventPost', array(
 				'criteria'=>$criteria ,
+				'sort'    => array(
+										'defaultOrder' => ' t.SchedId DESC ',
+										)
+				
 			));
 		}
 		//get models
@@ -871,9 +879,12 @@ class SchedEventPostController extends Controller
 		if(1){
 		
 			$rawSql = "
-				SELECT  t.*
-				FROM points t
-				WHERE 1=1 
+				SELECT  t.*,a.PointsAction
+				FROM points t,
+				     action_type a
+				WHERE 1=1  
+					AND t.ClientId = a.ClientId
+					AND t.PointsId = a.PointsId
 					$xtra1 
 					$xtra2
 					$xtra3
@@ -883,7 +894,7 @@ class SchedEventPostController extends Controller
 			$rawData  = Yii::app()->db->createCommand($rawSql); 
 			$rawCount = Yii::app()->db->createCommand('SELECT COUNT(1) FROM (' . $rawSql . ') as count_alias')->queryScalar(); //the count
 			$dataProvider    = new CSqlDataProvider($rawData, array(
-				    'keyField' => 'PointsId',
+				    'keyField'       => 'PointsId',
 				    'totalItemCount' => $rawCount,
 				    )
 				);
@@ -893,7 +904,7 @@ class SchedEventPostController extends Controller
 		foreach($dataProvider->getData() as $row)
 		{
 			$list[$row["PointsId"]] = sprintf("%s - %s",$row["PointsId"],
-							$row["PointAction"]);
+							$row["PointsAction"]);
 		}
 		//give
 		return $list;

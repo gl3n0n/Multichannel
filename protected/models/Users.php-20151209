@@ -1,0 +1,307 @@
+<?php
+
+/**
+ * This is the model class for table "users".
+ *
+ * The followings are the available columns in table 'users':
+ * @property string $UserId
+ * @property string $ClientId
+ * @property string $FirstName
+ * @property string $MiddleName
+ * @property string $LastName
+ * @property string $Gender
+ * @property string $Birthdate
+ * @property string $ContactNumber
+ * @property string $Address
+ * @property string $Email
+ * @property string $Username
+ * @property string $Password
+ * @property string $ConfirmPassword
+ * @property string $AccessType
+ * @property string $Status
+ * @property string $DateCreated
+ * @property string $CreatedBy
+ * @property string $DateUpdated
+ * @property string $UpdatedBy
+ */
+class Users extends CActiveRecord
+{
+    const GENDER_FEMALE = 'F';
+    const GENDER_MALE   = 'M';
+
+    const STATUS_ACTIVE   = 'ACTIVE';
+    const STATUS_INACTIVE = 'INACTIVE';
+    const STATUS_PENDING  = 'PENDING';
+
+    const ACCESS_ADMIN            = 'ADMIN';
+    const ACCESS_CAMPAIGN_MANAGER = 'CAMPAIGNMANAGER';
+    const ACCESS_MANAGER          = 'MANAGER';
+    const ACCESS_SUPERADMIN       = 'SUPERADMIN';
+
+        public $ConfirmPassword = NULL;
+
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName()
+    {
+        return 'users';
+    }
+
+    /**
+     * @return array validation rules for model attributes.
+     */
+    public function rules()
+    {
+        // NOTE: you should only define rules for those attributes that
+        // will receive user inputs.
+        return array(
+            array('Username, FirstName, LastName, Email', 'required'),
+            array('CreatedBy, Password, ConfirmPassword', 'required', 'on'=>'insert'),
+            array('UpdatedBy', 'required', 'on'=>'update'),
+            array('CreatedBy, UpdatedBy', 'numerical', 'integerOnly'=>true),
+            array('Birthdate', 'match', 'pattern'=>'/^\d{4}-\d{2}-\d{2}$/'),
+            array('Username', 'length', 'max'=>32),
+            array('Username', 'validateUsername'),
+            array('Email',    'emailExists'),
+            array('Password, ConfirmPassword', 'length', 'min'=>8, 'max'=>64),
+            array('Password, ConfirmPassword', 'match', 'pattern'=>'/^[a-zA-Z0-9]*$/', 'on'=>array('insert', 'create', 'update')),
+            array('Password', 'compare', 'compareAttribute'=>'ConfirmPassword'),
+            array('Password', 'checkPassword', 'compareAttribute'=>'ConfirmPassword', 'on'=>'update'),
+            array('DateCreated, DateUpdated, CreatedBy, UpdatedBy, MiddleName, Gender, Birthday,ContactNumber', 'safe'),
+            array('Gender', 'in', 'range'=>array(
+                self::GENDER_MALE, 
+                self::GENDER_FEMALE
+                )),
+            array('Status', 'in', 'range'=>array(
+                self::STATUS_ACTIVE, 
+                self::STATUS_INACTIVE, 
+                self::STATUS_PENDING
+                )),
+            array('AccessType', 'in', 'range'=>array(
+                self::ACCESS_SUPERADMIN,
+                self::ACCESS_ADMIN,
+                self::ACCESS_CAMPAIGN_MANAGER,
+                self::ACCESS_MANAGER
+                )),
+            // Call them custom validations. Bale param1 = column name, param2 = function name na naka declare sa baba
+            array('Email', 'email'),
+            //array('ContactNumber', 'validateContactNumber'),
+            // The following rule is used by search().
+            // @todo Please remove those attributes that should not be searched.
+                        array('Password, ConfirmPassword', 'safe', 'on'=>'update'),
+            array('UserId, Username, FirstName, LastName, Email, ContactNumber, DateCreated, DateUpdated', 'safe', 'on'=>'search'),
+                        array('ConfirmPassword', 'safe'),
+        );
+    }
+
+    public function encrypt($param)
+    {
+        return md5($param);
+    }
+
+    /**
+     * Things to do right before saving the data.
+     */
+    public function beforeSave()
+    {
+        // Encrypt the password.
+        if( !empty($this->Password) && strlen($this->Password))
+        {
+            $this->Password = $this->encrypt($this->Password);
+        }
+        else
+        {
+            if($this->Password === '')
+                $this->Password = $this->findByPk($this->UserId)->Password;
+        }
+        return parent::beforeSave();
+    }
+
+    /**
+     * Validate the password only when one or both fields have input.
+     * This should ignore the password fields if they are both empty.
+     */
+    public function checkPassword($compareAttribute)
+    {
+        //$model->scenario === 'insert' $this->isNewRecord()
+        if($this->Password || $this->{$compareAttribute} )
+        {
+            if($this->encrypt($this->Password) === $this->findByPk($this->UserId)->Password && $this->scenario !== 'insert')
+                $this->addError('Password', 'Password is already used. Please choose another one.');
+
+            if($this->Password !== $this->{$compareAttribute})
+            {
+                $this->addError('Password', 'Password must be repeated exactly.');
+                $this->addError('ConfirmPassword', 'Password must be repeated exactly.');
+            }
+        }
+    }
+
+    public function validateUsername()
+    {
+        $criteria = new CDbCriteria;
+        $criteria->select = 'Username, UserId';
+        $criteria->addCondition('UserId <> :uid');
+        $criteria->params[':uid'] = $this->UserId;
+
+        $UserModel = Users::model()->findByAttributes(array('Username'=>$this->Username), $criteria);
+
+        if( $UserModel)
+            $this->addError('Username', 'User already exists.');
+    }
+    public function emailExistsOrig()
+    {
+	    $UserModel = Users::model()->findByAttributes(array('Email'=>$this->Email), array('select'=>'Email, UserId'));
+
+	    if( $UserModel && $UserModel->Email !== $this->Email)
+		$this->addError('Email', 'Email already exists.');
+    }
+    
+    public function emailExists()
+    {
+
+	$criteria = new CDbCriteria;
+	$criteria->select = 'Username, UserId, Email';
+	$criteria->addCondition('UserId <> :uid');
+        $criteria->params[':uid'] = $this->UserId;
+	$UserModel = Users::model()->findByAttributes(array('Email'=> $this->Email), $criteria);
+	//echo "<hr>CHECK EMAIL<hr>".@var_export($criteria,true);
+	if( $UserModel )
+		$this->addError('Email', 'Email already exists.');
+		
+    }
+    
+    public function emailExistsNew($email)
+    {
+
+	$criteria = new CDbCriteria;
+	$criteria->select = 'Username, UserId, Email';
+	$UserModel = Users::model()->findByAttributes(array('Email'=> $email), $criteria);
+	return $UserModel;
+    }
+    
+    public function userNameExistsNew($usr)
+    {
+    
+    	$criteria = new CDbCriteria;
+    	$criteria->select = 'Username, UserId, Email';
+    	$UserModel = Users::model()->findByAttributes(array('Username'=> $usr), $criteria);
+    	return $UserModel;
+    }
+    // Custom validation ng ContactNumber
+    public function validateContactNumber()
+    {
+        if(! ctype_digit($this->ContactNumber))
+            $this->addError('ContactNumber', 'Invalid contact number.');
+    }
+
+    /**
+     * @return array relational rules.
+     */
+    public function relations()
+    {
+        // NOTE: you may need to adjust the relation name and the related
+        // class name for the relations automatically generated below.
+        return array(
+            'clientInfo'=>array(self::BELONGS_TO, 'Clients', 'ClientId'),
+        );
+    }
+
+    // public function defaultScope()
+    // {
+    //     return array(
+    //         'condition' => 'ClientId = :myClientId',
+    //         'params' => array(':myClientId' => Yii::app()->user->getId()),
+    //     );
+    // }
+
+    // public function scopes()
+    // {
+    //     return array(
+    //         'inMyCompany' => array(
+    //             'condition' => 'ClientId = :MyClientId',
+    //             'params' => array(':MyClientId' => Yii::app()->user->getId()),
+    //         ),
+    //     );
+    // }
+
+    /**
+     * @return array customized attribute labels (name=>label)
+     */
+    public function attributeLabels()
+    {
+        return array(
+            'UserId'          => 'ID',
+            'ClientId'        => 'Client ID',
+            'FirstName'       => 'FirstName',
+            'MiddleName'      => 'Middle Name',
+            'LastName'        => 'Last Name',
+            'Gender'          => 'Gender',
+            'Birthdate'       => 'Birth Date',
+            'ContactNumber'   => 'Contact Number',
+            'Address'         => 'Address',
+            'Email'           => 'Email',
+            'Username'        => 'Username',
+            'Password'        => 'Password',
+            'AccessType'      => 'Access Type',
+            'Status'          => 'Status',
+            'DateCreated'     => 'Date Created',
+            'CreatedBy'       => 'Created By',
+            'DateUpdated'     => 'Date Updated',
+            'UpdatedBy'       => 'Updated By',
+            'ConfirmPassword' => 'Confirm Password',
+        );
+    }
+
+    /**
+     * Retrieves a list of models based on the current search/filter conditions.
+     *
+     * Typical usecase:
+     * - Initialize the model fields with values from filter form.
+     * - Execute this method to get CActiveDataProvider instance which will filter
+     * models according to data in model fields.
+     * - Pass data provider to CGridView, CListView or any similar widget.
+     *
+     * @return CActiveDataProvider the data provider that can return the models
+     * based on the search/filter conditions.
+     */
+    public function search()
+    {
+        // @todo Please modify the following code to remove attributes that should not be searched.
+
+        $criteria=new CDbCriteria;
+
+        $criteria->compare('AccessType',$this->AccessType);
+        $criteria->compare('Birthdate',$this->Birthdate,true);
+        $criteria->compare('ContactNumber',$this->ContactNumber,true);
+        $criteria->compare('CreatedBy',$this->CreateBy,true);
+        $criteria->compare('DateCreated',$this->DateCreated,true);
+        $criteria->compare('DateUpdated',$this->DateUpdated,true);
+        $criteria->compare('Email',$this->Email,true);
+        $criteria->compare('FirstName',$this->FirstName,true);
+        $criteria->compare('Gender',$this->Gender);
+        $criteria->compare('LastName',$this->LastName,true);
+        $criteria->compare('MiddleName',$this->MiddleName,true);
+        $criteria->compare('Status',$this->Status);
+        $criteria->compare('UpdatedBy',$this->UpdatedBy,true);
+        $criteria->compare('UserId',$this->UserId,true);
+        $criteria->compare('Username',$this->Username,true);
+
+        return new CActiveDataProvider($this, array(
+            'criteria'=>$criteria,
+        ));
+    }
+
+    /**
+     * Returns the static model of the specified AR class.
+     * Please note that you should have this exact method in all your CActiveRecord descendants!
+     * @param string $className active record class name.
+     * @return Users the static model class
+     */
+    public static function model($className=__CLASS__)
+    {
+        return parent::model($className);
+    }
+
+}

@@ -66,8 +66,15 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		'type'  => 'raw',
 	),
 	'CouponName',
-	'Type',
-	'TypeId',
+        array(
+                'name'  => 'Code Type',
+                'value' => '$data->Type',
+        ),
+
+        array(
+                'name'  => 'Coupon Mode',
+                'value' => '$data->TypeId',
+        ),
 	'ExpiryDate',
 	'Status',
 	array(
@@ -86,7 +93,11 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			  'CHtml::image($data->Image,"",array("border" => "0px","width"=>"120px","height"=>"120px"))'.
 			  ',$data->Image)):(""))',
 	),
-	'Quantity',
+	array(
+		'name' => 'Quantity',
+		'type' => 'raw',
+		'value' => '($data->TypeId!="USER-GENERATED")?($data->Quantity):("")',
+	),	
 	'LimitPerUser',
 	array(
 		'name' => 'Operation',

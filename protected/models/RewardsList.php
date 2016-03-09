@@ -80,7 +80,7 @@ class RewardsList extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'RewardId' => 'Reward',
+			'RewardId' => 'Reward ID',
 			'Title' => 'Title',
 			'Description' => 'Description',
 			'Image' => 'Image',

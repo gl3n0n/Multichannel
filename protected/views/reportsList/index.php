@@ -10,7 +10,6 @@ $this->breadcrumbs=array(
 if(1)
 {
 	$this->menu=array(
-	array('label'=>'Breakdown of Points Gained',       'url'=>array('pointsgainbal')),
 	array('label'=>'List of Campaigns Participated',   'url'=>array('campaignpart')),
 	array('label'=>'List of Redemeed Rewards',         'url'=>array('redeemrewards')),
 	array('label'=>'List of Redemeed Coupons',         'url'=>array('redeemcoupons')),
@@ -42,34 +41,13 @@ $( document ).ready(function() {
 </script>
 <h1>Reports</h1>
 <fieldset class='filterSrchBold'>
-	<legend id='DIVFILTER'>
-	<h3>
-	Search Filter(s)
-	</h3>
-	</legend>
 <div id='reportFilter'>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl("reportsList/index"),
 	'method'=>'get',
 )); 
-
-if(Yii::app()->user->AccessType === 'SUPERADMIN' )
-{
-?>
-
-	<fieldset class='filterSrch'>
-		<legend>Client Name</legend>
-		<input type="text" id='byClientName' 
-		 style="width:200px;"
-		 name="byClientName" 
-		 placeholder="ClientName" 
-		 title="Search Client Name"
-		 value="<?=Yii::app()->request->getParam('byClientName')?>"
-		 />
-	</fieldset>
-<?php
-} //super
+include_once(Yii::app()->basePath . '/views/filters/filter-byclients-form.php');
 ?>
 	<fieldset class='filterSrch'>
 		<legend>Brand Name</legend>
